@@ -1,0 +1,24 @@
+name: ChatGPT Plus
+category: AI
+provider: OpenAI
+status: active
+startedAt: "2026-01-01"
+tags:
+  - AI
+  - Productivity
+renewal:
+  unit: month
+  interval: 1
+price:
+  amount: 20
+  currency: USD
+usage:
+  percent: 80
+  note: Primary AI assistant subscription for writing and coding.
+description: Demo AI subscription used by the dashboard template.
+note: Replace with your own plan, renewal date, and notes.
+badge: AI
+accent: orange
+icon: /subscription-icons/openai.svg
+iconLabel: OpenAI
+color: "#10A37F"

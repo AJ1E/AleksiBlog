@@ -1,0 +1,8 @@
+name: IPQualityScore
+category: IP 风险度
+provider: IPQualityScore
+integrationState: placeholder
+useCase: 用于承接 IP 风险、代理、欺诈信号等接口卡片。
+endpointHint: /json/ip/{ip}
+note: 先保留字段模型，后续接你的真实额度和请求路径。
+accent: teal

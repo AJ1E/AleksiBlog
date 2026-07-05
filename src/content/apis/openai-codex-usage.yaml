@@ -1,0 +1,8 @@
+name: OpenAI Codex Usage
+category: AI 用量
+provider: OpenAI
+integrationState: wired
+useCase: 用于给首页 AI 工具面板提供 Codex 的 token、cost、model share 和 quota 信息。
+endpointHint: GET /api/codex/overview
+note: 最稳的接法是给 Codex 单独 project 或 api key，再由本地后端聚合 OpenAI Usage/Costs API。
+accent: teal

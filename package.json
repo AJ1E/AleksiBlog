@@ -1,0 +1,39 @@
+{
+  "name": "kai-space",
+  "version": "0.1.0",
+  "description": "An Astro personal blog and private dashboard template.",
+  "private": false,
+  "license": "MIT",
+  "type": "module",
+  "packageManager": "pnpm@10.30.3",
+  "scripts": {
+    "dev": "concurrently --names \"astro,ai-usage,ip-risk,srv-status\" --prefix-colors \"cyan,yellow,magenta,blue\" \"astro dev\" \"node scripts/ai-usage-server.mjs\" \"node scripts/ip-risk-server.mjs\" \"node scripts/server-status-server.mjs\"",
+    "dev:astro": "astro dev",
+    "start": "pnpm serve",
+    "serve": "concurrently --names \"astro,ai-usage,ip-risk,srv-status\" --prefix-colors \"cyan,yellow,magenta,blue\" \"HOST=127.0.0.1 PORT=4322 node dist/server/entry.mjs\" \"HOST=127.0.0.1 PORT=8787 node scripts/ai-usage-server.mjs\" \"HOST=127.0.0.1 IP_RISK_PORT=8788 node scripts/ip-risk-server.mjs\" \"SERVER_STATUS_HOST=127.0.0.1 SERVER_STATUS_PORT=8789 node scripts/server-status-server.mjs\"",
+    "build": "astro build",
+    "preview": "astro preview",
+    "new:post": "node scripts/new-post.mjs",
+    "ai-usage:dev": "node scripts/ai-usage-server.mjs",
+    "ip-risk:dev": "node scripts/ip-risk-server.mjs",
+    "server-status:dev": "node scripts/server-status-server.mjs",
+    "ai-usage:detect": "node scripts/ai-usage/detect-cli.mjs",
+    "update:fx": "node scripts/update-exchange-rates.mjs"
+  },
+  "dependencies": {
+    "@astrojs/mdx": "^5.0.4",
+    "@astrojs/node": "^10.0.6",
+    "@astrojs/react": "^5.0.4",
+    "astro": "^6.1.9",
+    "better-sqlite3": "^12.9.0",
+    "d3": "^7.9.0",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "recharts": "^3.8.1",
+    "topojson-client": "^3.1.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "concurrently": "^9.2.1"
+  }
+}

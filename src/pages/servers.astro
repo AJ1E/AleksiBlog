@@ -1,0 +1,33 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import ServerPrototype from "../components/react/ServerPrototype";
+import { siteMeta } from "../data/site";
+
+export const prerender = false;
+
+const isAuthed = Astro.locals.auth.isAuthed;
+const servers = await getCollection("servers");
+const pageServers = servers.map((item) => ({
+  id: item.data.beszelId,
+  name: item.data.name,
+  loc: item.data.location,
+  region: item.data.region,
+  flag: item.data.flag,
+  provider: item.data.provider,
+  status: "placeholder" as const,
+  uptime: "—",
+  cpu: 0,
+  ram: 0,
+  disk: 0,
+  netIn: "—",
+  netOut: "—",
+  os: "",
+  cores: 0,
+  ramTotal: "—",
+}));
+---
+
+<BaseLayout title={`服务器 — ${siteMeta.title}`} currentPath="/servers" hideHeader={true} hideFooter={true}>
+  <ServerPrototype client:load servers={pageServers} isAuthed={isAuthed} />
+</BaseLayout>

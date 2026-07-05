@@ -1,0 +1,8 @@
+name: IPinfo
+category: 基础画像
+provider: IPinfo
+integrationState: placeholder
+useCase: 适合做 ASN、地理位置和归属信息补充。
+endpointHint: /lookup/{ip}
+note: 可以作为风险页面的基础维度层。
+accent: teal

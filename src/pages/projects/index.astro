@@ -1,0 +1,71 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import ProjectVisual from "../../components/ProjectVisual.astro";
+import { siteMeta } from "../../data/site";
+
+export const prerender = false;
+
+const all = await getCollection("projects", ({ data }) => !data.draft);
+const projects = [...all].sort((a, b) => {
+  if (a.data.order !== b.data.order) return a.data.order - b.data.order;
+  return a.data.name.localeCompare(b.data.name);
+});
+
+const statusLabel: Record<string, string> = {
+  ongoing: "进行中",
+  experimental: "实验",
+  paused: "暂停",
+  archived: "归档"
+};
+
+const categories = [...new Set(projects.map((p) => p.data.category))];
+---
+
+<BaseLayout title={`项目 — ${siteMeta.title}`} currentPath="/projects">
+  <main class="container projects-page">
+    <header class="projects-header">
+      <div class="article-archive-header__eyebrow">
+        <span class="article-archive-header__line"></span>
+        Projects · {projects.length}
+      </div>
+      <h1 class="projects-header__title">我的项目 <span>{categories.join(" · ")}</span></h1>
+      <p class="projects-header__copy">
+        目前长期进行的项目
+      </p>
+    </header>
+
+    <section class="project-grid">
+      {projects.map((project) => {
+        const d = project.data;
+        const accentClass = `is-accent-${d.accent}`;
+        const patternClass = `is-pattern-${d.pattern}`;
+        const initial = d.initial ?? d.name.slice(0, 2);
+        return (
+          <a
+            class={`project-card ${accentClass} ${patternClass}`}
+            href={`/projects/${project.id}/`}
+          >
+            <div class="project-card__media">
+              <ProjectVisual id={project.id} label={initial} title={d.title ?? d.name} pattern={d.pattern} />
+            </div>
+
+            <div class="project-card__chrome">
+              <div class="project-card__top">
+                <span class="project-card__eyebrow">{d.category} · {d.year}</span>
+                <span class={`project-card__status status-${d.status}`}>
+                  <span class="project-card__status-dot"></span>
+                  {statusLabel[d.status] ?? d.status}
+                </span>
+              </div>
+              <div class="project-card__bottom">
+                <h2 class="project-card__title">{d.name}</h2>
+                <p class="project-card__summary">{d.summary}</p>
+              </div>
+            </div>
+          </a>
+        );
+      })}
+    </section>
+  </main>
+</BaseLayout>

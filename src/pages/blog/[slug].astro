@@ -1,0 +1,30 @@
+---
+import { getCollection, render } from "astro:content";
+import ArticleLayout from "../../layouts/ArticleLayout.astro";
+import { relatedPosts } from "../../lib/content";
+import Callout from "../../components/mdx/Callout.astro";
+import CodeBlock from "../../components/mdx/CodeBlock.astro";
+import Figure from "../../components/mdx/Figure.astro";
+import QuoteBlock from "../../components/mdx/QuoteBlock.astro";
+import StatGrid from "../../components/mdx/StatGrid.astro";
+import Steps from "../../components/mdx/Steps.astro";
+
+export const prerender = true;
+
+export async function getStaticPaths() {
+  const posts = await getCollection("blog", ({ data }) => !data.draft);
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post }
+  }));
+}
+
+const { post } = Astro.props;
+const { Content, headings } = await render(post);
+const allPosts = await getCollection("blog", ({ data }) => !data.draft);
+const related = relatedPosts(allPosts, post.id);
+---
+
+<ArticleLayout post={post} headings={headings} relatedPosts={related}>
+  <Content components={{ Callout, CodeBlock, Figure, QuoteBlock, StatGrid, Steps }} />
+</ArticleLayout>

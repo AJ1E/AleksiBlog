@@ -1,0 +1,89 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import HomePrototype from "../components/react/HomePrototype";
+import { formatDisplayDate, getPublishedPosts } from "../lib/content";
+import { formatPrice, formatRenewalCycle, getMonthlyCostUsd } from "../lib/subscriptions";
+
+export const prerender = false;
+
+const isAuthed = Astro.locals.auth.isAuthed;
+const posts = await getPublishedPosts();
+const subscriptions = await getCollection("subscriptions");
+const apis = await getCollection("apis");
+const servers = await getCollection("servers");
+
+const pagePosts = posts.map((post, index) => ({
+  id: post.id,
+  href: `/blog/${post.id}/?from=home`,
+  cat: post.data.category,
+  cc: post.data.category === "随笔" ? "var(--accent-teal)" : index % 2 ? "var(--accent-purple)" : "var(--accent)",
+  title: post.data.title,
+  excerpt: post.data.excerpt,
+  date: formatDisplayDate(post.data.publishedAt),
+  readTime: post.data.readTime,
+  tags: post.data.tags,
+  cover: post.data.cover
+}));
+const pageSubscriptions = subscriptions.map((item, index) => ({
+  id: index + 1,
+  name: item.data.name,
+  icon: item.data.icon,
+  iconLabel: item.data.iconLabel || item.data.name,
+  color: item.data.color,
+  price: item.data.price.amount,
+  priceLabel: formatPrice(item.data.price),
+  monthlyCost: getMonthlyCostUsd(item.data.price, item.data.renewal),
+  cy: "$",
+  cycleLabel: formatRenewalCycle(item.data.renewal),
+  cat: item.data.category,
+  status: item.data.status,
+  start: item.data.startedAt,
+  renewal: item.data.renewal,
+  usage: item.data.usage.percent,
+  usageNote: item.data.usage.note,
+  desc: item.data.description,
+  note: item.data.note,
+  tags: item.data.tags,
+  badge: item.data.badge
+}));
+const pageApis = apis.map((item) => ({
+  id: item.id,
+  name: item.data.name,
+  provider: item.data.provider,
+  useCase: item.data.useCase,
+  endpointHint: item.data.endpointHint,
+  integrationState: item.data.integrationState
+}));
+const pageServers = servers.map((item) => ({
+  id: item.data.beszelId,
+  name: item.data.name,
+  loc: item.data.location,
+  region: item.data.region,
+  flag: item.data.flag,
+  lat: item.data.lat,
+  lon: item.data.lon,
+  provider: item.data.provider,
+  status: "placeholder" as const,
+  uptime: "—",
+  cpu: 0,
+  ram: 0,
+  disk: 0,
+  netIn: "—",
+  netOut: "—",
+  os: "",
+  cores: 0,
+  ramTotal: "—",
+}));
+---
+
+<BaseLayout hideHeader={true} hideFooter={true}>
+  <HomePrototype
+    client:load
+    subscriptions={pageSubscriptions}
+    apis={pageApis}
+    servers={pageServers}
+    posts={pagePosts}
+    isAuthed={isAuthed}
+  />
+</BaseLayout>

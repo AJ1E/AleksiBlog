@@ -1,0 +1,154 @@
+---
+type VisualKind = "molecules" | "tooling" | "reaction" | "porous" | "lattice" | "network" | "coding" | "default";
+
+interface Props {
+  id: string;
+  label: string;
+  title?: string;
+  pattern?: string;
+}
+
+const { id, label, title, pattern = "grid" } = Astro.props;
+const safeId = id.replace(/[^a-zA-Z0-9_-]/g, "-");
+const visualById: Record<string, VisualKind> = {
+  "co2-eor-md": "molecules",
+  "ai-tools-log": "tooling",
+  "lammps-reactor": "reaction",
+  "porems-mod": "porous",
+  "lbmpy-study": "lattice",
+  "network-tuning": "network",
+  "vibe-coding": "coding"
+};
+const visual = visualById[id] ?? "default";
+const shortLabel = label.length > 4 ? label.slice(0, 4) : label;
+const mark = title ?? label;
+---
+
+<svg
+  class={`project-visual project-visual--${visual} project-visual--pattern-${pattern}`}
+  viewBox="0 0 640 420"
+  role="img"
+  aria-label={`${label} visual`}
+  preserveAspectRatio="xMidYMid slice"
+>
+  <defs>
+    <linearGradient id={`pv-bg-${safeId}`} x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="var(--pv-bg-a)" />
+      <stop offset="0.56" stop-color="var(--pv-bg-b)" />
+      <stop offset="1" stop-color="var(--pv-bg-c)" />
+    </linearGradient>
+    <radialGradient id={`pv-glow-${safeId}`} cx="72%" cy="20%" r="58%">
+      <stop offset="0" stop-color="var(--pv-glow-a)" stop-opacity="0.9" />
+      <stop offset="0.58" stop-color="var(--pv-glow-b)" stop-opacity="0.28" />
+      <stop offset="1" stop-color="var(--pv-glow-b)" stop-opacity="0" />
+    </radialGradient>
+    <pattern id={`pv-grid-${safeId}`} width="38" height="38" patternUnits="userSpaceOnUse">
+      <path d="M 38 0 L 0 0 0 38" fill="none" stroke="var(--pv-pattern)" stroke-width="1" />
+    </pattern>
+    <pattern id={`pv-dots-${safeId}`} width="28" height="28" patternUnits="userSpaceOnUse">
+      <circle cx="4" cy="4" r="1.8" fill="var(--pv-pattern)" />
+    </pattern>
+    <clipPath id={`pv-clip-${safeId}`}>
+      <rect x="0" y="0" width="640" height="420" rx="34" />
+    </clipPath>
+  </defs>
+
+  <g clip-path={`url(#pv-clip-${safeId})`}>
+    <rect width="640" height="420" fill={`url(#pv-bg-${safeId})`} />
+    <rect width="640" height="420" fill={`url(#pv-glow-${safeId})`} />
+    <rect class="project-visual__pattern project-visual__pattern-grid" width="640" height="420" fill={`url(#pv-grid-${safeId})`} />
+    <rect class="project-visual__pattern project-visual__pattern-dots" width="640" height="420" fill={`url(#pv-dots-${safeId})`} />
+    <path class="project-visual__sweep" d="M-40 330 C120 238 252 282 392 178 C482 110 540 58 704 70 L704 462 L-40 462 Z" />
+    <circle class="project-visual__orb project-visual__orb-a" cx="535" cy="82" r="76" />
+    <circle class="project-visual__orb project-visual__orb-b" cx="92" cy="340" r="108" />
+
+    {visual === "molecules" && (
+      <g class="project-visual__motif project-visual__motif-molecules">
+        <path class="project-visual__bond project-visual__bond-a" d="M174 248 L274 174 L390 222 L482 138" />
+        <path class="project-visual__bond project-visual__bond-b" d="M274 174 L300 292 L390 222" />
+        <circle class="project-visual__node project-visual__node-a" cx="174" cy="248" r="42" />
+        <circle class="project-visual__node project-visual__node-b" cx="274" cy="174" r="34" />
+        <circle class="project-visual__node project-visual__node-c" cx="300" cy="292" r="48" />
+        <circle class="project-visual__node project-visual__node-d" cx="390" cy="222" r="38" />
+        <circle class="project-visual__node project-visual__node-e" cx="482" cy="138" r="28" />
+      </g>
+    )}
+
+    {visual === "tooling" && (
+      <g class="project-visual__motif project-visual__motif-tooling">
+        <rect class="project-visual__panel" x="148" y="110" width="348" height="206" rx="34" />
+        <path class="project-visual__code-lines" d="M206 178 H438 M206 230 H378 M206 282 H432" />
+        <circle class="project-visual__chip project-visual__chip-a" cx="210" cy="142" r="10" />
+        <circle class="project-visual__chip project-visual__chip-b" cx="246" cy="142" r="10" />
+        <circle class="project-visual__chip project-visual__chip-c" cx="282" cy="142" r="10" />
+        <path class="project-visual__spark" d="M478 88 L516 126 L478 164 L440 126 Z" />
+      </g>
+    )}
+
+    {visual === "reaction" && (
+      <g class="project-visual__motif project-visual__motif-reaction">
+        <path class="project-visual__reaction-line" d="M132 214 H448" />
+        <path class="project-visual__reaction-arrow" d="M410 174 L486 214 L410 254" />
+        <circle class="project-visual__reactant project-visual__reactant-a" cx="168" cy="178" r="36" />
+        <circle class="project-visual__reactant project-visual__reactant-b" cx="232" cy="252" r="30" />
+        <circle class="project-visual__product project-visual__product-a" cx="510" cy="162" r="34" />
+        <circle class="project-visual__product project-visual__product-b" cx="518" cy="266" r="42" />
+        <path class="project-visual__reaction-bonds" d="M166 178 L232 252 M510 162 L518 266" />
+      </g>
+    )}
+
+    {visual === "porous" && (
+      <g class="project-visual__motif project-visual__motif-porous">
+        <path class="project-visual__pore-shell" d="M120 270 C170 120 330 90 420 150 C510 208 504 332 392 352 C278 372 92 360 120 270 Z" />
+        <circle class="project-visual__pore project-visual__pore-a" cx="242" cy="198" r="42" />
+        <circle class="project-visual__pore project-visual__pore-b" cx="360" cy="242" r="58" />
+        <circle class="project-visual__pore project-visual__pore-c" cx="246" cy="310" r="34" />
+        <path class="project-visual__channel" d="M154 282 C228 246 300 282 372 220 C414 184 452 180 506 198" />
+      </g>
+    )}
+
+    {visual === "lattice" && (
+      <g class="project-visual__motif project-visual__motif-lattice">
+        <path class="project-visual__lattice-grid" d="M150 126 H494 M150 198 H494 M150 270 H494 M150 342 H494 M166 110 V342 M238 110 V342 M310 110 V342 M382 110 V342 M454 110 V342" />
+        <path class="project-visual__lattice-flow" d="M166 342 C214 250 296 306 334 218 C366 144 428 150 494 126" />
+        <circle class="project-visual__lattice-node project-visual__lattice-node-a" cx="166" cy="342" r="14" />
+        <circle class="project-visual__lattice-node project-visual__lattice-node-b" cx="310" cy="270" r="14" />
+        <circle class="project-visual__lattice-node project-visual__lattice-node-c" cx="382" cy="198" r="14" />
+        <circle class="project-visual__lattice-node project-visual__lattice-node-d" cx="494" cy="126" r="14" />
+      </g>
+    )}
+
+    {visual === "network" && (
+      <g class="project-visual__motif project-visual__motif-network">
+        <path class="project-visual__network-link project-visual__network-link-a" d="M154 252 C222 132 350 322 488 164" />
+        <path class="project-visual__network-link project-visual__network-link-b" d="M180 146 C258 258 374 92 512 270" />
+        <circle class="project-visual__network-node project-visual__network-node-a" cx="154" cy="252" r="32" />
+        <circle class="project-visual__network-node project-visual__network-node-b" cx="252" cy="180" r="24" />
+        <circle class="project-visual__network-node project-visual__network-node-c" cx="336" cy="264" r="28" />
+        <circle class="project-visual__network-node project-visual__network-node-d" cx="488" cy="164" r="34" />
+        <circle class="project-visual__network-node project-visual__network-node-e" cx="512" cy="270" r="26" />
+      </g>
+    )}
+
+    {visual === "coding" && (
+      <g class="project-visual__motif project-visual__motif-coding">
+        <path class="project-visual__bracket project-visual__bracket-left" d="M220 160 L150 214 L220 268" />
+        <path class="project-visual__bracket project-visual__bracket-right" d="M420 160 L490 214 L420 268" />
+        <path class="project-visual__slash" d="M356 126 L286 302" />
+        <rect class="project-visual__code-window" x="116" y="96" width="408" height="248" rx="34" />
+      </g>
+    )}
+
+    {visual === "default" && (
+      <g class="project-visual__motif project-visual__motif-default">
+        <rect x="154" y="112" width="332" height="212" rx="42" />
+        <path d="M204 256 C270 154 354 310 436 178" />
+        <circle cx="204" cy="256" r="22" />
+        <circle cx="436" cy="178" r="22" />
+      </g>
+    )}
+
+    <text class="project-visual__label" x="46" y="74">{shortLabel}</text>
+    <text class="project-visual__mark" x="46" y="360">{mark}</text>
+  </g>
+</svg>

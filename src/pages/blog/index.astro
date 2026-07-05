@@ -1,0 +1,41 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { formatDisplayDate, getPublishedPosts } from "../../lib/content";
+import ArticleArchive from "../../components/react/ArticleArchive";
+import { siteMeta } from "../../data/site";
+
+function isoYmd(date: Date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
+const posts = await getPublishedPosts();
+const pagePosts = posts.map((post) => {
+  const minutes = Number.parseInt(post.data.readTime, 10) || 0;
+  return {
+    id: post.id,
+    href: `/blog/${post.id}/`,
+    title: post.data.title,
+    subtitle: post.data.subtitle,
+    excerpt: post.data.excerpt,
+    category: post.data.category,
+    readTime: post.data.readTime,
+    readMinutes: minutes,
+    wordCount: minutes * 320,
+    dateLabel: formatDisplayDate(post.data.publishedAt),
+    dateMono: isoYmd(post.data.publishedAt),
+    publishedAtMs: post.data.publishedAt.valueOf(),
+    updatedLabel: post.data.updatedAt ? formatDisplayDate(post.data.updatedAt) : undefined,
+    year: post.data.publishedAt.getFullYear(),
+    tags: post.data.tags,
+    cover: post.data.cover,
+    featured: post.data.featured,
+    authorName: post.data.author.name,
+  };
+});
+---
+
+<BaseLayout title={`文章 — ${siteMeta.title}`} currentPath="/blog">
+  <main class="container">
+    <ArticleArchive client:load posts={pagePosts} />
+  </main>
+</BaseLayout>

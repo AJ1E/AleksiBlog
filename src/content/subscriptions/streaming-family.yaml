@@ -1,0 +1,24 @@
+name: Streaming Family
+category: Streaming
+provider: Example Media
+status: active
+startedAt: "2026-01-10"
+tags:
+  - Streaming
+  - Video
+renewal:
+  unit: month
+  interval: 1
+price:
+  amount: 12.99
+  currency: USD
+usage:
+  percent: 60
+  note: Shared entertainment plan.
+description: Example media subscription.
+note: Demo entry.
+badge: Media
+accent: purple
+icon: /subscription-icons/netflix.svg
+iconLabel: Media
+color: "#E50914"

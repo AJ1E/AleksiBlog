@@ -1,0 +1,14 @@
+---
+interface Props {
+  cite?: string;
+}
+
+const { cite } = Astro.props;
+---
+
+<blockquote class="mdx-quote">
+  <div class="mdx-quote__copy">
+    <slot />
+  </div>
+  {cite && <footer class="mdx-quote__cite">{cite}</footer>}
+</blockquote>

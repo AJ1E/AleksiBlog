@@ -1,0 +1,43 @@
+---
+interface Props {
+  code: string;
+  lang?: string;
+  title?: string;
+}
+
+const { code, lang = "text", title } = Astro.props;
+---
+
+<div class="mdx-codeblock">
+  <div class="mdx-codeblock__bar">
+    <div class="mdx-codeblock__lights" aria-hidden="true">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+    <span class="mdx-codeblock__label">{title ?? lang}</span>
+    <button type="button" class="mdx-codeblock__copy">复制</button>
+  </div>
+  <div class="mdx-codeblock__body">
+    <pre><code>{code}</code></pre>
+  </div>
+</div>
+
+<script is:inline>
+  for (const block of document.querySelectorAll(".mdx-codeblock")) {
+    const button = block.querySelector(".mdx-codeblock__copy");
+    const code = block.querySelector("code");
+    if (!button || !code || button.dataset.bound === "1") continue;
+    button.dataset.bound = "1";
+    button.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(code.textContent || "");
+        const previous = button.textContent;
+        button.textContent = "已复制";
+        window.setTimeout(() => {
+          button.textContent = previous;
+        }, 1500);
+      } catch {}
+    });
+  }
+</script>

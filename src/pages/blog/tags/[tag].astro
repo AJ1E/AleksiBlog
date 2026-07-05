@@ -1,0 +1,72 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import { formatDisplayDate, getPublishedPosts, tagHref, tagParam } from "../../../lib/content";
+import { siteMeta } from "../../../data/site";
+
+export const prerender = true;
+
+export async function getStaticPaths() {
+  const posts = await getPublishedPosts();
+  const tags = [...new Set(posts.flatMap((post) => post.data.tags))].sort((a, b) =>
+    a.localeCompare(b, "zh-CN")
+  );
+
+  return tags.map((tag) => ({
+    params: { tag: tagParam(tag) },
+    props: {
+      tag,
+      posts: posts.filter((post) =>
+        post.data.tags.some((item) => item.toLowerCase() === tag.toLowerCase())
+      )
+    }
+  }));
+}
+
+const { tag, posts } = Astro.props;
+const allPosts = await getPublishedPosts();
+const allTags = [...new Set(allPosts.flatMap((post) => post.data.tags))].sort((a, b) =>
+  a.localeCompare(b, "zh-CN")
+);
+---
+
+<BaseLayout title={`#${tag} — ${siteMeta.title}`} currentPath="/blog">
+  <main class="container">
+    <header class="page-header">
+      <div class="eyebrow">Tag Archive</div>
+      <h1 class="page-title">#{tag}</h1>
+      <p class="page-copy">共 {posts.length} 篇文章。</p>
+      <div class="tag-row" style="margin-top:18px;">
+        {allTags.map((item) => (
+          <a href={tagHref(item)} class={item === tag ? "article-tag" : "article-tag article-tag--ghost"}>
+            #{item}
+          </a>
+        ))}
+      </div>
+    </header>
+
+    <section class="post-grid">
+      {posts.map((post) => (
+        <article class="post-card">
+          <a href={`/blog/${post.id}/`}>
+            <div class="post-card__inner">
+              <span class="category-badge" style="background:var(--accent-soft);color:var(--accent);">
+                {post.data.category}
+              </span>
+              <h2 class="card-title">{post.data.title}</h2>
+              <p class="card-copy">{post.data.excerpt}</p>
+              <div class="tag-row" style="margin-top:14px;">
+                {post.data.tags.map((item) => (
+                  <span class={item === tag ? "article-tag" : "article-tag article-tag--ghost"}>#{item}</span>
+                ))}
+              </div>
+              <div class="meta-row muted" style="margin-top:14px;">
+                <span>{formatDisplayDate(post.data.publishedAt)}</span>
+                <span>{post.data.readTime}</span>
+              </div>
+            </div>
+          </a>
+        </article>
+      ))}
+    </section>
+  </main>
+</BaseLayout>

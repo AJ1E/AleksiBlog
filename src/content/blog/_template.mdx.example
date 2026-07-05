@@ -1,0 +1,19 @@
+---
+title: New post title
+subtitle: Optional short subtitle.
+excerpt: One or two sentences used in cards and archive pages.
+publishedAt: 2026-01-01
+category: Guide
+tags:
+  - Astro
+readTime: 3 min
+featured: false
+draft: true
+cover: /uploads/demo-cover.svg
+author:
+  name: Demo Author
+  avatar: D
+  bio: Short author bio.
+---
+
+Write the post body here. MDX components such as `Callout`, `CodeBlock`, `Figure`, `QuoteBlock`, `StatGrid`, and `Steps` are injected by the article page.

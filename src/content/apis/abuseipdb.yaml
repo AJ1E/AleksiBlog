@@ -1,0 +1,8 @@
+name: AbuseIPDB
+category: 威胁情报
+provider: AbuseIPDB
+integrationState: planned
+useCase: 用于补充举报分数、历史行为和黑名单线索。
+endpointHint: /api/v2/check
+note: 适合做对比卡，不适合直接决定最终判断。
+accent: teal

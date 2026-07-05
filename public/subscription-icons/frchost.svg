@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title>FRCHOST</title>
+  <rect width="64" height="64" rx="14" fill="#2563EB"/>
+  <path d="M16 18h34v8H25v8h21v8H25v14h-9V18Z" fill="#FFFFFF"/>
+  <path d="M37 42h12v14H37V42Z" fill="#93C5FD"/>
+</svg>

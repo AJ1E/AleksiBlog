@@ -1,0 +1,22 @@
+---
+interface Props {
+  label: string;
+  tone?: "orange" | "teal" | "purple" | "green" | "yellow" | "red";
+}
+
+const toneStyles = {
+  orange: "background:var(--accent-soft);color:var(--accent);",
+  teal: "background:var(--accent-teal-soft);color:var(--accent-teal);",
+  purple: "background:var(--accent-purple-soft);color:var(--accent-purple);",
+  green: "background:var(--green-soft);color:var(--green);",
+  yellow: "background:var(--yellow-soft);color:var(--yellow);",
+  red: "background:var(--red-soft);color:var(--red);"
+};
+
+const { label, tone = "orange" } = Astro.props;
+---
+
+<span class="status-badge" style={toneStyles[tone]}>
+  <span class="pill__dot" style={`background:${toneStyles[tone].match(/color:([^;]+)/)?.[1] ?? "var(--accent)"}`} />
+  {label}
+</span>

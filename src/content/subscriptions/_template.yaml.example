@@ -1,0 +1,23 @@
+name: Example Service
+category: Utilities
+provider: Example Inc.
+status: active
+startedAt: "2026-01-01"
+tags:
+  - Productivity
+renewal:
+  unit: month
+  interval: 1
+price:
+  amount: 9.99
+  currency: USD
+usage:
+  percent: 50
+  note: Short usage or quota note.
+description: Short description shown in cards.
+note: Private note shown after login.
+badge: Example
+accent: teal
+icon: /subscription-icons/example.svg
+iconLabel: Example
+color: "#2563EB"

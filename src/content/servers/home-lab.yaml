@@ -1,0 +1,8 @@
+name: Home Lab
+location: Home
+region: Private Network
+flag: "🏠"
+lat: 37.77
+lon: -122.42
+provider: Local machine
+beszelId: "demo-home-lab"

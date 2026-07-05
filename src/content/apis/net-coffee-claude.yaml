@@ -1,0 +1,8 @@
+name: Net.Coffee Claude IP
+category: 出口观测
+provider: Net.Coffee
+integrationState: wired
+useCase: 通过 Claude Trace 与 Net.Coffee 接口聚合本机代理后的出口 IP、ASN、地区与风险标签。
+endpointHint: /api/ip-risk/egress
+note: 首页 IP 卡片当前由本地后端转发这组接口，避免前端直接暴露第三方源。
+accent: teal

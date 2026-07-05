@@ -1,0 +1,8 @@
+name: Edge Node
+location: Edge Site
+region: Demo Edge
+flag: "📍"
+lat: 51.51
+lon: -0.13
+provider: Example Edge
+beszelId: "demo-edge-node"

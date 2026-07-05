@@ -1,0 +1,36 @@
+---
+title: Local helper backends
+subtitle: How the optional AI usage, IP risk, and server status helpers fit together.
+excerpt: The helper services stay behind Astro's same-origin BFF so public visitors only see safe summaries.
+publishedAt: 2026-01-20
+category: Operations
+tags:
+  - Node.js
+  - Privacy
+  - Self-hosting
+readTime: 5 min
+cover: /uploads/demo-ops.svg
+author:
+  name: Demo Author
+  avatar: D
+  bio: Maintainer of a personal knowledge base and self-hosted workspace.
+---
+
+Kai Space ships with three optional Node helper services:
+
+<Steps>
+  <li>`scripts/ai-usage-server.mjs` reads local CLI usage logs for Claude Code, Codex CLI, and Gemini CLI.</li>
+  <li>`scripts/ip-risk-server.mjs` checks the machine's current egress IP and summarizes risk metadata.</li>
+  <li>`scripts/server-status-server.mjs` reads a local Beszel SQLite database for server metrics.</li>
+</Steps>
+
+Each helper is meant to bind to loopback in production. The public website talks to them through `/api/*` routes, where Astro can check the login cookie before returning sensitive fields.
+
+<CodeBlock
+  lang="text"
+  title="Runtime flow"
+  code={`Browser -> Astro page -> /api/*
+  -> Astro auth-aware BFF
+  -> 127.0.0.1 helper backend`}/>
+
+For a public repository, keep real snapshots, database files, credentials, and machine-specific service files out of Git.

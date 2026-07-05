@@ -1,0 +1,44 @@
+---
+title: Welcome to Kai Space
+subtitle: A starter post for the open source personal workspace template.
+excerpt: Kai Space combines an Astro blog, structured content collections, private dashboards, and small local helper backends.
+publishedAt: 2026-01-15
+category: Guide
+tags:
+  - Astro
+  - Template
+  - Dashboard
+readTime: 4 min
+featured: true
+cover: /uploads/demo-cover.svg
+author:
+  name: Demo Author
+  avatar: D
+  bio: Maintainer of a personal knowledge base and self-hosted workspace.
+---
+
+Kai Space is a file-driven personal website template. Blog posts live in `src/content/blog`, subscription entries live in `src/content/subscriptions`, and server metadata lives in `src/content/servers`.
+
+The project is designed for people who want one place for writing, private operational notes, and lightweight status panels.
+
+<Callout variant="info" title="Template note">
+Replace this post with your own writing after you finish configuring the site identity in `src/data/site.ts`.
+</Callout>
+
+## What is included
+
+<StatGrid
+  items={[
+    { label: "Framework", value: "Astro", note: "SSR pages and content collections" },
+    { label: "Interactivity", value: "React", note: "Dashboard islands and charts" },
+    { label: "Privacy", value: "Auth BFF", note: "Same-origin proxy with locked public fields" }
+  ]}
+/>
+
+## First steps
+
+<Steps>
+  <li>Copy `.env.example` to `.env` and set a password plus cookie secret.</li>
+  <li>Run `pnpm install` and `pnpm dev`.</li>
+  <li>Replace the demo content collections with your own files.</li>
+</Steps>

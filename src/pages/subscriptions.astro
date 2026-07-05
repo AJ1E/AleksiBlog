@@ -1,0 +1,215 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { siteMeta } from "../data/site";
+import {
+  formatPrice,
+  formatRenewalCycle,
+  formatSubscriptionCategory,
+  formatUsd,
+  getExchangeRateSourceLabel,
+  getMonthlyCostUsd,
+  getNextRenewalDateString,
+  getSubscriptionCategoryTone
+} from "../lib/subscriptions";
+
+export const prerender = false;
+
+const isAuthed = Astro.locals.auth.isAuthed;
+const subscriptions = await getCollection("subscriptions");
+const sorted = [...subscriptions].sort((a, b) => a.data.name.localeCompare(b.data.name));
+const active = sorted.filter((item) => item.data.status === "active");
+const monthlyTotalUsd = active.reduce((total, item) => total + getMonthlyCostUsd(item.data.price, item.data.renewal), 0);
+const annualTotalUsd = monthlyTotalUsd * 12;
+const activeCount = active.length;
+const totalCount = sorted.length;
+const categoryStats = (() => {
+  const map = new Map<string, number>();
+  for (const item of active) {
+    const key = formatSubscriptionCategory(item.data.category);
+    map.set(key, (map.get(key) ?? 0) + getMonthlyCostUsd(item.data.price, item.data.renewal));
+  }
+  return [...map.entries()].sort((a, b) => b[1] - a[1]);
+})();
+
+const toneStyles = {
+  orange: "background:var(--accent-soft);color:var(--accent);",
+  teal: "background:var(--accent-teal-soft);color:var(--accent-teal);",
+  purple: "background:var(--accent-purple-soft);color:var(--accent-purple);",
+  green: "background:var(--green-soft);color:var(--green);",
+  yellow: "background:var(--yellow-soft);color:var(--yellow);",
+  red: "background:var(--red-soft);color:var(--red);"
+};
+---
+
+<BaseLayout title={`订阅 — ${siteMeta.title}`} currentPath="/subscriptions">
+  <main class="container">
+    <header class="page-header">
+      <div class="eyebrow">Subscriptions</div>
+      <h1 class="page-title">订阅面板</h1>
+      <p class="page-copy">
+        这个模块已经可以完全本地化维护。新增一个服务时，只需要放一个品牌图标文件到 `public/subscription-icons/`，再在 `src/content/subscriptions/` 新增一个 YAML 文件。
+      </p>
+      <p class="page-copy">
+        汇总金额统一按 USD 估算：{formatUsd(monthlyTotalUsd)} / 月 · 汇率来源 {getExchangeRateSourceLabel()}。
+      </p>
+    </header>
+
+    {isAuthed ? (
+      <section class="panel-grid">
+        {sorted.map((item) => {
+          const tone = getSubscriptionCategoryTone(item.data.category);
+          const badge = item.data.status === "active" ? "Active" : item.data.status === "paused" ? "Paused" : "Planned";
+          const renewalFallback = getNextRenewalDateString(item.data.startedAt, item.data.renewal);
+          return (
+            <article class="panel-card">
+              <div class="panel-card__inner">
+                <div class="stack">
+                  <div class="eyebrow">{formatSubscriptionCategory(item.data.category)}</div>
+                  <span class="status-badge" style={toneStyles[tone]}>
+                    <span class="pill__dot" style={`background:${toneStyles[tone].match(/color:([^;]+)/)?.[1] ?? "var(--accent)"}`} />
+                    {badge}
+                  </span>
+                </div>
+                <h3 class="card-title">{item.data.name}</h3>
+                <p class="card-copy">{item.data.provider} · {item.data.usage.note || item.data.note || item.data.description}</p>
+                <div class="panel-card__stats">
+                  <div class="stat">
+                    <small>Price</small>
+                    <strong>{formatPrice(item.data.price)}</strong>
+                  </div>
+                  <div class="stat">
+                    <small>Cycle</small>
+                    <strong>{formatRenewalCycle(item.data.renewal)}</strong>
+                  </div>
+                  <div
+                    class="stat js-renewal-stat"
+                    data-started-at={item.data.startedAt}
+                    data-renewal-unit={item.data.renewal.unit}
+                    data-renewal-interval={item.data.renewal.interval}
+                    data-renewal-anchor={item.data.renewal.anchor ?? ""}
+                  >
+                    <small>Renewal</small>
+                    <strong>{renewalFallback}</strong>
+                  </div>
+                  <div class="stat">
+                    <small>Monthly USD</small>
+                    <strong>{formatUsd(getMonthlyCostUsd(item.data.price, item.data.renewal))}</strong>
+                  </div>
+                </div>
+              </div>
+            </article>
+          );
+        })}
+      </section>
+    ) : (
+      <>
+        <section class="subs-stats-grid">
+          <div class="subs-stat-card">
+            <small>Active services</small>
+            <strong>{activeCount}<span class="subs-stat-card__suffix"> / {totalCount}</span></strong>
+          </div>
+          <div class="subs-stat-card">
+            <small>Monthly USD</small>
+            <strong>{formatUsd(monthlyTotalUsd)}</strong>
+          </div>
+          <div class="subs-stat-card">
+            <small>Annualized USD</small>
+            <strong>{formatUsd(annualTotalUsd)}</strong>
+          </div>
+          <div class="subs-stat-card">
+            <small>Categories</small>
+            <strong>{categoryStats.length}</strong>
+          </div>
+        </section>
+
+        {categoryStats.length > 0 && (
+          <section class="subs-cat-breakdown">
+            <div class="eyebrow">Monthly USD by category</div>
+            <ul class="subs-cat-list">
+              {categoryStats.map(([label, value]) => (
+                <li>
+                  <span class="subs-cat-label">{label}</span>
+                  <span class="subs-cat-value">{formatUsd(value)}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        <div class="locked-block" style="margin-top:24px;">
+          <span>🔒 订阅明细需要登录后查看</span>
+          <a href="/login?next=/subscriptions">登录解锁</a>
+        </div>
+      </>
+    )}
+  </main>
+</BaseLayout>
+
+<script is:inline>
+  function parseIsoDate(dateStr) {
+    const [year, month, day] = dateStr.split("-").map(Number);
+    return new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
+  }
+
+  function toIsoDate(date) {
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+    const day = String(date.getUTCDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }
+
+  function startOfTodayUtc(from = new Date()) {
+    return new Date(Date.UTC(from.getFullYear(), from.getMonth(), from.getDate(), 12, 0, 0));
+  }
+
+  function daysInMonthUtc(year, monthIndex) {
+    return new Date(Date.UTC(year, monthIndex + 1, 0, 12, 0, 0)).getUTCDate();
+  }
+
+  function addMonthsUtc(date, months) {
+    const year = date.getUTCFullYear();
+    const month = date.getUTCMonth();
+    const day = date.getUTCDate();
+    const totalMonths = month + months;
+    const targetYear = year + Math.floor(totalMonths / 12);
+    const targetMonth = ((totalMonths % 12) + 12) % 12;
+    const targetDay = Math.min(day, daysInMonthUtc(targetYear, targetMonth));
+    return new Date(Date.UTC(targetYear, targetMonth, targetDay, 12, 0, 0));
+  }
+
+  function addRenewalInterval(date, unit, interval) {
+    if (unit === "day") {
+      return new Date(date.getTime() + interval * 24 * 60 * 60 * 1000);
+    }
+    if (unit === "month") {
+      return addMonthsUtc(date, interval);
+    }
+    return addMonthsUtc(date, interval * 12);
+  }
+
+  function getNextRenewalDateString(startedAt, unit, interval, anchor) {
+    const base = parseIsoDate(anchor || startedAt);
+    const today = startOfTodayUtc();
+    let next = base;
+    let guard = 0;
+
+    while (next < today && guard < 1000) {
+      next = addRenewalInterval(next, unit, interval);
+      guard += 1;
+    }
+
+    return toIsoDate(next);
+  }
+
+  for (const el of document.querySelectorAll(".js-renewal-stat")) {
+    const startedAt = el.dataset.startedAt;
+    const unit = el.dataset.renewalUnit;
+    const interval = Number(el.dataset.renewalInterval || "1");
+    const anchor = el.dataset.renewalAnchor || "";
+    const value = el.querySelector("strong");
+
+    if (!startedAt || !unit || !value) continue;
+    value.textContent = getNextRenewalDateString(startedAt, unit, interval, anchor);
+  }
+</script>

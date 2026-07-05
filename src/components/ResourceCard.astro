@@ -1,0 +1,44 @@
+---
+import StatusBadge from "./StatusBadge.astro";
+
+interface StatItem {
+  label: string;
+  value: string;
+}
+
+interface Props {
+  href?: string;
+  title: string;
+  eyebrow: string;
+  description: string;
+  badge: string;
+  tone?: "orange" | "teal" | "purple" | "green" | "yellow" | "red";
+  stats?: StatItem[];
+}
+
+const { href, title, eyebrow, description, badge, tone = "orange", stats = [] } = Astro.props;
+const Wrapper = href ? "a" : "div";
+---
+
+<article class="panel-card">
+  <Wrapper href={href}>
+    <div class="panel-card__inner">
+      <div class="stack">
+        <div class="eyebrow">{eyebrow}</div>
+        <StatusBadge label={badge} tone={tone} />
+      </div>
+      <h3 class="card-title">{title}</h3>
+      <p class="card-copy">{description}</p>
+      {stats.length > 0 && (
+        <div class="panel-card__stats">
+          {stats.map((stat) => (
+            <div class="stat">
+              <small>{stat.label}</small>
+              <strong>{stat.value}</strong>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  </Wrapper>
+</article>

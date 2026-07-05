@@ -1,0 +1,29 @@
+---
+interface Props {
+  variant?: "info" | "tip" | "warning" | "resource";
+  label?: string;
+  title?: string;
+}
+
+const { variant = "info", label, title } = Astro.props;
+
+const labels = {
+  info: "说明",
+  tip: "技巧",
+  warning: "注意",
+  resource: "资源"
+};
+---
+
+<aside class={`mdx-callout mdx-callout--${variant}`}>
+  <div class="mdx-callout__icon" aria-hidden="true">
+    {variant === "info" ? "ℹ" : variant === "tip" ? "✦" : variant === "warning" ? "⚠" : "↓"}
+  </div>
+  <div class="mdx-callout__body">
+    <div class="mdx-callout__label">{label ?? labels[variant]}</div>
+    {title && <div class="mdx-callout__title">{title}</div>}
+    <div class="mdx-callout__copy">
+      <slot />
+    </div>
+  </div>
+</aside>

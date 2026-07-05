@@ -1,0 +1,50 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { siteMeta } from "../data/site";
+import ResourceCard from "../components/ResourceCard.astro";
+
+const apis = await getCollection("apis");
+---
+
+<BaseLayout title={`APIs — ${siteMeta.title}`} currentPath="/apis">
+  <main class="container">
+    <header class="page-header">
+      <div class="eyebrow">Integrations</div>
+      <h1 class="page-title">API 面板</h1>
+      <p class="page-copy">
+        这里保留你想要的可视化壳层，但先不强行伪造真实接线。每个条目都写清用途、接口入口和后续接法。
+      </p>
+    </header>
+
+    <div class="callout" style="margin-bottom:18px;">
+      <strong>后续接线建议</strong>
+      <div class="meta-note">
+        先把真正会用到的接口稳定下来，再决定是构建时抓取、内网服务转发，还是直接前端请求。当前页面先用内容集合维护“接口目录”。
+      </div>
+    </div>
+
+    <section class="panel-grid">
+      {apis.map((item) => (
+        <ResourceCard
+          eyebrow={item.data.category}
+          badge={
+            item.data.integrationState === "wired"
+              ? "已接线"
+              : item.data.integrationState === "planned"
+                ? "计划中"
+                : "占位"
+          }
+          tone="teal"
+          title={item.data.name}
+          description={`${item.data.provider} · ${item.data.useCase}`}
+          stats={[
+            { label: "State", value: item.data.integrationState },
+            { label: "Endpoint", value: item.data.endpointHint },
+            { label: "Note", value: item.data.note }
+          ]}
+        />
+      ))}
+    </section>
+  </main>
+</BaseLayout>

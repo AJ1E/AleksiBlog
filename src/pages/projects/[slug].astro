@@ -1,0 +1,109 @@
+---
+import { getCollection, render } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import ProjectVisual from "../../components/ProjectVisual.astro";
+import { siteMeta } from "../../data/site";
+import Callout from "../../components/mdx/Callout.astro";
+import CodeBlock from "../../components/mdx/CodeBlock.astro";
+import Figure from "../../components/mdx/Figure.astro";
+import QuoteBlock from "../../components/mdx/QuoteBlock.astro";
+import StatGrid from "../../components/mdx/StatGrid.astro";
+import Steps from "../../components/mdx/Steps.astro";
+
+export const prerender = true;
+
+export async function getStaticPaths() {
+  const projects = await getCollection("projects", ({ data }) => !data.draft);
+  return projects.map((project) => ({
+    params: { slug: project.id },
+    props: { project }
+  }));
+}
+
+const { project } = Astro.props;
+const { Content } = await render(project);
+const d = project.data;
+const initial = d.initial ?? d.name.slice(0, 2);
+
+const statusLabel: Record<string, string> = {
+  ongoing: "进行中",
+  experimental: "实验",
+  paused: "暂停",
+  archived: "归档"
+};
+
+const linkTypeLabel: Record<string, string> = {
+  article: "文章",
+  github: "GitHub",
+  external: "外链",
+  doc: "文档",
+  demo: "演示"
+};
+---
+
+<BaseLayout title={`${d.name} — ${siteMeta.title}`} description={d.summary} currentPath="/projects">
+  <main class={`container project-detail is-accent-${d.accent} is-pattern-${d.pattern}`}>
+    <a class="project-detail__back" href="/projects/">← 返回项目</a>
+
+    <section class="project-detail__hero">
+      <div class="project-detail__cover">
+        <ProjectVisual id={project.id} label={initial} title={d.title ?? d.name} pattern={d.pattern} />
+      </div>
+      <div class="project-detail__heading">
+        <div class="article-archive-header__eyebrow">
+          <span class="article-archive-header__line"></span>
+          {d.category} · {d.year}
+        </div>
+        <h1 class="project-detail__title">{d.name}</h1>
+        <p class="project-detail__summary">{d.summary}</p>
+      </div>
+    </section>
+
+    <section class="project-detail__body">
+      <article class="project-detail__content prose">
+        <Content components={{ Callout, CodeBlock, Figure, QuoteBlock, StatGrid, Steps }} />
+      </article>
+
+      <aside class="project-detail__meta">
+        <div class="project-detail__meta-block">
+          <span class="eyebrow">状态</span>
+          <span class={`project-card__status status-${d.status}`}>
+            <span class="project-card__status-dot"></span>
+            {statusLabel[d.status] ?? d.status}
+          </span>
+        </div>
+
+        <div class="project-detail__meta-block">
+          <span class="eyebrow">分类 / 时间</span>
+          <strong>{d.category}</strong>
+          <span class="project-detail__meta-faint">{d.year}</span>
+        </div>
+
+        {d.tags.length > 0 && (
+          <div class="project-detail__meta-block">
+            <span class="eyebrow">标签</span>
+            <div class="project-detail__tags">
+              {d.tags.map((tag) => <span class="project-detail__tag">#{tag}</span>)}
+            </div>
+          </div>
+        )}
+
+        {d.links.length > 0 && (
+          <div class="project-detail__meta-block">
+            <span class="eyebrow">链接</span>
+            <ul class="project-detail__links">
+              {d.links.map((link) => (
+                <li>
+                  <a href={link.href} target={link.href.startsWith("http") ? "_blank" : undefined} rel={link.href.startsWith("http") ? "noreferrer" : undefined}>
+                    <span class="project-detail__link-type">{linkTypeLabel[link.type] ?? link.type}</span>
+                    <span class="project-detail__link-label">{link.label}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </aside>
+    </section>
+  </main>
+</BaseLayout>
