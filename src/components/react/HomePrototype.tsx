@@ -32,7 +32,7 @@ import {
   sortSubscriptionCategories,
   type RenewalConfig
 } from "../../lib/subscriptions";
-import { navItems } from "../../data/site";
+import { navItems, siteMeta } from "../../data/site";
 
 type Subscription = {
   id: number;
@@ -689,7 +689,7 @@ const AnimatedHero = memo(function AnimatedHero({
           }}
         >
           <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--accent)", boxShadow: "0 0 0 4px var(--accent-soft)" }} />
-          {phase ? `${phase} · Kai Space` : `Kai Space`}
+          {phase ? `${phase} · ${siteMeta.title}` : siteMeta.title}
         </div>
         <h1
           className="home-dynamic-hero__title"
@@ -1469,7 +1469,7 @@ function Nav({ isAuthed }: { isAuthed: boolean }) {
       <div style={{ width: "min(1200px, calc(100% - 32px))", margin: "0 auto", minHeight: 58, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <img src="/favicon.svg" alt="" width={34} height={34} style={{ width: 34, height: 34, objectFit: "contain", display: "block" }} />
-          <span style={{ fontSize: "1.1rem", fontFamily: "DM Serif Display, serif" }}>Kai Space</span>
+          <span style={{ fontSize: "1.1rem", fontFamily: "DM Serif Display, serif" }}>{siteMeta.title}</span>
         </div>
         <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
           <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
@@ -2354,9 +2354,9 @@ function HomeLoadingScreen() {
             boxShadow: "var(--shadow-md)",
           }}
         >
-          K
+          A
         </div>
-        <div style={{ fontFamily: "DM Serif Display", fontSize: 18 }}>Kai Space</div>
+        <div style={{ fontFamily: "DM Serif Display", fontSize: 18 }}>{siteMeta.title}</div>
         <div
           style={{
             width: 160,

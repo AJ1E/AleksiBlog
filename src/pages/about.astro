@@ -2,22 +2,24 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { siteMeta } from "../data/site";
 
+const avatarSrc = "/uploads/aleksi-avatar.jpg";
+
 const researchItems = [
   {
     label: "Writing System",
-    text: "Use MDX and Astro content collections to publish long-form notes without a CMS."
+    text: "用 Astro、MDX 和内容集合整理文章，让写作、归档和后续维护尽量简单。"
   },
   {
-    label: "Private Dashboard",
-    text: "Track subscriptions, API integrations, server status, and local tooling from one personal surface."
+    label: "Personal Workspace",
+    text: "保留原项目的工作台能力，逐步把订阅、项目、看板和常用工具收进一个页面。"
   },
   {
     label: "AI Tooling",
-    text: "Summarize local Claude Code, Codex CLI, and Gemini CLI usage without adding another account system."
+    text: "记录 AI 工具、自动化流程和开发经验，把折腾过程沉淀成可复用的笔记。"
   },
   {
     label: "Self-hosting",
-    text: "Keep sensitive helper services on loopback while exposing safe summaries through Astro routes."
+    text: "学习更安全、稳定的自托管方式，让公开页面和私有后端保持清晰边界。"
   }
 ];
 
@@ -25,7 +27,7 @@ const stackGroups = [
   {
     code: "01",
     title: "Web & Content",
-    caption: "Core framework and publishing tools",
+    caption: "博客、内容和页面构建",
     items: [
       { name: "Astro", url: "https://astro.build/" },
       { name: "React", url: "https://react.dev/" },
@@ -36,8 +38,8 @@ const stackGroups = [
   },
   {
     code: "02",
-    title: "AI Toolchain",
-    caption: "Optional local usage sources",
+    title: "AI & Tools",
+    caption: "辅助写作、编码和效率工具",
     items: [
       { name: "Claude Code", url: "https://www.anthropic.com/claude-code" },
       { name: "Codex CLI", url: "https://github.com/openai/codex" },
@@ -50,7 +52,7 @@ const stackGroups = [
   {
     code: "03",
     title: "Dashboard",
-    caption: "Charts, maps, and operational UI",
+    caption: "图表、看板和个人数据界面",
     items: [
       { name: "Recharts", url: "https://recharts.org/" },
       { name: "TopoJSON", url: "https://github.com/topojson/topojson-client" },
@@ -61,7 +63,7 @@ const stackGroups = [
   {
     code: "04",
     title: "Infra & Networking",
-    caption: "Deployment and private networking",
+    caption: "部署、自托管和网络工具",
     items: [
       { name: "Linux", url: "https://www.kernel.org/" },
       { name: "Docker", url: "https://www.docker.com/" },
@@ -86,38 +88,40 @@ const stackGroups = [
       <div class="about-hero__copy">
         <div class="eyebrow">About</div>
         <h1 id="about-title" class="about-hero__title">
-          <span class="about-hero__title-accent">Demo</span> Author
+          关于 <span class="about-hero__title-accent">Aleksi</span>
         </h1>
         <p class="about-hero__lead">
-          This page is sample profile content for the open source template.
-          Replace it with your own biography, interests, links, and working notes.
+          这里会慢慢变成我的个人博客、工作台、看板和知识库。
+          我会在这里记录学习过程、工具折腾、项目实践，以及那些值得反复回看的想法。
         </p>
         <div class="about-hero__actions">
           <a href={`mailto:${siteMeta.email}`} class="about-link about-link--primary">{siteMeta.email}</a>
-          <a href={siteMeta.github} class="about-link" target="_blank" rel="noreferrer">GitHub · example</a>
+          <a href={siteMeta.github} class="about-link" target="_blank" rel="noreferrer">GitHub · AJ1E</a>
         </div>
       </div>
 
       <aside class="about-identity" aria-label="身份摘要">
         <div class="about-identity__head">
-          <div class="about-identity__mark" role="img" aria-label="Demo avatar"></div>
+          <div class="about-identity__mark about-identity__mark--image">
+            <img src={avatarSrc} alt={`${siteMeta.author} 的头像`} loading="lazy" decoding="async" />
+          </div>
           <div class="about-identity__meta">
-            <span class="about-identity__role">Template Maintainer</span>
-            <span class="about-identity__org">Personal Workspace</span>
+            <span class="about-identity__role">Personal Blog Builder</span>
+            <span class="about-identity__org">{siteMeta.title}</span>
           </div>
         </div>
         <dl class="about-identity__list">
           <div>
             <dt>Focus</dt>
-            <dd>Writing · Dashboards · Self-hosting</dd>
+            <dd>Blog · Knowledge Base · AI Tools</dd>
           </div>
           <div>
             <dt>Interests</dt>
-            <dd>AI Research · Networking · Self-host</dd>
+            <dd>Writing · Automation · Self-hosting</dd>
           </div>
           <div>
             <dt>Location</dt>
-            <dd>Example City</dd>
+            <dd>暂不公开</dd>
           </div>
         </dl>
       </aside>
@@ -126,7 +130,7 @@ const stackGroups = [
     <section class="about-section" aria-labelledby="about-research">
       <header class="about-section__head">
         <div class="eyebrow">Research & Practice</div>
-        <h2 id="about-research" class="about-section__title">Writing, automation, and private dashboards</h2>
+        <h2 id="about-research" class="about-section__title">写作、工具和个人工作台</h2>
       </header>
       <div class="about-research-grid">
         {researchItems.map((item) => (
@@ -141,9 +145,9 @@ const stackGroups = [
     <section class="about-section" aria-labelledby="about-stack">
       <header class="about-section__head">
         <div class="eyebrow">Tech Stack</div>
-        <h2 id="about-stack" class="about-section__title">Template stack</h2>
+        <h2 id="about-stack" class="about-section__title">当前使用的技术与工具</h2>
         <p class="about-section__copy">
-          These tools power the starter project. Keep what matches your workflow and remove the rest.
+          先沿用原项目成熟的技术组合，后续只在确实需要时再小步替换或扩展。
         </p>
       </header>
       <div class="about-stack">

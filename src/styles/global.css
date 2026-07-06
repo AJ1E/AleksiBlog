@@ -1708,6 +1708,19 @@ pre {
   font-size: 1.7rem;
 }
 
+.about-identity__mark--image::after {
+  content: none;
+}
+
+.about-identity__mark img {
+  position: absolute;
+  inset: var(--about-avatar-pad);
+  width: calc(100% - var(--about-avatar-pad) * 2);
+  height: calc(100% - var(--about-avatar-pad) * 2);
+  object-fit: cover;
+  border-radius: 12px;
+}
+
 .about-identity__meta {
   display: flex;
   flex-direction: column;
@@ -2203,6 +2216,13 @@ pre {
   background: linear-gradient(135deg, var(--accent), oklch(0.58 0.16 55));
   color: white;
   flex-shrink: 0;
+}
+
+.avatar--image {
+  display: block;
+  object-fit: cover;
+  background: var(--bg-2);
+  border: 1px solid var(--border-light);
 }
 
 .article-cover {

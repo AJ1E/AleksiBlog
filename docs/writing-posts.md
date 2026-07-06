@@ -1,27 +1,15 @@
-# Writing Posts
+# 写文章与维护文章手册
 
-这份文档是这个博客的实际维护手册。现在站点已经回到纯静态内容模式，不依赖单独后台。日常写作和修改都直接围绕内容文件进行。
+这份文档是日常写博客最常用的手册。你只要记住一个核心规则：文章放在 `src/content/blog/`，图片放在 `public/uploads/`，改完至少跑一次 `pnpm build`。
 
-## Core Rule
+## 核心规则
 
-先记住这条最重要的规则：
+- 每篇文章是一个 `.mdx` 文件。
+- 文章 URL 来自文件名，不来自标题。
+- 图片使用站点路径，例如 `/uploads/my-cover.png`。
+- 发布前运行 `pnpm build`，让 Astro 检查 frontmatter、MDX 和内容集合 schema。
 
-- 文章放在 `src/content/blog/`
-- 图片放在 `public/uploads/`
-- 修改完成后至少运行一次 `pnpm build`
-
-如果只看一句话，这就是这套博客的维护方式。
-
-## Directory Map
-
-和写博客最相关的路径只有这几个：
-
-- `src/content/blog/`: 每篇文章一个 `.mdx` 文件
-- `public/uploads/`: 封面图和正文配图
-- `scripts/new-post.mjs`: 新建文章脚手架
-- `src/content/blog/_template.mdx.example`: 手工起稿模板
-
-内容和页面的映射关系是固定的：
+## 路径对应关系
 
 ```text
 src/content/blog/my-post.mdx
@@ -31,74 +19,50 @@ public/uploads/cover.png
 -> /uploads/cover.png
 ```
 
-注意：页面 URL 来自文件名，不来自标题。
+常用目录：
 
-## Create A New Post
+- `src/content/blog/`：博客文章。
+- `public/uploads/`：封面图和正文配图。
+- `scripts/new-post.mjs`：新建文章脚手架。
+- `src/content/blog/_template.mdx.example`：手写文章时可以参考的模板。
 
-最推荐的方式是直接运行：
+## 新建文章
+
+推荐使用脚手架：
 
 ```bash
 pnpm new:post
 ```
 
-它会交互式询问：
-
-- 标题
-- slug
-- 副标题
-- 摘要
-- 分类
-- 标签
-- 阅读时长
-- 发布日期
-- 封面图路径
-
-生成结果在：
+它会询问标题、slug、摘要、分类、标签、阅读时长、发布时间、封面图等信息，然后生成：
 
 ```text
 src/content/blog/<slug>.mdx
 ```
 
-如果你想一次性从命令行传完，也可以这样：
-
-```bash
-pnpm new:post \
-  --title "我的新文章" \
-  --slug my-new-post \
-  --subtitle "一句副标题" \
-  --category 技术 \
-  --tags Astro,MDX,博客 \
-  --readTime "8 分钟" \
-  --excerpt "这里写首页和列表页摘要。" \
-  --publishedAt 2026-04-29 \
-  --cover /uploads/my-cover.png
-```
-
-## Write A Post Manually
-
-如果你不想用脚手架，也可以直接手工新建：
+你也可以手动创建文件：
 
 ```text
 src/content/blog/my-post.mdx
 ```
 
-最小 frontmatter 结构如下：
+最小 frontmatter 示例：
 
 ```mdx
 ---
-title: 文章标题
+title: 我的第一篇文章
 subtitle: 可选副标题
-excerpt: 这里写摘要
-publishedAt: 2026-04-29
-category: 技术
+excerpt: 这里写首页和列表页会显示的摘要。
+publishedAt: 2026-07-06
+category: 随笔
 tags:
+  - 博客
   - Astro
-  - MDX
 readTime: 6 分钟
 author:
-  name: Demo Author
-  avatar: D
-  bio: Maintainer of a personal knowledge base and self-hosted workspace.
+  name: Your Name
+  avatar: Y
+  bio: 这里写一句简短作者介绍。
 ---
 
 ## 正文标题
@@ -106,43 +70,45 @@ author:
 这里开始写正文。
 ```
 
-常用字段说明：
+## 常用字段说明
 
-- `title`: 文章标题
-- `subtitle`: 副标题，可选
-- `excerpt`: 首页和列表页摘要
-- `publishedAt`: 发布日期
-- `updatedAt`: 更新日期，可选
-- `category`: 分类
-- `tags`: 标签数组
-- `readTime`: 阅读时长
-- `featured`: 是否精选
-- `draft`: 是否草稿
-- `cover`: 封面图路径
-- `coverPosition`: 可选，控制封面图裁切重心，比如 `center top`
-- `author`: 作者信息
+- `title`：文章标题。
+- `subtitle`：副标题，可选。
+- `excerpt`：摘要，首页和列表页会用到。
+- `publishedAt`：发布时间。
+- `updatedAt`：更新时间，可选。
+- `category`：分类。
+- `tags`：标签数组。
+- `readTime`：阅读时长。
+- `featured`：是否精选。
+- `draft`：是否草稿；设置为 `true` 时不公开显示。
+- `cover`：封面图路径。
+- `coverPosition`：封面图裁切位置，例如 `center top`。
+- `author`：作者信息。
 
-## Cover Images And Inline Images
+这些字段由 `src/content.config.ts` 校验。字段缺失、日期格式错误、缩进错误，通常会在 `pnpm build` 时暴露。
 
-所有图片都统一放到：
+## 图片规则
+
+所有博客图片统一放在：
 
 ```text
 public/uploads/
 ```
 
-比如：
+例如：
 
 ```text
 public/uploads/my-cover.png
 ```
 
-在 frontmatter 里这样写：
+在文章 frontmatter 里这样写：
 
 ```mdx
 cover: /uploads/my-cover.png
 ```
 
-如果主体不在图片正中间，还可以额外写：
+如果图片主体不在正中间，可以加：
 
 ```mdx
 coverPosition: center top
@@ -156,91 +122,63 @@ coverPosition: center top
 - `left center`
 - `right center`
 
-在正文里这样写：
+正文里插图可以用 MDX 组件：
 
 ```mdx
 <Figure
   src="/uploads/my-cover.png"
   alt="图片说明"
-  caption="图注"
+  caption="图片注释"
 />
 ```
 
-规则很简单：
+注意：
 
-- `public/` 下的内容会作为静态资源直接输出
-- 在文章里写的是站点路径，不是本地磁盘路径
-- 推荐封面图宽度至少 `1200px`
-- 封面图现在会按固定容器比例显示，不需要每次手工裁成完全一致
-- 如果自动裁切的位置不理想，再用 `coverPosition` 微调主体位置
+- 不要把图片放进 `src/content/blog/`。
+- 不要在文章里写本地磁盘路径。
+- 推荐封面图宽度至少 `1200px`。
+- 图片路径从 `/uploads/` 开始，而不是从 `public/` 开始。
 
-脚手架也支持你输入本地绝对路径。如果图片本来就在 `public/` 下，它会自动转换成 `/uploads/...`。
+## 修改已有文章
 
-## Editing Existing Posts
-
-修改老文章时，先找到对应文件。
-
-例如：
+文章 URL 和文件名对应：
 
 ```text
-/blog/claude-workflow/
--> src/content/blog/claude-workflow.mdx
-
-/blog/ip-risk-api-compare/
--> src/content/blog/ip-risk-api-compare.mdx
+/blog/my-post/
+-> src/content/blog/my-post.mdx
 ```
 
-常见修改动作如下。
-
-### Change Title Or Excerpt
-
-直接改 frontmatter：
+改标题或摘要：
 
 ```mdx
 title: 新标题
 excerpt: 新摘要
 ```
 
-这会影响页面展示，但不会改 URL。
+这会影响页面展示，但不会改变 URL。
 
-### Change URL
-
-如果你想改 `/blog/<slug>/`，要改文件名，不是改标题：
+改 URL：
 
 ```text
-src/content/blog/my-old-post.mdx
--> src/content/blog/my-new-post.mdx
+src/content/blog/old-slug.mdx
+-> src/content/blog/new-slug.mdx
 ```
 
-### Hide A Post Temporarily
-
-把文章设成草稿：
+隐藏文章：
 
 ```mdx
 draft: true
 ```
 
-这样它不会出现在公开页面。
-
-### Add Or Replace A Cover
-
-先放图片，再补：
+标记文章有明显更新：
 
 ```mdx
-cover: /uploads/my-cover.png
+updatedAt: 2026-07-06
 ```
 
-### Mark A Real Update
+## 可用 MDX 组件
 
-如果文章经过了明显重写，建议补：
-
-```mdx
-updatedAt: 2026-04-29
-```
-
-## Writing Style
-
-新文章默认已经带好这些可复用组件：
+文章里可以使用这些组件：
 
 - `Callout`
 - `CodeBlock`
@@ -249,24 +187,22 @@ updatedAt: 2026-04-29
 - `StatGrid`
 - `Steps`
 
-如果想完全手工开始，可以参考：
+如果不确定怎么写，参考：
 
 ```text
 src/content/blog/_template.mdx.example
 ```
 
-## Recommended Workflow
+## 推荐写作流程
 
-这是比较稳的一套日常流程：
-
-1. 先把标题、摘要、分类、标签想清楚。
-2. 运行 `pnpm new:post` 创建骨架。
+1. 先想清楚标题、摘要、分类、标签。
+2. 运行 `pnpm new:post` 创建文章骨架。
 3. 把封面图和配图放到 `public/uploads/`。
-4. 先写出文章结构，再补正文细节。
-5. 本地运行 `pnpm dev` 看展示效果。
-6. 最后运行 `pnpm build` 做发布前检查。
+4. 先写结构，再补正文细节。
+5. 本地运行 `pnpm dev` 看页面效果。
+6. 发布前运行 `pnpm build`。
 
-## Local Verification
+## 本地检查
 
 开发预览：
 
@@ -287,31 +223,33 @@ pnpm dev
 pnpm build
 ```
 
-这一步会帮助你发现：
+这一步会帮助发现：
 
-- frontmatter 缺字段
-- YAML 缩进错误
-- MDX 语法错误
-- 标签未闭合
-- 图片路径错误
-- 页面生成失败
+- frontmatter 缺字段。
+- YAML 缩进错误。
+- MDX 语法错误。
+- 标签没有闭合。
+- 图片路径错误。
+- 页面生成失败。
 
-## Common Mistakes
+## 常见错误
 
-最常见的问题如下：
+- 把图片放进 `src/content/blog/`，而不是 `public/uploads/`。
+- `cover` 写成本地磁盘路径。
+- 改了文章标题，却以为 URL 会自动改变。
+- 忘记把 `draft: true` 去掉。
+- frontmatter 缩进不对。
+- 日期写成无法识别的格式。
 
-- 把图片放进了 `src/content/blog/`，而不是 `public/uploads/`
-- `cover` 写成了本地磁盘路径
-- 改了标题，却以为文章链接会自动变化
-- 忘了把 `draft: true` 去掉
-- frontmatter 缩进不对
+## 大改动前先写说明
 
-## Related Page
+普通文章不用写 spec。下面这些改动建议先在 `docs/specs/` 写一份说明：
 
-站内还有一篇更面向读者展示的说明文章：
+- 重做博客信息架构。
+- 改文章字段 schema。
+- 批量迁移文章。
+- 改文章 URL 规则。
+- 改图片存储规则。
+- 接入 CMS 或外部内容源。
 
-```text
-/blog/how-to-manage-this-blog/
-```
-
-如果你希望把维护方式公开说明给别人看，可以直接引用那篇页面。
+更多长期维护原则见 `docs/site-development-guide.md`。

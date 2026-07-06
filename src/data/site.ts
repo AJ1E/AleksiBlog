@@ -1,9 +1,9 @@
 export const siteMeta = {
-  title: "Kai Space",
-  description: "An Astro-powered personal blog and private dashboard template.",
-  author: "Demo Author",
-  email: "hello@example.com",
-  github: "https://github.com/example/kai-space"
+  title: "Aleksi's Blog",
+  description: "个人博客、工作台、看板、知识库，All in one",
+  author: "Aleksi",
+  email: "aleksi_z@163.com",
+  github: "https://github.com/AJ1E"
 };
 
 export const navItems = [
