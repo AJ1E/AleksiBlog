@@ -11,10 +11,11 @@ import {
   type AiToolUsage,
 } from "../../lib/aiUsageClient";
 import {
-  fetchIpRiskSnapshot,
-  refreshIpRiskSnapshot,
+  fetchVisitorIpRiskSnapshot,
   hasIpRiskBackend,
+  isVisitorIpRiskUnavailable,
   type IpRiskSnapshot,
+  type VisitorIpRiskResponse,
 } from "../../lib/ipRiskClient";
 import {
   fetchServerOverview,
@@ -282,12 +283,11 @@ function FlagImg({ code, width = 52 }: { code: string; width?: number }) {
 
 const AI_USAGE_CACHE_KEY = "kai:ai-usage-overview-v1";
 const SERVERS_CACHE_KEY = "kai:servers-overview-v1";
-const IP_RISK_CACHE_KEY = "kai:ip-risk-snapshot-v1";
 const WORLD_ATLAS_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
 
 let aiUsageOverviewPromise: Promise<AiUsageOverview | null> | null = null;
 let serverOverviewPromise: Promise<ServerOverview | null> | null = null;
-let ipRiskSnapshotPromise: Promise<IpRiskSnapshot> | null = null;
+let visitorIpRiskSnapshotPromise: Promise<VisitorIpRiskResponse> | null = null;
 let worldAtlasPromise: Promise<any> | null = null;
 let worldAtlasDataCache: any = null;
 let heroEntranceAnimationPlayed = false;
@@ -302,9 +302,9 @@ function fetchServerOverviewOnce() {
   return serverOverviewPromise;
 }
 
-function fetchIpRiskSnapshotOnce() {
-  ipRiskSnapshotPromise ??= fetchIpRiskSnapshot();
-  return ipRiskSnapshotPromise;
+function fetchVisitorIpRiskSnapshotOnce() {
+  visitorIpRiskSnapshotPromise ??= fetchVisitorIpRiskSnapshot();
+  return visitorIpRiskSnapshotPromise;
 }
 
 function fetchWorldAtlasOnce() {
@@ -714,8 +714,8 @@ const AnimatedHero = memo(function AnimatedHero({
               WebkitTextFillColor: "transparent",
             }}
           >
-            Kai
-          </span> Space
+            Aleksi
+          </span> 的工作台
         </h1>
         <p
           className="home-dynamic-hero__copyText"
@@ -2029,8 +2029,8 @@ function IPWidget({
       {/* Card header */}
       <div style={{ padding: "13px 16px", borderBottom: "1px solid var(--border-light)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
-          <div style={{ fontSize: 10, fontWeight: 700, color: "var(--text-faint)", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 1 }}>本机出口</div>
-          <div style={{ fontSize: 11, color: "var(--text-muted)" }}>{api?.provider ?? "本地后端"} · Claude Trace</div>
+          <div style={{ fontSize: 10, fontWeight: 700, color: "var(--text-faint)", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 1 }}>当前访问 IP</div>
+          <div style={{ fontSize: 11, color: "var(--text-muted)" }}>访客公网 · Net.Coffee</div>
         </div>
         {snapshot && (
           <Badge color={trustBadgeColor(snapshot.risk.trustLevel)}>{formatTrustLabel(snapshot.risk.trustLevel)}</Badge>
@@ -2075,20 +2075,20 @@ function IPWidget({
           </>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            <div style={{ fontSize: 13, fontWeight: 600 }}>IP 后端尚未连接</div>
+            <div style={{ fontSize: 13, fontWeight: 600 }}>访客 IP 暂不可用</div>
             <div style={{ fontSize: 11, color: "var(--text-muted)", lineHeight: 1.7 }}>
               {backendError
                 ? `当前请求失败：${backendError}`
-                : `运行 pnpm dev 后，首页会展示本机代理后的出口 IP、ASN、地区和风险标签。`}
+                : `部署到服务器并传递访客 IP 后，这里会展示访问者的公网 IP、地区和风险标签。`}
             </div>
-            <div style={{ fontSize: 10, color: "var(--text-faint)", fontFamily: "JetBrains Mono" }}>{api?.endpointHint ?? "/api/ip-risk/egress"}</div>
+            <div style={{ fontSize: 10, color: "var(--text-faint)", fontFamily: "JetBrains Mono" }}>/api/ip-risk/visitor</div>
           </div>
         )}
 
         {/* Footer */}
         <div style={{ paddingTop: 10, borderTop: "1px solid var(--border-light)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <span style={{ fontSize: 10, color: "var(--text-faint)" }}>
-            {snapshot ? `更新 ${fmtRelative(snapshot.generatedAt)}` : "等待后端"}
+            {snapshot ? `更新 ${fmtRelative(snapshot.generatedAt)}` : "等待访客 IP"}
           </span>
           <span style={{ fontSize: 11, color: "var(--accent)", fontWeight: 600 }}>查看详情 →</span>
         </div>
@@ -2126,8 +2126,8 @@ function IPRiskDrawer({
     <Drawer
       open={open}
       onClose={onClose}
-      title="本机出口画像"
-      subtitle={`${api?.provider ?? "本地后端"} · Claude Trace + Net.Coffee`}
+      title="当前访问 IP 画像"
+      subtitle="访客公网 · Net.Coffee"
       icon="⌘"
       iconColor="var(--accent-teal)"
       width={560}
@@ -2135,7 +2135,7 @@ function IPRiskDrawer({
       <style>{`@keyframes ip-risk-spin { to { transform: rotate(360deg); } }`}</style>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
         <div style={{ fontSize: 11, color: "var(--text-muted)" }}>
-          当前结果来自服务器主动探测，代表这台机器此刻的代理后出口。
+          当前结果来自访问请求携带的公网 IP，用于判断这个访客此刻的地区、ASN 和风险信号。
         </div>
         <button
           onClick={onRefresh}
@@ -2148,12 +2148,12 @@ function IPRiskDrawer({
       </div>
       {backendError && (
         <div style={{ marginBottom: 16, padding: "10px 14px", background: "var(--accent-light)", borderRadius: 8, border: "1px solid var(--border-light)", fontSize: 11, color: "var(--text-muted)", lineHeight: 1.7 }}>
-          后端请求失败：<code style={{ fontFamily: "JetBrains Mono" }}>{backendError}</code>。请确认 <code style={{ fontFamily: "JetBrains Mono" }}>pnpm ip-risk:dev</code> 正在运行，或设置 <code style={{ fontFamily: "JetBrains Mono" }}>PUBLIC_IP_RISK_API_BASE_URL</code> 指向远程后端。
+          后端请求失败：<code style={{ fontFamily: "JetBrains Mono" }}>{backendError}</code>。请确认 <code style={{ fontFamily: "JetBrains Mono" }}>pnpm ip-risk:dev</code> 正在运行，并且公网部署时反向代理会传递访客 IP。
         </div>
       )}
       {!snapshot ? (
         <div style={{ padding: "16px 18px", background: "var(--bg-2)", borderRadius: 10, border: "1px solid var(--border-light)", fontSize: 12, color: "var(--text-muted)", lineHeight: 1.8 }}>
-          暂时还没有出口画像数据。启动本地后端后，这里会展示本机出口 IP、ASN、地区、IP 属性和风险信号。
+          暂时还没有访客画像数据。本地直连开发环境通常只能看到内网地址；部署到服务器并配置反向代理后，这里会展示当前访客 IP、ASN、地区、IP 属性和风险信号。
         </div>
       ) : (
         <>
@@ -2416,10 +2416,15 @@ export default function HomePrototype({ subscriptions, apis, servers, posts, isA
   async function handleRefreshIpRisk() {
     setIpRefreshing(true);
     try {
-      const snapshot = await refreshIpRiskSnapshot();
-      setIpSnapshot(snapshot);
-      setIpBackendError(null);
-      writeLocalStorageJson(IP_RISK_CACHE_KEY, snapshot);
+      visitorIpRiskSnapshotPromise = null;
+      const result = await fetchVisitorIpRiskSnapshotOnce();
+      if (isVisitorIpRiskUnavailable(result)) {
+        setIpSnapshot(null);
+        setIpBackendError(result.message);
+      } else {
+        setIpSnapshot(result);
+        setIpBackendError(null);
+      }
     } catch (error) {
       setIpBackendError(
         error instanceof Error ? error.message : "IP 风险后端连接失败",
@@ -2562,19 +2567,17 @@ export default function HomePrototype({ subscriptions, apis, servers, posts, isA
       };
     }
 
-    const cached = readLocalStorageJson<IpRiskSnapshot>(IP_RISK_CACHE_KEY);
-    if (cached && typeof cached === "object") {
-      setIpSnapshot(cached);
-      setIpLoading(false);
-    }
-
     (async () => {
       try {
-        const snapshot = await fetchIpRiskSnapshotOnce();
+        const result = await fetchVisitorIpRiskSnapshotOnce();
         if (cancelled) return;
-        setIpSnapshot(snapshot);
-        setIpBackendError(null);
-        writeLocalStorageJson(IP_RISK_CACHE_KEY, snapshot);
+        if (isVisitorIpRiskUnavailable(result)) {
+          setIpSnapshot(null);
+          setIpBackendError(result.message);
+        } else {
+          setIpSnapshot(result);
+          setIpBackendError(null);
+        }
       } catch (error) {
         if (cancelled) return;
         setIpBackendError(

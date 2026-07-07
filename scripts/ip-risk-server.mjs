@@ -1,5 +1,6 @@
 import http from "node:http";
 import fs from "node:fs/promises";
+import net from "node:net";
 import os from "node:os";
 import path from "node:path";
 import { execFile } from "node:child_process";
@@ -40,6 +41,15 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (req.method !== "GET") return sendJson(res, 405, { error: "Method not allowed" });
+
+    if (url.pathname === "/api/ip-risk/lookup") {
+      const ip = normalizeString(url.searchParams.get("ip"));
+      if (!isPublicIp(ip)) {
+        return sendJson(res, 400, { error: "A public IP address is required" });
+      }
+      const snapshot = await lookupSnapshotForIp(ip);
+      return sendJson(res, 200, snapshot);
+    }
 
     if (url.pathname === "/api/ip-risk/health") {
       return sendJson(res, 200, {
@@ -88,6 +98,22 @@ async function getSnapshot() {
     return latestSnapshot;
   }
   return refreshSnapshot({ reason: "initial-request" });
+}
+
+async function lookupSnapshotForIp(observedIp) {
+  const [geo, ipRisk] = await Promise.all([
+    fetchJson(`https://ip.net.coffee/api/geoip/${encodeURIComponent(observedIp)}`),
+    fetchJson(`https://ip.net.coffee/api/iprisk/${encodeURIComponent(observedIp)}`),
+  ]);
+
+  return buildSnapshot({
+    observedIp,
+    claudeTrace: {},
+    cloudflareTrace: {},
+    geo,
+    ipRisk,
+    observedVia: "visitor-request",
+  });
 }
 
 async function refreshIfIpChanged({ reason = "ip-check" } = {}) {
@@ -178,13 +204,13 @@ function getObservedIp({ claudeTrace, cloudflareTrace }) {
   return claudeTrace?.ip || cloudflareTrace?.ip || "";
 }
 
-function buildSnapshot({ observedIp, claudeTrace, cloudflareTrace, geo, ipRisk }) {
+function buildSnapshot({ observedIp, claudeTrace = {}, cloudflareTrace = {}, geo, ipRisk, observedVia = TRACE_URLS.claude }) {
   const trustScore = normalizeInteger(ipRisk?.trust_score);
   const riskScore = trustScore === null ? null : Math.max(0, 100 - trustScore);
   const attribute = classifyAttribute(ipRisk);
   return {
     generatedAt: new Date().toISOString(),
-    observedVia: TRACE_URLS.claude,
+    observedVia,
     egress: {
       ip: observedIp,
       country: normalizeString(ipRisk?.country) || normalizeString(geo?.country),
@@ -243,13 +269,13 @@ function buildSnapshot({ observedIp, claudeTrace, cloudflareTrace, geo, ipRisk }
 
 function simplifyTrace(trace) {
   return {
-    host: normalizeString(trace.h),
-    ip: normalizeString(trace.ip),
-    colo: normalizeString(trace.colo)?.toUpperCase() || null,
-    loc: normalizeString(trace.loc)?.toUpperCase() || null,
-    warp: normalizeString(trace.warp),
-    gateway: normalizeString(trace.gateway),
-    ts: normalizeString(trace.ts),
+    host: normalizeString(trace?.h),
+    ip: normalizeString(trace?.ip),
+    colo: normalizeString(trace?.colo)?.toUpperCase() || null,
+    loc: normalizeString(trace?.loc)?.toUpperCase() || null,
+    warp: normalizeString(trace?.warp),
+    gateway: normalizeString(trace?.gateway),
+    ts: normalizeString(trace?.ts),
   };
 }
 
@@ -386,6 +412,34 @@ function normalizeInteger(value) {
   const numeric = Number(value);
   if (!Number.isFinite(numeric)) return null;
   return Math.round(numeric);
+}
+
+function isPublicIp(value) {
+  if (!value || net.isIP(value) === 0) return false;
+  if (net.isIP(value) === 4) return isPublicIpv4(value);
+  return isPublicIpv6(value);
+}
+
+function isPublicIpv4(value) {
+  const parts = value.split(".").map((part) => Number(part));
+  if (parts.length !== 4 || parts.some((part) => !Number.isInteger(part) || part < 0 || part > 255)) {
+    return false;
+  }
+  const [a, b] = parts;
+  if (a === 0 || a === 10 || a === 127 || a >= 224) return false;
+  if (a === 100 && b >= 64 && b <= 127) return false;
+  if (a === 169 && b === 254) return false;
+  if (a === 172 && b >= 16 && b <= 31) return false;
+  if (a === 192 && b === 168) return false;
+  if (a === 198 && (b === 18 || b === 19)) return false;
+  return true;
+}
+
+function isPublicIpv6(value) {
+  const lower = value.toLowerCase();
+  if (lower === "::1" || lower === "::" || lower.startsWith("fe80:")) return false;
+  if (lower.startsWith("fc") || lower.startsWith("fd")) return false;
+  return true;
 }
 
 function formatErrorMessage(error) {

@@ -1,0 +1,27 @@
+---
+import { getCollection, render } from "astro:content";
+import NoteLayout from "../../layouts/NoteLayout.astro";
+import Callout from "../../components/mdx/Callout.astro";
+import CodeBlock from "../../components/mdx/CodeBlock.astro";
+import Figure from "../../components/mdx/Figure.astro";
+import QuoteBlock from "../../components/mdx/QuoteBlock.astro";
+import StatGrid from "../../components/mdx/StatGrid.astro";
+import Steps from "../../components/mdx/Steps.astro";
+
+export const prerender = true;
+
+export async function getStaticPaths() {
+  const notes = await getCollection("notes", ({ data }) => !data.draft && data.folder !== "Root");
+  return notes.map((note) => ({
+    params: { slug: note.id },
+    props: { note }
+  }));
+}
+
+const { note } = Astro.props;
+const { Content, headings } = await render(note);
+---
+
+<NoteLayout note={note} headings={headings}>
+  <Content components={{ Callout, CodeBlock, Figure, QuoteBlock, StatGrid, Steps }} />
+</NoteLayout>

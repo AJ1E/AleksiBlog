@@ -1,0 +1,24 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import NotesVault from "../../components/react/NotesVault";
+import { siteMeta } from "../../data/site";
+import { getPublishedNotes, noteDisplayDate, noteHref } from "../../lib/notes";
+
+const notes = await getPublishedNotes();
+const pageNotes = notes.map((note) => ({
+  id: note.id,
+  href: noteHref(note),
+  title: note.data.title,
+  description: note.data.description,
+  folder: note.data.folder,
+  tags: note.data.tags,
+  sourcePath: note.data.sourcePath,
+  dateLabel: noteDisplayDate(note),
+}));
+---
+
+<BaseLayout title={`笔记 — ${siteMeta.title}`} description="从 Obsidian 笔记仓库同步的公开笔记。" currentPath="/notes">
+  <main class="container">
+    <NotesVault client:load notes={pageNotes} />
+  </main>
+</BaseLayout>

@@ -75,6 +75,14 @@ export type IpRiskSnapshot = {
   locked?: { fullIp?: boolean; rdns?: boolean; cidr?: boolean };
 };
 
+export type VisitorIpRiskUnavailable = {
+  unavailable: true;
+  reason: string;
+  message: string;
+};
+
+export type VisitorIpRiskResponse = IpRiskSnapshot | VisitorIpRiskUnavailable;
+
 function resolveBackendUrl() {
   const fromEnv = String(import.meta.env.PUBLIC_IP_RISK_API_BASE_URL || "")
     .trim()
@@ -94,11 +102,19 @@ export async function fetchIpRiskSnapshot(): Promise<IpRiskSnapshot> {
   return fetchSnapshot("/api/ip-risk/egress", { method: "GET" });
 }
 
+export async function fetchVisitorIpRiskSnapshot(): Promise<VisitorIpRiskResponse> {
+  return fetchSnapshot<VisitorIpRiskResponse>("/api/ip-risk/visitor", { method: "GET" });
+}
+
 export async function refreshIpRiskSnapshot(): Promise<IpRiskSnapshot> {
   return fetchSnapshot("/api/ip-risk/refresh", { method: "POST" });
 }
 
-async function fetchSnapshot(path: string, init: RequestInit) {
+export function isVisitorIpRiskUnavailable(value: VisitorIpRiskResponse): value is VisitorIpRiskUnavailable {
+  return "unavailable" in value && value.unavailable === true;
+}
+
+async function fetchSnapshot<T = IpRiskSnapshot>(path: string, init: RequestInit) {
   const baseUrl = resolveBackendUrl();
   if (!baseUrl) {
     throw new Error("IP risk backend is not configured");
@@ -113,5 +129,5 @@ async function fetchSnapshot(path: string, init: RequestInit) {
   if (!response.ok) {
     throw new Error(`IP risk backend returned HTTP ${response.status}`);
   }
-  return (await response.json()) as IpRiskSnapshot;
+  return (await response.json()) as T;
 }

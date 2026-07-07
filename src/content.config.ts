@@ -114,4 +114,20 @@ const projects = defineCollection({
   })
 });
 
-export const collections = { blog, subscriptions, apis, servers, projects };
+const notes = defineCollection({
+  loader: glob({ base: "./.cache/notes/content", pattern: "**/*.md" }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string().default(""),
+    sourcePath: z.string(),
+    sourceUrl: z.string(),
+    folder: z.string().default("Root"),
+    tags: z.array(z.string()).default([]),
+    aliases: z.array(z.string()).default([]),
+    created: z.string().optional(),
+    updated: z.string().optional(),
+    draft: z.boolean().default(false)
+  })
+});
+
+export const collections = { blog, subscriptions, apis, servers, projects, notes };

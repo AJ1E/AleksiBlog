@@ -8,7 +8,11 @@ export const siteMeta = {
 
 export const navItems = [
   { href: "/blog/", label: "文章" },
+  { href: "/notes/", label: "笔记" },
   { href: "/projects/", label: "项目" },
+  { href: "/finance/", label: "金融" },
+  { href: "/favorites/", label: "收藏" },
+  { href: "/navigation/", label: "导航" },
   { href: "/about/", label: "关于" }
 ];
 

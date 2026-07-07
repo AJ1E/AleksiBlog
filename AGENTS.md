@@ -20,6 +20,7 @@ Before making substantial changes, read `docs/site-development-guide.md`. Treat 
 
 - Site metadata, author/profile text, navigation labels, and homepage copy.
 - Blog posts in `src/content/blog/`.
+- Public notes synced from `AJ1E/ObsdianNotes` into `.cache/notes/content/` by `scripts/sync-notes.mjs`.
 - Projects in `src/content/projects/`.
 - About page content.
 - Demo YAML data under `src/content/subscriptions/`, `src/content/apis/`, and `src/content/servers/`.
@@ -40,14 +41,29 @@ Avoid changing auth, BFF proxying, helper backend internals, Beszel integration,
 - For medium or large features, explain the implementation plan and affected files before modifying code.
 - Prefer the smallest useful change. Do not rewrite the whole project, change the directory structure, or remove existing features unless explicitly requested.
 - Preserve the current visual direction: simple, clean, quiet, elegant, readable, and consistent with the existing Astro/React components.
+- Treat Jeremy's current site, `https://blog.czhifang.com/`, as the standing visual reference for spacing, typography, cards, and restrained decoration. When the live site cannot be accessed, use the user's screenshots and the existing local components as the source of truth.
 - Prefer existing content collections, layouts, components, CSS variables, helper functions, and API clients over new abstractions.
 - For blog features, first inspect `src/content.config.ts`, `src/lib/content.ts`, `src/pages/blog/**`, and related React components.
+- For notes features, keep the Obsidian source repository read-only from this site. Sync public Markdown at build time, keep generated notes under `.cache/`, and do not commit synced note files.
+- Only Obsidian Markdown files inside subfolders are published as site notes; root-level Markdown is treated as vault maintenance or test material and should stay hidden.
+- When a newly synced notes folder appears, remind the user to choose a dedicated theme color before polishing that category's UI.
 - For personal information changes, use `docs/personal-profile-template.md` as the source of truth once the user fills it in.
 - For UI changes, verify desktop, mobile, and dark mode. Pay special attention to overflow, contrast, article pages, tag pages, and the homepage.
 - For security-sensitive changes, preserve Astro BFF routes and never expose helper backend ports directly.
+- For visitor IP features, route browser requests through Astro API endpoints first. The frontend must not call third-party IP/risk services directly, and helper backend ports must remain private.
 - When SEO, RSS, or sitemap behavior is mentioned, first confirm whether the project already implements it. At the time of writing, RSS and sitemap are not implemented.
 - After implementation, summarize changed files, explain why they changed, run available validation commands such as `pnpm build`, and review the diff.
 - If validation fails, fix the errors before handing the work back unless the failure is unrelated or blocked by missing user input.
+
+## Recommended Tooling And Skills
+
+- Keep the default validation lightweight first: run `pnpm build` for content, routing, MDX, and Astro integration checks.
+- Before adding new dependencies, prefer built-in Astro checks and the project's existing patterns; only add a tool when it removes real maintenance risk.
+- For larger UI changes, use Playwright or the Codex browser skill for desktop/mobile visual checks when available, especially for overflow, dark mode, and interactive filters.
+- For security-sensitive work, use security review habits or relevant Codex security skills before implementation: identify secrets, public endpoints, auth boundaries, and data exposure paths.
+- Future tooling candidates can include `astro check`, Biome or Prettier for formatting consistency, Playwright for smoke tests, GitHub Actions for build checks, dependency audit tools, and secret scanning.
+- Do not introduce OpenSpec, Spec Kit, a CMS, a database, or a heavy search/indexing service unless the user explicitly agrees that the feature is large enough to justify it.
+- If a third-party GitHub project or plugin is proposed, document why it is needed, what files it affects, and how to remove it later before installing it.
 
 ## Security Notes
 

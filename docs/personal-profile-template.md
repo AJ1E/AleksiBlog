@@ -13,7 +13,7 @@
 | 网站一句话描述 | 个人博客、工作台、看板、知识库，All in one |
 | 网站较长描述 | 暂无 |
 | 作者显示名 | Aleksi |
-| 作者英文名或昵称 | AleksiZheng |
+| 作者英文名或昵称 | Aleksi Zheng |
 | 公开邮箱 | aleksi_z@163.com |
 | GitHub 链接 | https://github.com/AJ1E |
 | 其他主页链接 | 暂无 |
@@ -51,15 +51,15 @@
 
 | 字段 | 请填写 |
 | --- | --- |
-| About 页主标题 | 关于 Aleksi |
-| 主标题中想强调的词 | Aleksi |
+| About 页主标题 | Aleksi Zheng |
+| 主标题中想强调的词 | Zheng |
 | About 页简介第一段 | 这里会慢慢变成我的个人博客、工作台、看板和知识库。 |
 | About 页简介第二段 | 我会在这里记录学习过程、工具折腾、项目实践，以及那些值得反复回看的想法。 |
-| 身份/角色 | Personal Blog Builder |
-| 组织/学校/工作室/个人标签 | Aleksi's Blog |
-| 所在地 | 暂不公开 |
-| 关注方向 | Blog · Knowledge Base · AI Tools |
-| 兴趣关键词 | Writing · Automation · Self-hosting |
+| 身份/角色 | Master of Engineering, Computer Technology |
+| 组织/学校/工作室/个人标签 | SICAU→SWU |
+| 所在地 | TRAITS：Lifelong learner · Stay hungry · Stay foolish |
+| 关注方向 | Embedded AI · Robotics · Edge Computing |
+| 兴趣关键词 | AI Research · Networking · Self-host |
 | 目前正在做的事 | 基于 Astro 博客模板搭建自己的长期个人空间 |
 
 About 页卡片建议保留 3-4 个主题。请填写你想展示的主题：
@@ -128,10 +128,10 @@ About 页卡片建议保留 3-4 个主题。请填写你想展示的主题：
 
 | 资产 | 文件路径或说明 |
 | --- | --- |
-| 头像图片 | /uploads/aleksi-avatar.jpg，来源："D:\Pictures\eva\玩偶香香.jpg" |
+| 头像图片 | /uploads/aleksi-avatar.jpg，来源："D:\Downloads\QuarkDownloads\神舟电脑备份\cs\卡比.jpg" |
 | favicon / 网站图标 |  |
 | 首页背景或代表图 |  |
-| About 页图像 | "D:\Pictures\eva\玩偶香香.jpg" |
+| About 页图像 | "D:\Downloads\QuarkDownloads\神舟电脑备份\cs\卡比.jpg" |
 
 建议路径：
 

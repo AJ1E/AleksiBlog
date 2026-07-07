@@ -1,0 +1,91 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { siteMeta } from "../data/site";
+import {
+  faviconUrl,
+  navigationCategories,
+  navigationLinks,
+  type NavigationCategoryId
+} from "../data/navigation";
+
+const linksByCategory = new Map<NavigationCategoryId, typeof navigationLinks>();
+for (const category of navigationCategories) {
+  linksByCategory.set(
+    category.id,
+    navigationLinks.filter((link) => link.category === category.id),
+  );
+}
+---
+
+<BaseLayout
+  title={`网页导航 — ${siteMeta.title}`}
+  description="常用网站入口，按 AI、代码、论坛、邮箱、云服务、金融、媒体和工具分类整理。"
+  currentPath="/navigation"
+>
+  <main class="container navigation-page">
+    <header class="projects-header navigation-hero">
+      <div class="article-archive-header__eyebrow">
+        <span class="article-archive-header__line"></span>
+        Navigation · {navigationLinks.length}
+      </div>
+      <h1 class="projects-header__title">网页导航 <span>Daily links · 快速跳转</span></h1>
+      <p class="projects-header__copy">
+        把常用网站按场景收在一起，减少到处翻收藏夹的时间。第一版按常见热门程度静态排序，后续可以继续按你的使用习惯手动微调。
+      </p>
+    </header>
+
+    <section class="navigation-sections" aria-label="常用网站分类">
+      {navigationCategories.map((category) => {
+        const links = linksByCategory.get(category.id) ?? [];
+        return (
+          <section class={`navigation-section is-accent-${category.accent}`}>
+            <div class="navigation-section__head">
+              <div>
+                <p class="navigation-section__eyebrow">{category.label}</p>
+                <h2>{category.summary}</h2>
+              </div>
+              <span>{links.length}</span>
+            </div>
+
+            <div class="navigation-link-grid">
+              {links.map((link) => (
+                <a
+                  class="navigation-link"
+                  href={link.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  title={`${link.name} · ${link.href}`}
+                >
+                  <span class="navigation-link__icon" aria-hidden="true">
+                    <img
+                      src={faviconUrl(link.domain)}
+                      alt=""
+                      width="32"
+                      height="32"
+                      loading="lazy"
+                      decoding="async"
+                      data-navigation-icon
+                    />
+                    <span class="navigation-link__fallback" hidden>{link.abbr}</span>
+                  </span>
+                  <span class="navigation-link__name">{link.name}</span>
+                  {link.note && <span class="navigation-link__note">{link.note}</span>}
+                </a>
+              ))}
+            </div>
+          </section>
+        );
+      })}
+    </section>
+  </main>
+
+  <script>
+    document.querySelectorAll<HTMLImageElement>("[data-navigation-icon]").forEach((img) => {
+      img.addEventListener("error", () => {
+        img.hidden = true;
+        const fallback = img.nextElementSibling;
+        if (fallback instanceof HTMLElement) fallback.hidden = false;
+      });
+    });
+  </script>
+</BaseLayout>

@@ -1,0 +1,60 @@
+---
+import type { CollectionEntry } from "astro:content";
+import BaseLayout from "./BaseLayout.astro";
+import { siteMeta } from "../data/site";
+import { noteDisplayDate } from "../lib/notes";
+
+interface Props {
+  note: CollectionEntry<"notes">;
+  headings: { slug: string; text: string; depth: number }[];
+}
+
+const { note, headings } = Astro.props;
+const d = note.data;
+---
+
+<BaseLayout title={`${d.title} — 笔记 — ${siteMeta.title}`} description={d.description || siteMeta.description} currentPath="/notes">
+  <main class="container note-detail">
+    <a class="project-detail__back" href="/notes/">← 返回笔记</a>
+
+    <header class="note-detail__hero">
+      <div class="article-archive-header__eyebrow">
+        <span class="article-archive-header__line"></span>
+        Notes · {d.folder}
+      </div>
+      <h1 class="note-detail__title">{d.title}</h1>
+      {d.description && <p class="note-detail__copy">{d.description}</p>}
+      <div class="note-detail__meta-row">
+        <span>{d.sourcePath}</span>
+        <span>更新 · {noteDisplayDate(note)}</span>
+        <a href={d.sourceUrl} target="_blank" rel="noreferrer">GitHub 源文件</a>
+      </div>
+      {d.tags.length > 0 && (
+        <div class="project-detail__tags note-detail__tags">
+          {d.tags.map((tag) => <span class="project-detail__tag">#{tag}</span>)}
+        </div>
+      )}
+    </header>
+
+    <div class="note-detail__body">
+      <article class="article-prose note-detail__content">
+        <slot />
+      </article>
+
+      <aside class="note-detail__aside">
+        <div class="toc-card">
+          <div class="eyebrow">目录</div>
+          <ul>
+            {headings
+              .filter((heading) => heading.depth === 2 || heading.depth === 3)
+              .map((heading) => (
+                <li>
+                  <a href={`#${heading.slug}`} data-depth={heading.depth}>{heading.text}</a>
+                </li>
+              ))}
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </main>
+</BaseLayout>

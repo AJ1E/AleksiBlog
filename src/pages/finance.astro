@@ -1,0 +1,17 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { siteMeta } from "../data/site";
+---
+
+<BaseLayout title={`金融 — ${siteMeta.title}`} description="金融看板入口，后续用于展示大盘走势、基金股票和定投计划。" currentPath="/finance">
+  <main class="container utility-page">
+    <section class="utility-hero">
+      <div class="article-archive-header__eyebrow">
+        <span class="article-archive-header__line"></span>
+        Finance · Planned
+      </div>
+      <h1>金融</h1>
+      <p>这里会逐步整理大盘走势、基金股票观察和定投计划。第一阶段先保留入口，后续再接入真实数据和策略记录。</p>
+    </section>
+  </main>
+</BaseLayout>
