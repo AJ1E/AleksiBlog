@@ -1,0 +1,27 @@
+[Unit]
+Description=Aleksi Blog IP Risk Helper
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=aleksiz
+Group=aleksiz
+WorkingDirectory=/var/www/aleksiz/current
+EnvironmentFile=/var/www/aleksiz/shared/.env
+Environment=HOST=127.0.0.1
+Environment=IP_RISK_PORT=8788
+Environment=IP_RISK_SNAPSHOT_FILE=/var/www/aleksiz/shared/ip-risk-egress.json
+ExecStart=/usr/bin/node scripts/ip-risk-server.mjs
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=full
+ReadWritePaths=/var/www/aleksiz/shared /var/www/aleksiz/current
+
+[Install]
+WantedBy=multi-user.target

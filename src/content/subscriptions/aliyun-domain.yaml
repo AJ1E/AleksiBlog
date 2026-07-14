@@ -1,0 +1,23 @@
+name: 阿里云域名
+category: Domain
+provider: Alibaba Cloud
+status: active
+startedAt: "2026-07-07"
+tags: []
+renewal:
+  unit: year
+  interval: 1
+price:
+  amount: 95
+  currency: CNY
+usage:
+  percent: 0
+  note: ""
+description: 网站主域名的年度注册与续费服务。
+note: ""
+renewalUrl: https://www.aliyun.com/
+badge: Active
+accent: orange
+icon: /subscription-icons/alibabacloud.svg
+iconLabel: Alibaba Cloud
+color: "#FF6A00"

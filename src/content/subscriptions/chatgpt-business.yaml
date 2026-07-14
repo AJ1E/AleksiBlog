@@ -1,0 +1,22 @@
+name: ChatGPT Business Team
+category: AI
+provider: OpenAI
+status: active
+startedAt: "2026-05-17"
+tags: []
+renewal:
+  unit: month
+  interval: 1
+price:
+  amount: 20
+  currency: USD
+usage:
+  percent: 0
+  note: ""
+description: ChatGPT Business Team，用于日常写作、研究和开发协作。
+note: 检查 Bitget 卡余额
+badge: Active
+accent: orange
+icon: /subscription-icons/openai.svg
+iconLabel: OpenAI
+color: "#10A37F"

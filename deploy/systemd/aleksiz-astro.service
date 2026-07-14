@@ -1,0 +1,27 @@
+[Unit]
+Description=Aleksi Blog Astro SSR
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=aleksiz
+Group=aleksiz
+WorkingDirectory=/var/www/aleksiz/current
+EnvironmentFile=/var/www/aleksiz/shared/.env
+Environment=NODE_ENV=production
+Environment=HOST=127.0.0.1
+Environment=PORT=4322
+ExecStart=/usr/bin/node dist/server/entry.mjs
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=full
+ReadWritePaths=/var/www/aleksiz/shared /var/www/aleksiz/current
+
+[Install]
+WantedBy=multi-user.target

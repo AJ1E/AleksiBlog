@@ -57,16 +57,26 @@ for (const category of navigationCategories) {
                   title={`${link.name} · ${link.href}`}
                 >
                   <span class="navigation-link__icon" aria-hidden="true">
-                    <img
-                      src={faviconUrl(link.domain)}
-                      alt=""
-                      width="32"
-                      height="32"
-                      loading="lazy"
-                      decoding="async"
-                      data-navigation-icon
-                    />
-                    <span class="navigation-link__fallback" hidden>{link.abbr}</span>
+                    {link.iconUrl === null ? (
+                      <span class="navigation-link__fallback navigation-link__fallback--visible">{link.abbr}</span>
+                    ) : (
+                      <>
+                        <img
+                          class:list={[
+                            "navigation-link__image",
+                            link.iconMode === "crop-left" && "navigation-link__image--crop-left"
+                          ]}
+                          src={link.iconUrl ?? faviconUrl(link.domain)}
+                          alt=""
+                          width="32"
+                          height="32"
+                          loading="lazy"
+                          decoding="async"
+                          data-navigation-icon
+                        />
+                        <span class="navigation-link__fallback" hidden>{link.abbr}</span>
+                      </>
+                    )}
                   </span>
                   <span class="navigation-link__name">{link.name}</span>
                   {link.note && <span class="navigation-link__note">{link.note}</span>}

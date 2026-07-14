@@ -8,6 +8,7 @@ tags:
 renewal:
   unit: month
   interval: 1
+renewalUrl: https://example.com/billing
 price:
   amount: 9.99
   currency: USD

@@ -2,6 +2,7 @@ node_modules/
 dist/
 .astro/
 .claude/
+.workbuddy/
 .codegraph/
 .cache/
 
@@ -26,3 +27,4 @@ local/
 
 coverage/
 .turbo/
+output/playwright/

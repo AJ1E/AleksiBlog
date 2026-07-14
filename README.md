@@ -1,50 +1,60 @@
 # AleksiBlog
 
-AleksiBlog 是我的个人博客、工作台、看板和知识库项目。当前目标是先保留原项目简洁、干净、优雅的视觉风格，再逐步替换成自己的内容，并在后续按小步迭代的方式增加常见博客功能。
+Personal blog, working desk, knowledge base, and carefully protected private dashboard.
 
-本项目基于 [C2jeremy/kai-space](https://github.com/C2jeremy/kai-space) 二次开发。原项目提供了 Astro 博客、内容集合、React islands、私有 dashboard 和本地 helper 后端等基础能力。
+AleksiBlog is a customized fork of [C2jeremy/kai-space](https://github.com/C2jeremy/kai-space). It keeps the upstream project's quiet Astro visual language while adapting its content, notes, navigation, subscriptions, and personal tools for long-term personal use.
 
-## 当前方向
+## What Lives Here
 
-- 以个人博客为主，私有 dashboard 为辅。
-- 优先替换站点信息、作者信息、About 页面、文章内容和项目内容。
-- 保持现有架构，不轻易重构目录或删除原功能。
-- 安全相关能力继续通过 Astro BFF 访问，不直接暴露 helper 后端端口。
+- **Blog**: MDX articles, tags, projects, and an About page.
+- **Notes**: selected Obsidian Markdown synchronized at build time from `AJ1E/ObsdianNotes`; only subfolder Markdown is published.
+- **Navigation and Bucketlist**: useful links plus a private movie watchlist.
+- **Private dashboard**: subscriptions, AI usage, optional Beszel server status, and a visitor-IP view, all protected by site login where appropriate.
 
-## 技术栈
+## Stack
 
-- Astro SSR
-- React islands
-- TypeScript
-- MDX 内容文章
-- YAML 内容集合
-- Node helper backends
+- Astro 7 SSR with `@astrojs/node`
+- React islands and TypeScript
+- MDX and YAML content collections
+- Node helper services behind Astro BFF routes
 - pnpm
 
-## 本地运行
+## Local Development
 
 ```bash
-pnpm install
+pnpm install --frozen-lockfile
 pnpm dev
 ```
 
-默认访问：
+Open `http://127.0.0.1:4321/`.
 
-```text
-http://127.0.0.1:4321/
+Before sharing or deploying a change:
+
+```bash
+pnpm build
+pnpm audit --prod
+git diff --check
 ```
 
-生产环境部署前，请设置真实的 `SITE_AUTH_PASSWORD` 和 `SITE_AUTH_SECRET`，并且不要提交 `.env`、数据库、token、日志、快照或任何敏感文件。
+## Content Map
 
-## 内容位置
+| What | Location |
+| --- | --- |
+| Site title, navigation, public contact metadata | `src/data/site.ts` and `src/data/navigation.ts` |
+| Articles | `src/content/blog/` |
+| Projects | `src/content/projects/` |
+| Subscriptions | `src/content/subscriptions/` |
+| Bucketlist items | `src/content/bucketlist/` |
+| About page | `src/pages/about.astro` |
+| Long-term project rules | `AGENTS.md` and `docs/site-development-guide.md` |
 
-- 博客文章：`src/content/blog/`
-- 项目内容：`src/content/projects/`
-- 站点基础信息：`src/data/site.ts`
-- About 页面：`src/pages/about.astro`
-- 长期维护说明：`docs/site-development-guide.md`
-- 个人信息填空表：`docs/personal-profile-template.md`
+## Privacy And Security
 
-## 致谢
+- Do not commit `.env`, tokens, passwords, SSH keys, raw AI session logs, databases, or generated note caches.
+- Public traffic reaches Nginx and Astro only. Helper ports stay loopback-only behind Astro's auth-aware BFF.
+- The production release guide and rollback process are in [deploy.md](deploy.md); normal updates are in [update.md](update.md).
+- Read [docs/security-readiness.md](docs/security-readiness.md) before a dependency upgrade, public release, or deployment.
 
-感谢 [C2jeremy/kai-space](https://github.com/C2jeremy/kai-space) 提供的开源博客与 dashboard 模板。AleksiBlog 会在此基础上继续做个人化改造。
+## Credit
+
+The project began with [C2jeremy/kai-space](https://github.com/C2jeremy/kai-space). Thank you to its author for the Astro/blog/dashboard foundation that made this personal adaptation possible.

@@ -5,7 +5,7 @@ export const prerender = false;
 
 function safeNextPath(raw: string | null): string {
   if (!raw) return "/";
-  if (!raw.startsWith("/") || raw.startsWith("//")) return "/";
+  if (!raw.startsWith("/") || raw.startsWith("//") || raw.includes("\\") || raw.includes("\u0000")) return "/";
   return raw;
 }
 

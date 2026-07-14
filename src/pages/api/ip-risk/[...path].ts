@@ -1,25 +1,29 @@
 import type { APIRoute } from "astro";
-import { forward, maskIp } from "../../../lib/bff";
+import { apiError, forward, maskIp } from "../../../lib/bff";
 
 export const prerender = false;
 
-const ALL = ["GET", "POST", "OPTIONS"] as const;
-
 const handler: APIRoute = (context) => {
   const path = context.params.path ?? "";
-  const upstream = `/api/ip-risk/${path}`;
   const isAuthed = context.locals.auth?.isAuthed ?? false;
 
-  return forward("ip-risk", upstream, context, {
-    isAuthed,
-    transformJson: (body) => stripIpRisk(body, isAuthed),
-  });
+  if (context.request.method === "GET" && path === "egress") {
+    return forward("ip-risk", "/api/ip-risk/egress", context, {
+      isAuthed,
+      transformJson: (body) => stripIpRisk(body, isAuthed),
+    });
+  }
+
+  if (context.request.method === "POST" && path === "refresh") {
+    if (!isAuthed) return apiError(401, "auth-required", "ip-risk-refresh");
+    return forward("ip-risk", "/api/ip-risk/refresh", context, { isAuthed });
+  }
+
+  return apiError(404, "not-found");
 };
 
 export const GET: APIRoute = handler;
 export const POST: APIRoute = handler;
-export const OPTIONS: APIRoute = handler;
-export const ALL_METHODS = ALL;
 
 function stripIpRisk(body: unknown, isAuthed: boolean): unknown {
   if (isAuthed || !body || typeof body !== "object") return body;

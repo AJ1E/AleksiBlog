@@ -1,0 +1,23 @@
+name: 阿里云服务器
+category: Cloud
+provider: Alibaba Cloud
+status: active
+startedAt: "2026-01-04"
+tags: []
+renewal:
+  unit: year
+  interval: 1
+price:
+  amount: 300
+  currency: CNY
+usage:
+  percent: 0
+  note: ""
+description: 承载个人博客和相关线上服务的云服务器。
+note: ""
+renewalUrl: https://www.aliyun.com/
+badge: Active
+accent: orange
+icon: /subscription-icons/alibabacloud.svg
+iconLabel: Alibaba Cloud
+color: "#FF6A00"

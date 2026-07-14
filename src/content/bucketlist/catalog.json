@@ -1,0 +1,3004 @@
+[
+  {
+    "id": "movie-001",
+    "kind": "movie",
+    "rank": 1,
+    "titleZh": "肖申克的救赎",
+    "titleEn": "The Shawshank Redemption",
+    "releaseYear": 1994,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 1 名。片长与海报字段可在本地清单中继续补充。",
+    "imdbId": "tt0111161",
+    "imdbUrl": "https://www.imdb.com/title/tt0111161/"
+  },
+  {
+    "id": "movie-002",
+    "kind": "movie",
+    "rank": 2,
+    "titleZh": "教父",
+    "titleEn": "The Godfather",
+    "releaseYear": 1972,
+    "genres": [
+      "Crime"
+    ],
+    "summary": "IMDb Top 250 第 2 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-003",
+    "kind": "movie",
+    "rank": 3,
+    "titleZh": "黑暗骑士",
+    "titleEn": "The Dark Knight",
+    "releaseYear": 2008,
+    "genres": [
+      "Action"
+    ],
+    "summary": "IMDb Top 250 第 3 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-004",
+    "kind": "movie",
+    "rank": 4,
+    "titleZh": "教父2",
+    "titleEn": "The Godfather: Part II",
+    "releaseYear": 1974,
+    "genres": [
+      "Crime"
+    ],
+    "summary": "IMDb Top 250 第 4 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-005",
+    "kind": "movie",
+    "rank": 5,
+    "titleZh": "十二怒汉",
+    "titleEn": "12 Angry Men",
+    "releaseYear": 1957,
+    "genres": [
+      "Crime"
+    ],
+    "summary": "IMDb Top 250 第 5 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-006",
+    "kind": "movie",
+    "rank": 6,
+    "titleZh": "辛德勒的名单",
+    "titleEn": "Schindler's List",
+    "releaseYear": 1993,
+    "genres": [
+      "Biography"
+    ],
+    "summary": "IMDb Top 250 第 6 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-007",
+    "kind": "movie",
+    "rank": 7,
+    "titleZh": "指环王3：王者无敌",
+    "titleEn": "The Lord of the Rings: The Return of the King",
+    "releaseYear": 2003,
+    "genres": [
+      "Action"
+    ],
+    "summary": "IMDb Top 250 第 7 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-008",
+    "kind": "movie",
+    "rank": 8,
+    "titleZh": "低俗小说",
+    "titleEn": "Pulp Fiction",
+    "releaseYear": 1994,
+    "genres": [
+      "Crime"
+    ],
+    "summary": "IMDb Top 250 第 8 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-009",
+    "kind": "movie",
+    "rank": 9,
+    "titleZh": "指环王1：护戒使者",
+    "titleEn": "The Lord of the Rings: The Fellowship of the Ring",
+    "releaseYear": 2001,
+    "genres": [
+      "Adventure"
+    ],
+    "summary": "IMDb Top 250 第 9 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-010",
+    "kind": "movie",
+    "rank": 10,
+    "titleZh": "黄金三镖客",
+    "titleEn": "Il Buono, Il Brutto, Il Cattivo",
+    "releaseYear": 1966,
+    "genres": [
+      "Adventure"
+    ],
+    "summary": "IMDb Top 250 第 10 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-011",
+    "kind": "movie",
+    "rank": 11,
+    "titleZh": "阿甘正传",
+    "titleEn": "Forrest Gump",
+    "releaseYear": 1994,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 11 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-012",
+    "kind": "movie",
+    "rank": 12,
+    "titleZh": "搏击俱乐部",
+    "titleEn": "Fight Club",
+    "releaseYear": 1999,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 12 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-013",
+    "kind": "movie",
+    "rank": 13,
+    "titleZh": "盗梦空间",
+    "titleEn": "Inception",
+    "releaseYear": 2010,
+    "genres": [
+      "Action"
+    ],
+    "summary": "IMDb Top 250 第 13 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-014",
+    "kind": "movie",
+    "rank": 14,
+    "titleZh": "指环王2：双塔奇兵",
+    "titleEn": "The Lord of the Rings: The Two Towers",
+    "releaseYear": 2002,
+    "genres": [
+      "Action"
+    ],
+    "summary": "IMDb Top 250 第 14 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-015",
+    "kind": "movie",
+    "rank": 15,
+    "titleZh": "星球大战5：帝国反击战",
+    "titleEn": "Star Wars: Episode V - The Empire Strikes Back",
+    "releaseYear": 1980,
+    "genres": [
+      "Action"
+    ],
+    "summary": "IMDb Top 250 第 15 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-016",
+    "kind": "movie",
+    "rank": 16,
+    "titleZh": "黑客帝国",
+    "titleEn": "The Matrix",
+    "releaseYear": 1999,
+    "genres": [
+      "Action"
+    ],
+    "summary": "IMDb Top 250 第 16 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-017",
+    "kind": "movie",
+    "rank": 17,
+    "titleZh": "好家伙",
+    "titleEn": "Goodfellas",
+    "releaseYear": 1990,
+    "genres": [
+      "Biography"
+    ],
+    "summary": "IMDb Top 250 第 17 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-018",
+    "kind": "movie",
+    "rank": 18,
+    "titleZh": "飞越疯人院",
+    "titleEn": "One Flew Over the Cuckoo's Nest",
+    "releaseYear": 1975,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 18 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-019",
+    "kind": "movie",
+    "rank": 19,
+    "titleZh": "七宗罪",
+    "titleEn": "Se7en",
+    "releaseYear": 1995,
+    "genres": [
+      "Crime"
+    ],
+    "summary": "IMDb Top 250 第 19 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-020",
+    "kind": "movie",
+    "rank": 20,
+    "titleZh": "七武士",
+    "titleEn": "Shichinin No Samurai",
+    "releaseYear": 1954,
+    "genres": [
+      "Action"
+    ],
+    "summary": "IMDb Top 250 第 20 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-021",
+    "kind": "movie",
+    "rank": 21,
+    "titleZh": "生活多美好",
+    "titleEn": "It's a Wonderful Life",
+    "releaseYear": 1946,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 21 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-022",
+    "kind": "movie",
+    "rank": 22,
+    "titleZh": "沉默的羔羊",
+    "titleEn": "The Silence of the Lambs",
+    "releaseYear": 1991,
+    "genres": [
+      "Crime"
+    ],
+    "summary": "IMDb Top 250 第 22 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-023",
+    "kind": "movie",
+    "rank": 23,
+    "titleZh": "上帝之城",
+    "titleEn": "City of God",
+    "releaseYear": 2002,
+    "genres": [
+      "Crime"
+    ],
+    "summary": "IMDb Top 250 第 23 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-024",
+    "kind": "movie",
+    "rank": 24,
+    "titleZh": "拯救大兵瑞恩",
+    "titleEn": "Saving Private Ryan",
+    "releaseYear": 1998,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 24 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-025",
+    "kind": "movie",
+    "rank": 25,
+    "titleZh": "美丽人生",
+    "titleEn": "La vita è bella",
+    "releaseYear": 1997,
+    "genres": [
+      "Comedy"
+    ],
+    "summary": "IMDb Top 250 第 25 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-026",
+    "kind": "movie",
+    "rank": 26,
+    "titleZh": "绿里奇迹",
+    "titleEn": "The Green Mile",
+    "releaseYear": 1999,
+    "genres": [
+      "Crime"
+    ],
+    "summary": "IMDb Top 250 第 26 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-027",
+    "kind": "movie",
+    "rank": 27,
+    "titleZh": "星际穿越",
+    "titleEn": "Interstellar",
+    "releaseYear": 2014,
+    "genres": [
+      "Adventure"
+    ],
+    "summary": "IMDb Top 250 第 27 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-028",
+    "kind": "movie",
+    "rank": 28,
+    "titleZh": "星球大战",
+    "titleEn": "Star Wars",
+    "releaseYear": 1977,
+    "genres": [
+      "Action"
+    ],
+    "summary": "IMDb Top 250 第 28 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-029",
+    "kind": "movie",
+    "rank": 29,
+    "titleZh": "终结者2：审判日",
+    "titleEn": "Terminator 2: Judgment Day",
+    "releaseYear": 1991,
+    "genres": [
+      "Action"
+    ],
+    "summary": "IMDb Top 250 第 29 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-030",
+    "kind": "movie",
+    "rank": 30,
+    "titleZh": "回到未来",
+    "titleEn": "Back to the Future",
+    "releaseYear": 1985,
+    "genres": [
+      "Adventure"
+    ],
+    "summary": "IMDb Top 250 第 30 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-031",
+    "kind": "movie",
+    "rank": 31,
+    "titleZh": "千与千寻",
+    "titleEn": "Spirited Away",
+    "releaseYear": 2001,
+    "genres": [
+      "Animation"
+    ],
+    "summary": "IMDb Top 250 第 31 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-032",
+    "kind": "movie",
+    "rank": 32,
+    "titleZh": "惊魂记",
+    "titleEn": "Psycho",
+    "releaseYear": 1960,
+    "genres": [
+      "Horror"
+    ],
+    "summary": "IMDb Top 250 第 32 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-033",
+    "kind": "movie",
+    "rank": 33,
+    "titleZh": "钢琴家",
+    "titleEn": "The Pianist",
+    "releaseYear": 2002,
+    "genres": [
+      "Biography"
+    ],
+    "summary": "IMDb Top 250 第 33 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-034",
+    "kind": "movie",
+    "rank": 34,
+    "titleZh": "这个杀手不太冷",
+    "titleEn": "Léon",
+    "releaseYear": 1994,
+    "genres": [
+      "Action"
+    ],
+    "summary": "IMDb Top 250 第 34 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-035",
+    "kind": "movie",
+    "rank": 35,
+    "titleZh": "寄生虫",
+    "titleEn": "Parasite",
+    "releaseYear": 2019,
+    "genres": [
+      "Comedy"
+    ],
+    "summary": "IMDb Top 250 第 35 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-036",
+    "kind": "movie",
+    "rank": 36,
+    "titleZh": "狮子王",
+    "titleEn": "The Lion King",
+    "releaseYear": 1994,
+    "genres": [
+      "Animation"
+    ],
+    "summary": "IMDb Top 250 第 36 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-037",
+    "kind": "movie",
+    "rank": 37,
+    "titleZh": "角斗士",
+    "titleEn": "Gladiator",
+    "releaseYear": 2000,
+    "genres": [
+      "Action"
+    ],
+    "summary": "IMDb Top 250 第 37 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-038",
+    "kind": "movie",
+    "rank": 38,
+    "titleZh": "美国X档案",
+    "titleEn": "American History X",
+    "releaseYear": 1998,
+    "genres": [
+      "Crime"
+    ],
+    "summary": "IMDb Top 250 第 38 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-039",
+    "kind": "movie",
+    "rank": 39,
+    "titleZh": "非常嫌疑犯",
+    "titleEn": "The Usual Suspects",
+    "releaseYear": 1995,
+    "genres": [
+      "Crime"
+    ],
+    "summary": "IMDb Top 250 第 39 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-040",
+    "kind": "movie",
+    "rank": 40,
+    "titleZh": "无间道风云",
+    "titleEn": "The Departed",
+    "releaseYear": 2006,
+    "genres": [
+      "Crime"
+    ],
+    "summary": "IMDb Top 250 第 40 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-041",
+    "kind": "movie",
+    "rank": 41,
+    "titleZh": "致命魔术",
+    "titleEn": "The Prestige",
+    "releaseYear": 2006,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 41 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-042",
+    "kind": "movie",
+    "rank": 42,
+    "titleZh": "卡萨布兰卡",
+    "titleEn": "Casablanca",
+    "releaseYear": 1942,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 42 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-043",
+    "kind": "movie",
+    "rank": 43,
+    "titleZh": "爆裂鼓手",
+    "titleEn": "Whiplash",
+    "releaseYear": 2014,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 43 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-044",
+    "kind": "movie",
+    "rank": 44,
+    "titleZh": "触不可及",
+    "titleEn": "The Intouchables",
+    "releaseYear": 2011,
+    "genres": [
+      "Biography"
+    ],
+    "summary": "IMDb Top 250 第 44 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-045",
+    "kind": "movie",
+    "rank": 45,
+    "titleZh": "壮志凌云2",
+    "titleEn": "Top Gun: Maverick",
+    "releaseYear": 2022,
+    "genres": [
+      "Action"
+    ],
+    "summary": "IMDb Top 250 第 45 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-046",
+    "kind": "movie",
+    "rank": 46,
+    "titleZh": "摩登时代",
+    "titleEn": "Modern Times",
+    "releaseYear": 1936,
+    "genres": [
+      "Comedy"
+    ],
+    "summary": "IMDb Top 250 第 46 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-047",
+    "kind": "movie",
+    "rank": 47,
+    "titleZh": "切腹",
+    "titleEn": "Hara-Kiri",
+    "releaseYear": 1962,
+    "genres": [
+      "Action"
+    ],
+    "summary": "IMDb Top 250 第 47 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-048",
+    "kind": "movie",
+    "rank": 48,
+    "titleZh": "西部往事",
+    "titleEn": "Once Upon a Time in the West",
+    "releaseYear": 1968,
+    "genres": [
+      "Western"
+    ],
+    "summary": "IMDb Top 250 第 48 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-049",
+    "kind": "movie",
+    "rank": 49,
+    "titleZh": "萤火虫之墓",
+    "titleEn": "Grave of the Fireflies",
+    "releaseYear": 1988,
+    "genres": [
+      "Animation"
+    ],
+    "summary": "IMDb Top 250 第 49 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-050",
+    "kind": "movie",
+    "rank": 50,
+    "titleZh": "后窗",
+    "titleEn": "Rear Window",
+    "releaseYear": 1954,
+    "genres": [
+      "Mystery"
+    ],
+    "summary": "IMDb Top 250 第 50 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-051",
+    "kind": "movie",
+    "rank": 51,
+    "titleZh": "异形",
+    "titleEn": "Alien",
+    "releaseYear": 1979,
+    "genres": [
+      "Horror"
+    ],
+    "summary": "IMDb Top 250 第 51 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-052",
+    "kind": "movie",
+    "rank": 52,
+    "titleZh": "城市之光",
+    "titleEn": "City Lights",
+    "releaseYear": 1931,
+    "genres": [
+      "Comedy"
+    ],
+    "summary": "IMDb Top 250 第 52 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-053",
+    "kind": "movie",
+    "rank": 53,
+    "titleZh": "天堂电影院",
+    "titleEn": "Cinema Paradiso",
+    "releaseYear": 1988,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 53 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-054",
+    "kind": "movie",
+    "rank": 54,
+    "titleZh": "记忆碎片",
+    "titleEn": "Memento",
+    "releaseYear": 2000,
+    "genres": [
+      "Mystery"
+    ],
+    "summary": "IMDb Top 250 第 54 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-055",
+    "kind": "movie",
+    "rank": 55,
+    "titleZh": "现代启示录",
+    "titleEn": "Apocalypse Now",
+    "releaseYear": 1979,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 55 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-056",
+    "kind": "movie",
+    "rank": 56,
+    "titleZh": "夺宝奇兵",
+    "titleEn": "Raiders of the Lost Ark",
+    "releaseYear": 1981,
+    "genres": [
+      "Action"
+    ],
+    "summary": "IMDb Top 250 第 56 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-057",
+    "kind": "movie",
+    "rank": 57,
+    "titleZh": "被解救的姜戈",
+    "titleEn": "Django Unchained",
+    "releaseYear": 2012,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 57 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-058",
+    "kind": "movie",
+    "rank": 58,
+    "titleZh": "机器人总动员",
+    "titleEn": "WALL·E",
+    "releaseYear": 2008,
+    "genres": [
+      "Animation"
+    ],
+    "summary": "IMDb Top 250 第 58 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-059",
+    "kind": "movie",
+    "rank": 59,
+    "titleZh": "窃听风暴",
+    "titleEn": "Das Leben der Anderen",
+    "releaseYear": 2006,
+    "genres": [
+      "Biography"
+    ],
+    "summary": "IMDb Top 250 第 59 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-060",
+    "kind": "movie",
+    "rank": 60,
+    "titleZh": "日落大道",
+    "titleEn": "Sunset Blvd.",
+    "releaseYear": 1950,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 60 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-061",
+    "kind": "movie",
+    "rank": 61,
+    "titleZh": "光荣之路",
+    "titleEn": "Paths of Glory",
+    "releaseYear": 1957,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 61 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-062",
+    "kind": "movie",
+    "rank": 62,
+    "titleZh": "闪灵",
+    "titleEn": "The Shining",
+    "releaseYear": 1980,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 62 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-063",
+    "kind": "movie",
+    "rank": 63,
+    "titleZh": "大独裁者",
+    "titleEn": "The Great Dictator",
+    "releaseYear": 1940,
+    "genres": [
+      "Comedy"
+    ],
+    "summary": "IMDb Top 250 第 63 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-064",
+    "kind": "movie",
+    "rank": 64,
+    "titleZh": "控方证人",
+    "titleEn": "Witness for the Prosecution",
+    "releaseYear": 1957,
+    "genres": [
+      "Crime"
+    ],
+    "summary": "IMDb Top 250 第 64 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-065",
+    "kind": "movie",
+    "rank": 65,
+    "titleZh": "复仇者联盟3：无限战争",
+    "titleEn": "Avengers: Infinity War",
+    "releaseYear": 2018,
+    "genres": [
+      "Action"
+    ],
+    "summary": "IMDb Top 250 第 65 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-066",
+    "kind": "movie",
+    "rank": 66,
+    "titleZh": "异形2",
+    "titleEn": "Aliens",
+    "releaseYear": 1986,
+    "genres": [
+      "Action"
+    ],
+    "summary": "IMDb Top 250 第 66 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-067",
+    "kind": "movie",
+    "rank": 67,
+    "titleZh": "美国丽人",
+    "titleEn": "American Beauty",
+    "releaseYear": 1999,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 67 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-068",
+    "kind": "movie",
+    "rank": 68,
+    "titleZh": "奇爱博士",
+    "titleEn": "Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb",
+    "releaseYear": 1964,
+    "genres": [
+      "Comedy"
+    ],
+    "summary": "IMDb Top 250 第 68 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-069",
+    "kind": "movie",
+    "rank": 69,
+    "titleZh": "蜘蛛侠：平行宇宙",
+    "titleEn": "Spider-Man: Into the Spider-Verse",
+    "releaseYear": 2018,
+    "genres": [
+      "Animation"
+    ],
+    "summary": "IMDb Top 250 第 69 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-070",
+    "kind": "movie",
+    "rank": 70,
+    "titleZh": "黑暗骑士崛起",
+    "titleEn": "The Dark Knight Rises",
+    "releaseYear": 2012,
+    "genres": [
+      "Action"
+    ],
+    "summary": "IMDb Top 250 第 70 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-071",
+    "kind": "movie",
+    "rank": 71,
+    "titleZh": "老男孩",
+    "titleEn": "Oldeuboi",
+    "releaseYear": 2003,
+    "genres": [
+      "Action"
+    ],
+    "summary": "IMDb Top 250 第 71 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-072",
+    "kind": "movie",
+    "rank": 72,
+    "titleZh": "小丑",
+    "titleEn": "Joker",
+    "releaseYear": 2019,
+    "genres": [
+      "Crime"
+    ],
+    "summary": "IMDb Top 250 第 72 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-073",
+    "kind": "movie",
+    "rank": 73,
+    "titleZh": "莫扎特传",
+    "titleEn": "Amadeus",
+    "releaseYear": 1984,
+    "genres": [
+      "Biography"
+    ],
+    "summary": "IMDb Top 250 第 73 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-074",
+    "kind": "movie",
+    "rank": 74,
+    "titleZh": "勇敢的心",
+    "titleEn": "Braveheart",
+    "releaseYear": 1995,
+    "genres": [
+      "Biography"
+    ],
+    "summary": "IMDb Top 250 第 74 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-075",
+    "kind": "movie",
+    "rank": 75,
+    "titleZh": "玩具总动员",
+    "titleEn": "Toy Story",
+    "releaseYear": 1995,
+    "genres": [
+      "Animation"
+    ],
+    "summary": "IMDb Top 250 第 75 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-076",
+    "kind": "movie",
+    "rank": 76,
+    "titleZh": "从海底出击",
+    "titleEn": "Das Boot",
+    "releaseYear": 1981,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 76 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-077",
+    "kind": "movie",
+    "rank": 77,
+    "titleZh": "寻梦环游记",
+    "titleEn": "Coco",
+    "releaseYear": 2017,
+    "genres": [
+      "Animation"
+    ],
+    "summary": "IMDb Top 250 第 77 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-078",
+    "kind": "movie",
+    "rank": 78,
+    "titleZh": "无耻混蛋",
+    "titleEn": "Inglourious Basterds",
+    "releaseYear": 2009,
+    "genres": [
+      "Adventure"
+    ],
+    "summary": "IMDb Top 250 第 78 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-079",
+    "kind": "movie",
+    "rank": 79,
+    "titleZh": "幽灵公主",
+    "titleEn": "Mononoke-hime",
+    "releaseYear": 1997,
+    "genres": [
+      "Animation"
+    ],
+    "summary": "IMDb Top 250 第 79 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-080",
+    "kind": "movie",
+    "rank": 80,
+    "titleZh": "复仇者联盟4：终局之战",
+    "titleEn": "Avengers: Endgame",
+    "releaseYear": 2019,
+    "genres": [
+      "Action"
+    ],
+    "summary": "IMDb Top 250 第 80 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-081",
+    "kind": "movie",
+    "rank": 81,
+    "titleZh": "美国往事",
+    "titleEn": "Once Upon a Time in America",
+    "releaseYear": 1984,
+    "genres": [
+      "Crime"
+    ],
+    "summary": "IMDb Top 250 第 81 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-082",
+    "kind": "movie",
+    "rank": 82,
+    "titleZh": "心灵捕手",
+    "titleEn": "Good Will Hunting",
+    "releaseYear": 1997,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 82 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-083",
+    "kind": "movie",
+    "rank": 83,
+    "titleZh": "玩具总动员3",
+    "titleEn": "Toy Story 3",
+    "releaseYear": 2010,
+    "genres": [
+      "Animation"
+    ],
+    "summary": "IMDb Top 250 第 83 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-084",
+    "kind": "movie",
+    "rank": 84,
+    "titleZh": "梦之安魂曲",
+    "titleEn": "Requiem for a Dream",
+    "releaseYear": 2000,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 84 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-085",
+    "kind": "movie",
+    "rank": 85,
+    "titleZh": "你的名字。",
+    "titleEn": "Kimi No Na Wa.",
+    "releaseYear": 2016,
+    "genres": [
+      "Animation"
+    ],
+    "summary": "IMDb Top 250 第 85 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-086",
+    "kind": "movie",
+    "rank": 86,
+    "titleZh": "雨中曲",
+    "titleEn": "Singin' in the Rain",
+    "releaseYear": 1952,
+    "genres": [
+      "Comedy"
+    ],
+    "summary": "IMDb Top 250 第 86 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-087",
+    "kind": "movie",
+    "rank": 87,
+    "titleZh": "三傻大闹宝莱坞",
+    "titleEn": "3 Idiots",
+    "releaseYear": 2009,
+    "genres": [
+      "Comedy"
+    ],
+    "summary": "IMDb Top 250 第 87 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-088",
+    "kind": "movie",
+    "rank": 88,
+    "titleZh": "星球大战6：绝地归来",
+    "titleEn": "Star Wars: Episode VI - Return of the Jedi",
+    "releaseYear": 1983,
+    "genres": [
+      "Action"
+    ],
+    "summary": "IMDb Top 250 第 88 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-089",
+    "kind": "movie",
+    "rank": 89,
+    "titleZh": "2001太空漫游",
+    "titleEn": "2001: A Space Odyssey",
+    "releaseYear": 1968,
+    "genres": [
+      "Adventure"
+    ],
+    "summary": "IMDb Top 250 第 89 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-090",
+    "kind": "movie",
+    "rank": 90,
+    "titleZh": "暖暖内含光",
+    "titleEn": "Eternal Sunshine of the Spotless Mind",
+    "releaseYear": 2004,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 90 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-091",
+    "kind": "movie",
+    "rank": 91,
+    "titleZh": "落水狗",
+    "titleEn": "Reservoir Dogs",
+    "releaseYear": 1992,
+    "genres": [
+      "Crime"
+    ],
+    "summary": "IMDb Top 250 第 91 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-092",
+    "kind": "movie",
+    "rank": 92,
+    "titleZh": "天国与地狱",
+    "titleEn": "Tengoku to Jigoku",
+    "releaseYear": 1963,
+    "genres": [
+      "Crime"
+    ],
+    "summary": "IMDb Top 250 第 92 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-093",
+    "kind": "movie",
+    "rank": 93,
+    "titleZh": "何以为家",
+    "titleEn": "Capharnaüm",
+    "releaseYear": 2018,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 93 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-094",
+    "kind": "movie",
+    "rank": 94,
+    "titleZh": "公民凯恩",
+    "titleEn": "Citizen Kane",
+    "releaseYear": 1941,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 94 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-095",
+    "kind": "movie",
+    "rank": 95,
+    "titleZh": "阿拉伯的劳伦斯",
+    "titleEn": "Lawrence of Arabia",
+    "releaseYear": 1962,
+    "genres": [
+      "Adventure"
+    ],
+    "summary": "IMDb Top 250 第 95 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-096",
+    "kind": "movie",
+    "rank": 96,
+    "titleZh": "狩猎",
+    "titleEn": "Jagten",
+    "releaseYear": 2012,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 96 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-097",
+    "kind": "movie",
+    "rank": 97,
+    "titleZh": "M就是凶手",
+    "titleEn": "M - Eine Stadt sucht einen Mörder",
+    "releaseYear": 1931,
+    "genres": [
+      "Crime"
+    ],
+    "summary": "IMDb Top 250 第 97 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-098",
+    "kind": "movie",
+    "rank": 98,
+    "titleZh": "西北偏北",
+    "titleEn": "North by Northwest",
+    "releaseYear": 1959,
+    "genres": [
+      "Action"
+    ],
+    "summary": "IMDb Top 250 第 98 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-099",
+    "kind": "movie",
+    "rank": 99,
+    "titleZh": "迷魂记",
+    "titleEn": "Vertigo",
+    "releaseYear": 1958,
+    "genres": [
+      "Mystery"
+    ],
+    "summary": "IMDb Top 250 第 99 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-100",
+    "kind": "movie",
+    "rank": 100,
+    "titleZh": "天使爱美丽",
+    "titleEn": "Le fabuleux destin d'Amélie Poulain",
+    "releaseYear": 2001,
+    "genres": [
+      "Comedy"
+    ],
+    "summary": "IMDb Top 250 第 100 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-101",
+    "kind": "movie",
+    "rank": 101,
+    "titleZh": "Idi I Smotri",
+    "titleEn": "Idi I Smotri",
+    "releaseYear": 1985,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 101 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-102",
+    "kind": "movie",
+    "rank": 102,
+    "titleZh": "A Clockwork Orange",
+    "titleEn": "A Clockwork Orange",
+    "releaseYear": 1971,
+    "genres": [
+      "Crime"
+    ],
+    "summary": "IMDb Top 250 第 102 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-103",
+    "kind": "movie",
+    "rank": 103,
+    "titleZh": "Full Metal Jacket",
+    "titleEn": "Full Metal Jacket",
+    "releaseYear": 1987,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 103 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-104",
+    "kind": "movie",
+    "rank": 104,
+    "titleZh": "Double Indemnity",
+    "titleEn": "Double Indemnity",
+    "releaseYear": 1944,
+    "genres": [
+      "Crime"
+    ],
+    "summary": "IMDb Top 250 第 104 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-105",
+    "kind": "movie",
+    "rank": 105,
+    "titleZh": "The Apartment",
+    "titleEn": "The Apartment",
+    "releaseYear": 1960,
+    "genres": [
+      "Comedy"
+    ],
+    "summary": "IMDb Top 250 第 105 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-106",
+    "kind": "movie",
+    "rank": 106,
+    "titleZh": "Scarface",
+    "titleEn": "Scarface",
+    "releaseYear": 1983,
+    "genres": [
+      "Crime"
+    ],
+    "summary": "IMDb Top 250 第 106 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-107",
+    "kind": "movie",
+    "rank": 107,
+    "titleZh": "Ikiru",
+    "titleEn": "Ikiru",
+    "releaseYear": 1952,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 107 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-108",
+    "kind": "movie",
+    "rank": 108,
+    "titleZh": "The Sting",
+    "titleEn": "The Sting",
+    "releaseYear": 1973,
+    "genres": [
+      "Comedy"
+    ],
+    "summary": "IMDb Top 250 第 108 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-109",
+    "kind": "movie",
+    "rank": 109,
+    "titleZh": "To Kill a Mockingbird",
+    "titleEn": "To Kill a Mockingbird",
+    "releaseYear": 1962,
+    "genres": [
+      "Crime"
+    ],
+    "summary": "IMDb Top 250 第 109 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-110",
+    "kind": "movie",
+    "rank": 110,
+    "titleZh": "Taxi Driver",
+    "titleEn": "Taxi Driver",
+    "releaseYear": 1976,
+    "genres": [
+      "Crime"
+    ],
+    "summary": "IMDb Top 250 第 110 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-111",
+    "kind": "movie",
+    "rank": 111,
+    "titleZh": "Up",
+    "titleEn": "Up",
+    "releaseYear": 2009,
+    "genres": [
+      "Animation"
+    ],
+    "summary": "IMDb Top 250 第 111 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-112",
+    "kind": "movie",
+    "rank": 112,
+    "titleZh": "L.A. Confidential",
+    "titleEn": "L.A. Confidential",
+    "releaseYear": 1997,
+    "genres": [
+      "Crime"
+    ],
+    "summary": "IMDb Top 250 第 112 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-113",
+    "kind": "movie",
+    "rank": 113,
+    "titleZh": "Heat",
+    "titleEn": "Heat",
+    "releaseYear": 1995,
+    "genres": [
+      "Action"
+    ],
+    "summary": "IMDb Top 250 第 113 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-114",
+    "kind": "movie",
+    "rank": 114,
+    "titleZh": "Metropolis",
+    "titleEn": "Metropolis",
+    "releaseYear": 1927,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 114 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-115",
+    "kind": "movie",
+    "rank": 115,
+    "titleZh": "Jodaeiye Nader Az Simin",
+    "titleEn": "Jodaeiye Nader Az Simin",
+    "releaseYear": 2011,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 115 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-116",
+    "kind": "movie",
+    "rank": 116,
+    "titleZh": "Die Hard",
+    "titleEn": "Die Hard",
+    "releaseYear": 1988,
+    "genres": [
+      "Action"
+    ],
+    "summary": "IMDb Top 250 第 116 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-117",
+    "kind": "movie",
+    "rank": 117,
+    "titleZh": "Snatch",
+    "titleEn": "Snatch",
+    "releaseYear": 2000,
+    "genres": [
+      "Comedy"
+    ],
+    "summary": "IMDb Top 250 第 117 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-118",
+    "kind": "movie",
+    "rank": 118,
+    "titleZh": "Incendies",
+    "titleEn": "Incendies",
+    "releaseYear": 2010,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 118 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-119",
+    "kind": "movie",
+    "rank": 119,
+    "titleZh": "Hamilton",
+    "titleEn": "Hamilton",
+    "releaseYear": 2020,
+    "genres": [
+      "Biography"
+    ],
+    "summary": "IMDb Top 250 第 119 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-120",
+    "kind": "movie",
+    "rank": 120,
+    "titleZh": "Indiana Jones and the Last Crusade",
+    "titleEn": "Indiana Jones and the Last Crusade",
+    "releaseYear": 1989,
+    "genres": [
+      "Action"
+    ],
+    "summary": "IMDb Top 250 第 120 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-121",
+    "kind": "movie",
+    "rank": 121,
+    "titleZh": "Ladri Di Biciclette",
+    "titleEn": "Ladri Di Biciclette",
+    "releaseYear": 1948,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 121 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-122",
+    "kind": "movie",
+    "rank": 122,
+    "titleZh": "1917",
+    "titleEn": "1917",
+    "releaseYear": 2019,
+    "genres": [
+      "Action"
+    ],
+    "summary": "IMDb Top 250 第 122 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-123",
+    "kind": "movie",
+    "rank": 123,
+    "titleZh": "Taare Zameen Par",
+    "titleEn": "Taare Zameen Par",
+    "releaseYear": 2007,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 123 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-124",
+    "kind": "movie",
+    "rank": 124,
+    "titleZh": "Der Untergang",
+    "titleEn": "Der Untergang",
+    "releaseYear": 2004,
+    "genres": [
+      "Biography"
+    ],
+    "summary": "IMDb Top 250 第 124 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-125",
+    "kind": "movie",
+    "rank": 125,
+    "titleZh": "Per qualche dollaro in più",
+    "titleEn": "Per qualche dollaro in più",
+    "releaseYear": 1965,
+    "genres": [
+      "Western"
+    ],
+    "summary": "IMDb Top 250 第 125 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-126",
+    "kind": "movie",
+    "rank": 126,
+    "titleZh": "Batman Begins",
+    "titleEn": "Batman Begins",
+    "releaseYear": 2005,
+    "genres": [
+      "Action"
+    ],
+    "summary": "IMDb Top 250 第 126 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-127",
+    "kind": "movie",
+    "rank": 127,
+    "titleZh": "Dangal",
+    "titleEn": "Dangal",
+    "releaseYear": 2016,
+    "genres": [
+      "Action"
+    ],
+    "summary": "IMDb Top 250 第 127 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-128",
+    "kind": "movie",
+    "rank": 128,
+    "titleZh": "Spider-Man: No Way Home",
+    "titleEn": "Spider-Man: No Way Home",
+    "releaseYear": 2021,
+    "genres": [
+      "Action"
+    ],
+    "summary": "IMDb Top 250 第 128 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-129",
+    "kind": "movie",
+    "rank": 129,
+    "titleZh": "The Kid",
+    "titleEn": "The Kid",
+    "releaseYear": 1921,
+    "genres": [
+      "Comedy"
+    ],
+    "summary": "IMDb Top 250 第 129 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-130",
+    "kind": "movie",
+    "rank": 130,
+    "titleZh": "Some Like It Hot",
+    "titleEn": "Some Like It Hot",
+    "releaseYear": 1959,
+    "genres": [
+      "Comedy"
+    ],
+    "summary": "IMDb Top 250 第 130 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-131",
+    "kind": "movie",
+    "rank": 131,
+    "titleZh": "All About Eve",
+    "titleEn": "All About Eve",
+    "releaseYear": 1950,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 131 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-132",
+    "kind": "movie",
+    "rank": 132,
+    "titleZh": "The Father",
+    "titleEn": "The Father",
+    "releaseYear": 2020,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 132 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-133",
+    "kind": "movie",
+    "rank": 133,
+    "titleZh": "Green Book",
+    "titleEn": "Green Book",
+    "releaseYear": 2018,
+    "genres": [
+      "Biography"
+    ],
+    "summary": "IMDb Top 250 第 133 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-134",
+    "kind": "movie",
+    "rank": 134,
+    "titleZh": "The Wolf of Wall Street",
+    "titleEn": "The Wolf of Wall Street",
+    "releaseYear": 2013,
+    "genres": [
+      "Biography"
+    ],
+    "summary": "IMDb Top 250 第 134 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-135",
+    "kind": "movie",
+    "rank": 135,
+    "titleZh": "Judgment at Nuremberg",
+    "titleEn": "Judgment at Nuremberg",
+    "releaseYear": 1961,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 135 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-136",
+    "kind": "movie",
+    "rank": 136,
+    "titleZh": "Ran",
+    "titleEn": "Ran",
+    "releaseYear": 1985,
+    "genres": [
+      "Action"
+    ],
+    "summary": "IMDb Top 250 第 136 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-137",
+    "kind": "movie",
+    "rank": 137,
+    "titleZh": "Unforgiven",
+    "titleEn": "Unforgiven",
+    "releaseYear": 1992,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 137 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-138",
+    "kind": "movie",
+    "rank": 138,
+    "titleZh": "Casino",
+    "titleEn": "Casino",
+    "releaseYear": 1995,
+    "genres": [
+      "Crime"
+    ],
+    "summary": "IMDb Top 250 第 138 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-139",
+    "kind": "movie",
+    "rank": 139,
+    "titleZh": "El Laberinto Del Fauno",
+    "titleEn": "El Laberinto Del Fauno",
+    "releaseYear": 2006,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 139 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-140",
+    "kind": "movie",
+    "rank": 140,
+    "titleZh": "There Will Be Blood",
+    "titleEn": "There Will Be Blood",
+    "releaseYear": 2007,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 140 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-141",
+    "kind": "movie",
+    "rank": 141,
+    "titleZh": "The Sixth Sense",
+    "titleEn": "The Sixth Sense",
+    "releaseYear": 1999,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 141 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-142",
+    "kind": "movie",
+    "rank": 142,
+    "titleZh": "A Beautiful Mind",
+    "titleEn": "A Beautiful Mind",
+    "releaseYear": 2001,
+    "genres": [
+      "Biography"
+    ],
+    "summary": "IMDb Top 250 第 142 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-143",
+    "kind": "movie",
+    "rank": 143,
+    "titleZh": "The Truman Show",
+    "titleEn": "The Truman Show",
+    "releaseYear": 1998,
+    "genres": [
+      "Comedy"
+    ],
+    "summary": "IMDb Top 250 第 143 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-144",
+    "kind": "movie",
+    "rank": 144,
+    "titleZh": "Monty Python and the Holy Grail",
+    "titleEn": "Monty Python and the Holy Grail",
+    "releaseYear": 1975,
+    "genres": [
+      "Adventure"
+    ],
+    "summary": "IMDb Top 250 第 144 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-145",
+    "kind": "movie",
+    "rank": 145,
+    "titleZh": "Yôjinbô",
+    "titleEn": "Yôjinbô",
+    "releaseYear": 1961,
+    "genres": [
+      "Action"
+    ],
+    "summary": "IMDb Top 250 第 145 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-146",
+    "kind": "movie",
+    "rank": 146,
+    "titleZh": "The Treasure of the Sierra Madre",
+    "titleEn": "The Treasure of the Sierra Madre",
+    "releaseYear": 1948,
+    "genres": [
+      "Adventure"
+    ],
+    "summary": "IMDb Top 250 第 146 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-147",
+    "kind": "movie",
+    "rank": 147,
+    "titleZh": "Shutter Island",
+    "titleEn": "Shutter Island",
+    "releaseYear": 2010,
+    "genres": [
+      "Mystery"
+    ],
+    "summary": "IMDb Top 250 第 147 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-148",
+    "kind": "movie",
+    "rank": 148,
+    "titleZh": "Rashōmon",
+    "titleEn": "Rashōmon",
+    "releaseYear": 1950,
+    "genres": [
+      "Crime"
+    ],
+    "summary": "IMDb Top 250 第 148 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-149",
+    "kind": "movie",
+    "rank": 149,
+    "titleZh": "Jurassic Park",
+    "titleEn": "Jurassic Park",
+    "releaseYear": 1993,
+    "genres": [
+      "Action"
+    ],
+    "summary": "IMDb Top 250 第 149 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-150",
+    "kind": "movie",
+    "rank": 150,
+    "titleZh": "The Great Escape",
+    "titleEn": "The Great Escape",
+    "releaseYear": 1963,
+    "genres": [
+      "Adventure"
+    ],
+    "summary": "IMDb Top 250 第 150 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-151",
+    "kind": "movie",
+    "rank": 151,
+    "titleZh": "Kill Bill: Vol. 1",
+    "titleEn": "Kill Bill: Vol. 1",
+    "releaseYear": 2003,
+    "genres": [
+      "Action"
+    ],
+    "summary": "IMDb Top 250 第 151 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-152",
+    "kind": "movie",
+    "rank": 152,
+    "titleZh": "No Country for Old Men",
+    "titleEn": "No Country for Old Men",
+    "releaseYear": 2007,
+    "genres": [
+      "Crime"
+    ],
+    "summary": "IMDb Top 250 第 152 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-153",
+    "kind": "movie",
+    "rank": 153,
+    "titleZh": "Everything Everywhere All at Once",
+    "titleEn": "Everything Everywhere All at Once",
+    "releaseYear": 2022,
+    "genres": [
+      "Action"
+    ],
+    "summary": "IMDb Top 250 第 153 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-154",
+    "kind": "movie",
+    "rank": 154,
+    "titleZh": "Finding Nemo",
+    "titleEn": "Finding Nemo",
+    "releaseYear": 2003,
+    "genres": [
+      "Animation"
+    ],
+    "summary": "IMDb Top 250 第 154 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-155",
+    "kind": "movie",
+    "rank": 155,
+    "titleZh": "The Elephant Man",
+    "titleEn": "The Elephant Man",
+    "releaseYear": 1980,
+    "genres": [
+      "Biography"
+    ],
+    "summary": "IMDb Top 250 第 155 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-156",
+    "kind": "movie",
+    "rank": 156,
+    "titleZh": "Chinatown",
+    "titleEn": "Chinatown",
+    "releaseYear": 1974,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 156 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-157",
+    "kind": "movie",
+    "rank": 157,
+    "titleZh": "Raging Bull",
+    "titleEn": "Raging Bull",
+    "releaseYear": 1980,
+    "genres": [
+      "Biography"
+    ],
+    "summary": "IMDb Top 250 第 157 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-158",
+    "kind": "movie",
+    "rank": 158,
+    "titleZh": "Gone with the Wind",
+    "titleEn": "Gone with the Wind",
+    "releaseYear": 1939,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 158 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-159",
+    "kind": "movie",
+    "rank": 159,
+    "titleZh": "V for Vendetta",
+    "titleEn": "V for Vendetta",
+    "releaseYear": 2006,
+    "genres": [
+      "Action"
+    ],
+    "summary": "IMDb Top 250 第 159 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-160",
+    "kind": "movie",
+    "rank": 160,
+    "titleZh": "The Thing",
+    "titleEn": "The Thing",
+    "releaseYear": 1982,
+    "genres": [
+      "Horror"
+    ],
+    "summary": "IMDb Top 250 第 160 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-161",
+    "kind": "movie",
+    "rank": 161,
+    "titleZh": "Inside Out",
+    "titleEn": "Inside Out",
+    "releaseYear": 2015,
+    "genres": [
+      "Animation"
+    ],
+    "summary": "IMDb Top 250 第 161 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-162",
+    "kind": "movie",
+    "rank": 162,
+    "titleZh": "Lock, Stock and Two Smoking Barrels",
+    "titleEn": "Lock, Stock and Two Smoking Barrels",
+    "releaseYear": 1998,
+    "genres": [
+      "Action"
+    ],
+    "summary": "IMDb Top 250 第 162 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-163",
+    "kind": "movie",
+    "rank": 163,
+    "titleZh": "Dial M for Murder",
+    "titleEn": "Dial M for Murder",
+    "releaseYear": 1954,
+    "genres": [
+      "Crime"
+    ],
+    "summary": "IMDb Top 250 第 163 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-164",
+    "kind": "movie",
+    "rank": 164,
+    "titleZh": "El Secreto De Sus Ojos",
+    "titleEn": "El Secreto De Sus Ojos",
+    "releaseYear": 2009,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 164 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-165",
+    "kind": "movie",
+    "rank": 165,
+    "titleZh": "Hauru No Ugoku Shiro",
+    "titleEn": "Hauru No Ugoku Shiro",
+    "releaseYear": 2004,
+    "genres": [
+      "Animation"
+    ],
+    "summary": "IMDb Top 250 第 165 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-166",
+    "kind": "movie",
+    "rank": 166,
+    "titleZh": "The Bridge on the River Kwai",
+    "titleEn": "The Bridge on the River Kwai",
+    "releaseYear": 1957,
+    "genres": [
+      "Adventure"
+    ],
+    "summary": "IMDb Top 250 第 166 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-167",
+    "kind": "movie",
+    "rank": 167,
+    "titleZh": "Three Billboards Outside Ebbing, Missouri",
+    "titleEn": "Three Billboards Outside Ebbing, Missouri",
+    "releaseYear": 2017,
+    "genres": [
+      "Comedy"
+    ],
+    "summary": "IMDb Top 250 第 167 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-168",
+    "kind": "movie",
+    "rank": 168,
+    "titleZh": "Trainspotting",
+    "titleEn": "Trainspotting",
+    "releaseYear": 1996,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 168 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-169",
+    "kind": "movie",
+    "rank": 169,
+    "titleZh": "Warrior",
+    "titleEn": "Warrior",
+    "releaseYear": 2011,
+    "genres": [
+      "Action"
+    ],
+    "summary": "IMDb Top 250 第 169 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-170",
+    "kind": "movie",
+    "rank": 170,
+    "titleZh": "Gran Torino",
+    "titleEn": "Gran Torino",
+    "releaseYear": 2008,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 170 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-171",
+    "kind": "movie",
+    "rank": 171,
+    "titleZh": "Fargo",
+    "titleEn": "Fargo",
+    "releaseYear": 1996,
+    "genres": [
+      "Crime"
+    ],
+    "summary": "IMDb Top 250 第 171 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-172",
+    "kind": "movie",
+    "rank": 172,
+    "titleZh": "Prisoners",
+    "titleEn": "Prisoners",
+    "releaseYear": 2013,
+    "genres": [
+      "Crime"
+    ],
+    "summary": "IMDb Top 250 第 172 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-173",
+    "kind": "movie",
+    "rank": 173,
+    "titleZh": "My Neighbour Totoro",
+    "titleEn": "My Neighbour Totoro",
+    "releaseYear": 1988,
+    "genres": [
+      "Animation"
+    ],
+    "summary": "IMDb Top 250 第 173 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-174",
+    "kind": "movie",
+    "rank": 174,
+    "titleZh": "Million Dollar Baby",
+    "titleEn": "Million Dollar Baby",
+    "releaseYear": 2004,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 174 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-175",
+    "kind": "movie",
+    "rank": 175,
+    "titleZh": "The Gold Rush",
+    "titleEn": "The Gold Rush",
+    "releaseYear": 1925,
+    "genres": [
+      "Adventure"
+    ],
+    "summary": "IMDb Top 250 第 175 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-176",
+    "kind": "movie",
+    "rank": 176,
+    "titleZh": "Catch Me If You Can",
+    "titleEn": "Catch Me If You Can",
+    "releaseYear": 2002,
+    "genres": [
+      "Biography"
+    ],
+    "summary": "IMDb Top 250 第 176 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-177",
+    "kind": "movie",
+    "rank": 177,
+    "titleZh": "Blade Runner",
+    "titleEn": "Blade Runner",
+    "releaseYear": 1982,
+    "genres": [
+      "Action"
+    ],
+    "summary": "IMDb Top 250 第 177 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-178",
+    "kind": "movie",
+    "rank": 178,
+    "titleZh": "On the Waterfront",
+    "titleEn": "On the Waterfront",
+    "releaseYear": 1954,
+    "genres": [
+      "Crime"
+    ],
+    "summary": "IMDb Top 250 第 178 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-179",
+    "kind": "movie",
+    "rank": 179,
+    "titleZh": "The Third Man",
+    "titleEn": "The Third Man",
+    "releaseYear": 1949,
+    "genres": [
+      "Film-Noir"
+    ],
+    "summary": "IMDb Top 250 第 179 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-180",
+    "kind": "movie",
+    "rank": 180,
+    "titleZh": "Bacheha-Ye Aseman",
+    "titleEn": "Bacheha-Ye Aseman",
+    "releaseYear": 1997,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 180 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-181",
+    "kind": "movie",
+    "rank": 181,
+    "titleZh": "Ben-Hur",
+    "titleEn": "Ben-Hur",
+    "releaseYear": 1959,
+    "genres": [
+      "Adventure"
+    ],
+    "summary": "IMDb Top 250 第 181 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-182",
+    "kind": "movie",
+    "rank": 182,
+    "titleZh": "The General",
+    "titleEn": "The General",
+    "releaseYear": 1926,
+    "genres": [
+      "Action"
+    ],
+    "summary": "IMDb Top 250 第 182 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-183",
+    "kind": "movie",
+    "rank": 183,
+    "titleZh": "Smultronstället",
+    "titleEn": "Smultronstället",
+    "releaseYear": 1957,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 183 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-184",
+    "kind": "movie",
+    "rank": 184,
+    "titleZh": "12 Years a Slave",
+    "titleEn": "12 Years a Slave",
+    "releaseYear": 2013,
+    "genres": [
+      "Biography"
+    ],
+    "summary": "IMDb Top 250 第 184 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-185",
+    "kind": "movie",
+    "rank": 185,
+    "titleZh": "Before Sunrise",
+    "titleEn": "Before Sunrise",
+    "releaseYear": 1995,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 185 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-186",
+    "kind": "movie",
+    "rank": 186,
+    "titleZh": "Gone Girl",
+    "titleEn": "Gone Girl",
+    "releaseYear": 2014,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 186 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-187",
+    "kind": "movie",
+    "rank": 187,
+    "titleZh": "Harry Potter and the Deathly Hallows: Part 2",
+    "titleEn": "Harry Potter and the Deathly Hallows: Part 2",
+    "releaseYear": 2011,
+    "genres": [
+      "Adventure"
+    ],
+    "summary": "IMDb Top 250 第 187 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-188",
+    "kind": "movie",
+    "rank": 188,
+    "titleZh": "The Deer Hunter",
+    "titleEn": "The Deer Hunter",
+    "releaseYear": 1978,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 188 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-189",
+    "kind": "movie",
+    "rank": 189,
+    "titleZh": "In the Name of the Father",
+    "titleEn": "In the Name of the Father",
+    "releaseYear": 1993,
+    "genres": [
+      "Biography"
+    ],
+    "summary": "IMDb Top 250 第 189 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-190",
+    "kind": "movie",
+    "rank": 190,
+    "titleZh": "The Grand Budapest Hotel",
+    "titleEn": "The Grand Budapest Hotel",
+    "releaseYear": 2014,
+    "genres": [
+      "Adventure"
+    ],
+    "summary": "IMDb Top 250 第 190 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-191",
+    "kind": "movie",
+    "rank": 191,
+    "titleZh": "Mr. Smith Goes to Washington",
+    "titleEn": "Mr. Smith Goes to Washington",
+    "releaseYear": 1939,
+    "genres": [
+      "Comedy"
+    ],
+    "summary": "IMDb Top 250 第 191 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-192",
+    "kind": "movie",
+    "rank": 192,
+    "titleZh": "Le Salaire De La Peur",
+    "titleEn": "Le Salaire De La Peur",
+    "releaseYear": 1953,
+    "genres": [
+      "Adventure"
+    ],
+    "summary": "IMDb Top 250 第 192 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-193",
+    "kind": "movie",
+    "rank": 193,
+    "titleZh": "Barry Lyndon",
+    "titleEn": "Barry Lyndon",
+    "releaseYear": 1975,
+    "genres": [
+      "Adventure"
+    ],
+    "summary": "IMDb Top 250 第 193 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-194",
+    "kind": "movie",
+    "rank": 194,
+    "titleZh": "Sherlock Jr.",
+    "titleEn": "Sherlock Jr.",
+    "releaseYear": 1924,
+    "genres": [
+      "Action"
+    ],
+    "summary": "IMDb Top 250 第 194 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-195",
+    "kind": "movie",
+    "rank": 195,
+    "titleZh": "Salinui Chueok",
+    "titleEn": "Salinui Chueok",
+    "releaseYear": 2003,
+    "genres": [
+      "Crime"
+    ],
+    "summary": "IMDb Top 250 第 195 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-196",
+    "kind": "movie",
+    "rank": 196,
+    "titleZh": "Klaus",
+    "titleEn": "Klaus",
+    "releaseYear": 2019,
+    "genres": [
+      "Animation"
+    ],
+    "summary": "IMDb Top 250 第 196 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-197",
+    "kind": "movie",
+    "rank": 197,
+    "titleZh": "Hacksaw Ridge",
+    "titleEn": "Hacksaw Ridge",
+    "releaseYear": 2016,
+    "genres": [
+      "Biography"
+    ],
+    "summary": "IMDb Top 250 第 197 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-198",
+    "kind": "movie",
+    "rank": 198,
+    "titleZh": "Det Sjunde Inseglet",
+    "titleEn": "Det Sjunde Inseglet",
+    "releaseYear": 1957,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 198 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-199",
+    "kind": "movie",
+    "rank": 199,
+    "titleZh": "Room",
+    "titleEn": "Room",
+    "releaseYear": 2015,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 199 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-200",
+    "kind": "movie",
+    "rank": 200,
+    "titleZh": "Relatos Salvajes",
+    "titleEn": "Relatos Salvajes",
+    "releaseYear": 2014,
+    "genres": [
+      "Comedy"
+    ],
+    "summary": "IMDb Top 250 第 200 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-201",
+    "kind": "movie",
+    "rank": 201,
+    "titleZh": "The Big Lebowski",
+    "titleEn": "The Big Lebowski",
+    "releaseYear": 1998,
+    "genres": [
+      "Comedy"
+    ],
+    "summary": "IMDb Top 250 第 201 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-202",
+    "kind": "movie",
+    "rank": 202,
+    "titleZh": "Mad Max: Fury Road",
+    "titleEn": "Mad Max: Fury Road",
+    "releaseYear": 2015,
+    "genres": [
+      "Action"
+    ],
+    "summary": "IMDb Top 250 第 202 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-203",
+    "kind": "movie",
+    "rank": 203,
+    "titleZh": "How to Train Your Dragon",
+    "titleEn": "How to Train Your Dragon",
+    "releaseYear": 2010,
+    "genres": [
+      "Animation"
+    ],
+    "summary": "IMDb Top 250 第 203 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-204",
+    "kind": "movie",
+    "rank": 204,
+    "titleZh": "Mary and Max",
+    "titleEn": "Mary and Max",
+    "releaseYear": 2009,
+    "genres": [
+      "Animation"
+    ],
+    "summary": "IMDb Top 250 第 204 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-205",
+    "kind": "movie",
+    "rank": 205,
+    "titleZh": "Monsters, Inc.",
+    "titleEn": "Monsters, Inc.",
+    "releaseYear": 2001,
+    "genres": [
+      "Animation"
+    ],
+    "summary": "IMDb Top 250 第 205 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-206",
+    "kind": "movie",
+    "rank": 206,
+    "titleZh": "Jaws",
+    "titleEn": "Jaws",
+    "releaseYear": 1975,
+    "genres": [
+      "Adventure"
+    ],
+    "summary": "IMDb Top 250 第 206 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-207",
+    "kind": "movie",
+    "rank": 207,
+    "titleZh": "La passion de Jeanne d'Arc",
+    "titleEn": "La passion de Jeanne d'Arc",
+    "releaseYear": 1928,
+    "genres": [
+      "Biography"
+    ],
+    "summary": "IMDb Top 250 第 207 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-208",
+    "kind": "movie",
+    "rank": 208,
+    "titleZh": "Tôkyô monogatari",
+    "titleEn": "Tôkyô monogatari",
+    "releaseYear": 1953,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 208 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-209",
+    "kind": "movie",
+    "rank": 209,
+    "titleZh": "Dead Poets Society",
+    "titleEn": "Dead Poets Society",
+    "releaseYear": 1989,
+    "genres": [
+      "Comedy"
+    ],
+    "summary": "IMDb Top 250 第 209 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-210",
+    "kind": "movie",
+    "rank": 210,
+    "titleZh": "Hotel Rwanda",
+    "titleEn": "Hotel Rwanda",
+    "releaseYear": 2004,
+    "genres": [
+      "Biography"
+    ],
+    "summary": "IMDb Top 250 第 210 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-211",
+    "kind": "movie",
+    "rank": 211,
+    "titleZh": "Rocky",
+    "titleEn": "Rocky",
+    "releaseYear": 1976,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 211 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-212",
+    "kind": "movie",
+    "rank": 212,
+    "titleZh": "Pather Panchali",
+    "titleEn": "Pather Panchali",
+    "releaseYear": 1955,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 212 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-213",
+    "kind": "movie",
+    "rank": 213,
+    "titleZh": "Platoon",
+    "titleEn": "Platoon",
+    "releaseYear": 1986,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 213 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-214",
+    "kind": "movie",
+    "rank": 214,
+    "titleZh": "Ford v. Ferrari",
+    "titleEn": "Ford v. Ferrari",
+    "releaseYear": 2019,
+    "genres": [
+      "Action"
+    ],
+    "summary": "IMDb Top 250 第 214 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-215",
+    "kind": "movie",
+    "rank": 215,
+    "titleZh": "Stand by Me",
+    "titleEn": "Stand by Me",
+    "releaseYear": 1986,
+    "genres": [
+      "Adventure"
+    ],
+    "summary": "IMDb Top 250 第 215 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-216",
+    "kind": "movie",
+    "rank": 216,
+    "titleZh": "The Terminator",
+    "titleEn": "The Terminator",
+    "releaseYear": 1984,
+    "genres": [
+      "Action"
+    ],
+    "summary": "IMDb Top 250 第 216 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-217",
+    "kind": "movie",
+    "rank": 217,
+    "titleZh": "Spotlight",
+    "titleEn": "Spotlight",
+    "releaseYear": 2015,
+    "genres": [
+      "Biography"
+    ],
+    "summary": "IMDb Top 250 第 217 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-218",
+    "kind": "movie",
+    "rank": 218,
+    "titleZh": "Rush",
+    "titleEn": "Rush",
+    "releaseYear": 2013,
+    "genres": [
+      "Action"
+    ],
+    "summary": "IMDb Top 250 第 218 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-219",
+    "kind": "movie",
+    "rank": 219,
+    "titleZh": "Network",
+    "titleEn": "Network",
+    "releaseYear": 1976,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 219 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-220",
+    "kind": "movie",
+    "rank": 220,
+    "titleZh": "Into the Wild",
+    "titleEn": "Into the Wild",
+    "releaseYear": 2007,
+    "genres": [
+      "Adventure"
+    ],
+    "summary": "IMDb Top 250 第 220 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-221",
+    "kind": "movie",
+    "rank": 221,
+    "titleZh": "Logan",
+    "titleEn": "Logan",
+    "releaseYear": 2017,
+    "genres": [
+      "Action"
+    ],
+    "summary": "IMDb Top 250 第 221 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-222",
+    "kind": "movie",
+    "rank": 222,
+    "titleZh": "The Wizard of Oz",
+    "titleEn": "The Wizard of Oz",
+    "releaseYear": 1939,
+    "genres": [
+      "Adventure"
+    ],
+    "summary": "IMDb Top 250 第 222 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-223",
+    "kind": "movie",
+    "rank": 223,
+    "titleZh": "Ratatouille",
+    "titleEn": "Ratatouille",
+    "releaseYear": 2007,
+    "genres": [
+      "Animation"
+    ],
+    "summary": "IMDb Top 250 第 223 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-224",
+    "kind": "movie",
+    "rank": 224,
+    "titleZh": "Groundhog Day",
+    "titleEn": "Groundhog Day",
+    "releaseYear": 1993,
+    "genres": [
+      "Comedy"
+    ],
+    "summary": "IMDb Top 250 第 224 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-225",
+    "kind": "movie",
+    "rank": 225,
+    "titleZh": "Before Sunset",
+    "titleEn": "Before Sunset",
+    "releaseYear": 2004,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 225 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-226",
+    "kind": "movie",
+    "rank": 226,
+    "titleZh": "The Exorcist",
+    "titleEn": "The Exorcist",
+    "releaseYear": 1973,
+    "genres": [
+      "Horror"
+    ],
+    "summary": "IMDb Top 250 第 226 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-227",
+    "kind": "movie",
+    "rank": 227,
+    "titleZh": "The Best Years of Our Lives",
+    "titleEn": "The Best Years of Our Lives",
+    "releaseYear": 1946,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 227 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-228",
+    "kind": "movie",
+    "rank": 228,
+    "titleZh": "The Incredibles",
+    "titleEn": "The Incredibles",
+    "releaseYear": 2004,
+    "genres": [
+      "Animation"
+    ],
+    "summary": "IMDb Top 250 第 228 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-229",
+    "kind": "movie",
+    "rank": 229,
+    "titleZh": "To Be or Not to Be",
+    "titleEn": "To Be or Not to Be",
+    "releaseYear": 1942,
+    "genres": [
+      "Comedy"
+    ],
+    "summary": "IMDb Top 250 第 229 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-230",
+    "kind": "movie",
+    "rank": 230,
+    "titleZh": "The Grapes of Wrath",
+    "titleEn": "The Grapes of Wrath",
+    "releaseYear": 1940,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 230 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-231",
+    "kind": "movie",
+    "rank": 231,
+    "titleZh": "Rebecca",
+    "titleEn": "Rebecca",
+    "releaseYear": 1940,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 231 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-232",
+    "kind": "movie",
+    "rank": 232,
+    "titleZh": "La battaglia di Algeri",
+    "titleEn": "La battaglia di Algeri",
+    "releaseYear": 1966,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 232 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-233",
+    "kind": "movie",
+    "rank": 233,
+    "titleZh": "Hachi: A Dog's Tale",
+    "titleEn": "Hachi: A Dog's Tale",
+    "releaseYear": 2009,
+    "genres": [
+      "Biography"
+    ],
+    "summary": "IMDb Top 250 第 233 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-234",
+    "kind": "movie",
+    "rank": 234,
+    "titleZh": "Cool Hand Luke",
+    "titleEn": "Cool Hand Luke",
+    "releaseYear": 1967,
+    "genres": [
+      "Crime"
+    ],
+    "summary": "IMDb Top 250 第 234 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-235",
+    "kind": "movie",
+    "rank": 235,
+    "titleZh": "Amores perros",
+    "titleEn": "Amores perros",
+    "releaseYear": 2000,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 235 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-236",
+    "kind": "movie",
+    "rank": 236,
+    "titleZh": "Pirates of the Caribbean: The Curse of the Black Pearl",
+    "titleEn": "Pirates of the Caribbean: The Curse of the Black Pearl",
+    "releaseYear": 2003,
+    "genres": [
+      "Action"
+    ],
+    "summary": "IMDb Top 250 第 236 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-237",
+    "kind": "movie",
+    "rank": 237,
+    "titleZh": "La Haine",
+    "titleEn": "La Haine",
+    "releaseYear": 1995,
+    "genres": [
+      "Crime"
+    ],
+    "summary": "IMDb Top 250 第 237 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-238",
+    "kind": "movie",
+    "rank": 238,
+    "titleZh": "The 400 Blows",
+    "titleEn": "The 400 Blows",
+    "releaseYear": 1959,
+    "genres": [
+      "Crime"
+    ],
+    "summary": "IMDb Top 250 第 238 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-239",
+    "kind": "movie",
+    "rank": 239,
+    "titleZh": "Persona",
+    "titleEn": "Persona",
+    "releaseYear": 1966,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 239 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-240",
+    "kind": "movie",
+    "rank": 240,
+    "titleZh": "Babam Ve Oglum",
+    "titleEn": "Babam Ve Oglum",
+    "releaseYear": 2005,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 240 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-241",
+    "kind": "movie",
+    "rank": 241,
+    "titleZh": "It Happened One Night",
+    "titleEn": "It Happened One Night",
+    "releaseYear": 1934,
+    "genres": [
+      "Comedy"
+    ],
+    "summary": "IMDb Top 250 第 241 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-242",
+    "kind": "movie",
+    "rank": 242,
+    "titleZh": "Life of Brian",
+    "titleEn": "Life of Brian",
+    "releaseYear": 1979,
+    "genres": [
+      "Comedy"
+    ],
+    "summary": "IMDb Top 250 第 242 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-243",
+    "kind": "movie",
+    "rank": 243,
+    "titleZh": "The Sound of Music",
+    "titleEn": "The Sound of Music",
+    "releaseYear": 1965,
+    "genres": [
+      "Biography"
+    ],
+    "summary": "IMDb Top 250 第 243 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-244",
+    "kind": "movie",
+    "rank": 244,
+    "titleZh": "Dersu Uzala",
+    "titleEn": "Dersu Uzala",
+    "releaseYear": 1975,
+    "genres": [
+      "Adventure"
+    ],
+    "summary": "IMDb Top 250 第 244 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-245",
+    "kind": "movie",
+    "rank": 245,
+    "titleZh": "Ah-ga-ssi",
+    "titleEn": "Ah-ga-ssi",
+    "releaseYear": 2016,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 245 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-246",
+    "kind": "movie",
+    "rank": 246,
+    "titleZh": "Aladdin",
+    "titleEn": "Aladdin",
+    "releaseYear": 1992,
+    "genres": [
+      "Animation"
+    ],
+    "summary": "IMDb Top 250 第 246 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-247",
+    "kind": "movie",
+    "rank": 247,
+    "titleZh": "Gandhi",
+    "titleEn": "Gandhi",
+    "releaseYear": 1982,
+    "genres": [
+      "Biography"
+    ],
+    "summary": "IMDb Top 250 第 247 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-248",
+    "kind": "movie",
+    "rank": 248,
+    "titleZh": "Jai Bhim",
+    "titleEn": "Jai Bhim",
+    "releaseYear": 2021,
+    "genres": [
+      "Crime"
+    ],
+    "summary": "IMDb Top 250 第 248 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-249",
+    "kind": "movie",
+    "rank": 249,
+    "titleZh": "The Help",
+    "titleEn": "The Help",
+    "releaseYear": 2011,
+    "genres": [
+      "Drama"
+    ],
+    "summary": "IMDb Top 250 第 249 名。片长与海报字段可在本地清单中继续补充。"
+  },
+  {
+    "id": "movie-250",
+    "kind": "movie",
+    "rank": 250,
+    "titleZh": "Beauty and the Beast",
+    "titleEn": "Beauty and the Beast",
+    "releaseYear": 1991,
+    "genres": [
+      "Animation"
+    ],
+    "summary": "IMDb Top 250 第 250 名。片长与海报字段可在本地清单中继续补充。"
+  }
+]

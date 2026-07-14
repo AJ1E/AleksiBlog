@@ -2,8 +2,13 @@ export type AiModelShare = {
   name: string;
   pct: number;
   costUsd?: number;
+  costCny?: number;
   totalTokens?: number;
+  inputTokens?: number;
+  cachedInputTokens?: number;
+  outputTokens?: number;
   requests?: number;
+  credits?: number;
 };
 
 export type AiQuota = {
@@ -26,6 +31,7 @@ export type AiHeatmapDay = {
   claude: number;
   codex: number;
   gemini: number;
+  totalTokens: number;
 };
 
 export type AiToolUsage = {
@@ -37,13 +43,24 @@ export type AiToolUsage = {
   plan: string;
   installed: boolean;
   costMode: "estimated" | "subscription" | "exact" | "unknown";
+  billingUnit: "tokens" | "credits" | "unknown";
   status: "active" | "idle";
   lastEventAt: string | null;
   quotas: AiQuota[];
   tok7d: number;
   tok30d: number;
+  input7d: number;
+  cachedInput7d: number;
+  output7d: number;
+  credits7d: number;
+  input30d: number;
+  cachedInput30d: number;
+  output30d: number;
+  credits30d: number;
   cost7d: number;
   cost30d: number;
+  costCny7d: number;
+  costCny30d: number;
   models7d: AiModelShare[];
   models30d: AiModelShare[];
   warnings: string[];
@@ -60,6 +77,7 @@ type ToolPayload = {
   installed?: boolean;
   plan?: string;
   costMode?: AiToolUsage["costMode"];
+  billingUnit?: AiToolUsage["billingUnit"];
   status?: string;
   lastEventAt?: string | null;
   quotas?: Array<{
@@ -74,6 +92,11 @@ type ToolPayload = {
     {
       totalTokens?: number;
       totalCostUsd?: number;
+      totalCostCny?: number;
+      inputTokens?: number;
+      cachedInputTokens?: number;
+      outputTokens?: number;
+      credits?: number;
     } | undefined
   >;
   models?: Record<
@@ -82,8 +105,13 @@ type ToolPayload = {
       name?: string;
       sharePct?: number;
       costUsd?: number;
+      costCny?: number;
       totalTokens?: number;
+      inputTokens?: number;
+      cachedInputTokens?: number;
+      outputTokens?: number;
       requests?: number;
+      credits?: number;
     }> | undefined
   >;
   warnings?: string[];
@@ -105,6 +133,7 @@ type OverviewResponse = {
       claude?: number;
       codex?: number;
       gemini?: number;
+      totalTokens?: number;
     }>;
   };
   locked?: { quotas?: boolean; models?: boolean; windows?: boolean };
@@ -139,8 +168,12 @@ function resolveBackendUrls(): string[] {
 
 export const TOOL_DISPLAY: Record<string, { name: string; icon: string; color: string }> = {
   claude: { name: "Claude Code", icon: "◆", color: "var(--accent)" },
+  "codex-desktop": { name: "ChatGPT Codex", icon: "✦", color: "var(--accent)" },
   codex: { name: "Codex CLI", icon: "❯", color: "var(--accent-teal)" },
+  "codex-cli": { name: "Codex CLI", icon: "❯", color: "var(--accent-teal)" },
   gemini: { name: "Gemini", icon: "✦", color: "var(--accent-purple)" },
+  qoder: { name: "Qoder", icon: "Q", color: "var(--accent)" },
+  workbuddy: { name: "WorkBuddy", icon: "W", color: "var(--blue)" },
 };
 
 export function hasAiUsageBackend() {
@@ -210,14 +243,25 @@ function normalizeTool(payload: ToolPayload): AiToolUsage {
     provider: payload.provider || "",
     plan: payload.plan || (installed ? "—" : "未安装"),
     installed,
-    costMode: (payload.costMode as AiToolUsage["costMode"]) || "estimated",
+    costMode: (payload.costMode as AiToolUsage["costMode"]) || (installed ? "estimated" : "unknown"),
+    billingUnit: payload.billingUnit === "credits" || payload.billingUnit === "unknown" ? payload.billingUnit : "tokens",
     status: payload.status === "active" ? "active" : "idle",
     lastEventAt: payload.lastEventAt ?? null,
     quotas: normalizeQuotas(payload.quotas),
     tok7d: numberOrZero(payload.periods?.["7d"]?.totalTokens),
     tok30d: numberOrZero(payload.periods?.["30d"]?.totalTokens),
+    input7d: numberOrZero(payload.periods?.["7d"]?.inputTokens),
+    cachedInput7d: numberOrZero(payload.periods?.["7d"]?.cachedInputTokens),
+    output7d: numberOrZero(payload.periods?.["7d"]?.outputTokens),
+    credits7d: numberOrZero(payload.periods?.["7d"]?.credits),
+    input30d: numberOrZero(payload.periods?.["30d"]?.inputTokens),
+    cachedInput30d: numberOrZero(payload.periods?.["30d"]?.cachedInputTokens),
+    output30d: numberOrZero(payload.periods?.["30d"]?.outputTokens),
+    credits30d: numberOrZero(payload.periods?.["30d"]?.credits),
     cost7d: numberOrZero(payload.periods?.["7d"]?.totalCostUsd),
     cost30d: numberOrZero(payload.periods?.["30d"]?.totalCostUsd),
+    costCny7d: numberOrZero(payload.periods?.["7d"]?.totalCostCny),
+    costCny30d: numberOrZero(payload.periods?.["30d"]?.totalCostCny),
     models7d: normalizeModels(payload.models?.["7d"]),
     models30d: normalizeModels(payload.models?.["30d"]),
     warnings: normalizeWarnings(payload),
@@ -257,6 +301,7 @@ function normalizeHeatmap(
           claude?: number;
           codex?: number;
           gemini?: number;
+          totalTokens?: number;
         }>;
       }
     | undefined,
@@ -271,6 +316,7 @@ function normalizeHeatmap(
             claude: numberOrZero(day?.claude),
             codex: numberOrZero(day?.codex),
             gemini: numberOrZero(day?.gemini),
+            totalTokens: numberOrZero(day?.totalTokens),
           }))
           .filter((day) => day.date)
       : [],
@@ -299,8 +345,13 @@ function normalizeModels(rawModels: ModelArray | undefined): AiModelShare[] {
       name: String(model?.name || "").trim(),
       pct: numberOrZero(model?.sharePct),
       costUsd: numberOrZero(model?.costUsd),
+      costCny: numberOrZero(model?.costCny),
       totalTokens: numberOrZero(model?.totalTokens),
+      inputTokens: numberOrZero(model?.inputTokens),
+      cachedInputTokens: numberOrZero(model?.cachedInputTokens),
+      outputTokens: numberOrZero(model?.outputTokens),
       requests: numberOrZero(model?.requests),
+      credits: numberOrZero(model?.credits),
     }))
     .filter((model) => model.name);
 }

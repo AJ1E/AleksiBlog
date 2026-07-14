@@ -12,7 +12,8 @@ const Database = require("better-sqlite3");
 
 const PORT = parsePort(process.env.SERVER_STATUS_PORT, 8789);
 const HOST = process.env.SERVER_STATUS_HOST || "127.0.0.1";
-const CORS_ALLOW_ORIGIN = process.env.SERVER_STATUS_CORS_ALLOW_ORIGIN || "*";
+// Astro's BFF owns browser access; wildcard CORS would bypass that boundary.
+const CORS_ALLOW_ORIGIN = process.env.SERVER_STATUS_CORS_ALLOW_ORIGIN?.trim() || "";
 const BESZEL_DB = process.env.BESZEL_DB_PATH || "/opt/beszel/beszel_data/data.db";
 const REFRESH_MS = 30_000;
 const SNAPSHOT_FILE =
@@ -397,9 +398,7 @@ async function writeGeoCache(cache) {
 function sendJson(res, code, payload) {
   res.writeHead(code, {
     "Content-Type": "application/json; charset=utf-8",
-    "Access-Control-Allow-Origin": CORS_ALLOW_ORIGIN,
-    "Access-Control-Allow-Methods": "GET, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
+    ...corsHeaders("GET, OPTIONS", "Content-Type"),
     "Cache-Control": "no-store",
   });
   res.end(JSON.stringify(payload, null, 2));
@@ -407,10 +406,19 @@ function sendJson(res, code, payload) {
 
 function sendNoContent(res) {
   res.writeHead(204, {
-    "Access-Control-Allow-Origin": CORS_ALLOW_ORIGIN,
-    "Access-Control-Allow-Methods": "GET, OPTIONS",
+    ...corsHeaders("GET, OPTIONS", "Content-Type"),
   });
   res.end();
+}
+
+function corsHeaders(methods, allowedHeaders) {
+  if (!CORS_ALLOW_ORIGIN) return {};
+  return {
+    "Access-Control-Allow-Origin": CORS_ALLOW_ORIGIN,
+    "Access-Control-Allow-Methods": methods,
+    "Access-Control-Allow-Headers": allowedHeaders,
+    Vary: "Origin",
+  };
 }
 
 function maskIp(ip) {

@@ -1,0 +1,89 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { siteMeta } from "../data/site";
+
+export const prerender = false;
+---
+
+<BaseLayout title={`隐私说明 — ${siteMeta.title}`} description="本站访问、登录和第三方资源的隐私说明。" currentPath="/privacy/">
+  <main class="container privacy-page">
+    <header class="projects-header privacy-page__header">
+      <div class="article-archive-header__eyebrow">
+        <span class="article-archive-header__line"></span>
+        Privacy · Notice
+      </div>
+      <h1 class="projects-header__title">隐私说明 <span>访问数据与第三方资源</span></h1>
+      <p class="projects-header__copy">这里说明本站为了提供登录、访问 IP 展示和页面资源所涉及的数据处理方式。</p>
+    </header>
+
+    <section class="privacy-page__content" aria-label="隐私说明正文">
+      <article>
+        <h2>登录与访问控制</h2>
+        <p>受保护的看板内容仅在主动登录后显示。登录成功后，浏览器会保存一个仅用于本站访问控制的 HttpOnly Cookie；它不用于跨站追踪。</p>
+      </article>
+
+      <article>
+        <h2>当前访问 IP</h2>
+        <p>首页的“当前访问 IP”组件会由本站服务器向 Net.Coffee 查询访问者公网 IP 的大致地区、网络归属和代理风险信号。完整 IP 不会作为公开页面内容展示；该组件的详细信息需要登录后查看。</p>
+      </article>
+
+      <article>
+        <h2>第三方静态资源</h2>
+        <p>页面可能从 Google Fonts、Google favicon 服务、FlagCDN 和 jsDelivr 加载字体、网站图标、旗帜或地图数据。访问这些资源时，对应服务商通常能够收到浏览器的网络请求信息。</p>
+      </article>
+
+      <article>
+        <h2>联系与更新</h2>
+        <p>本说明会随新增功能或外部服务调整而更新。涉及访问数据的功能如有明显变化，会在上线前重新检查其必要性与披露内容。</p>
+      </article>
+    </section>
+  </main>
+</BaseLayout>
+
+<style>
+  .privacy-page {
+    padding-top: 42px;
+    padding-bottom: 32px;
+  }
+
+  .privacy-page__header {
+    max-width: 920px;
+  }
+
+  .privacy-page__content {
+    max-width: 920px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .privacy-page__content article {
+    padding: 24px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg-card);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .privacy-page__content h2 {
+    margin: 0 0 10px;
+    font-family: "DM Serif Display", serif;
+    font-size: 1.25rem;
+  }
+
+  .privacy-page__content p {
+    margin: 0;
+    color: var(--text-muted);
+    line-height: 1.8;
+  }
+
+  @media (max-width: 720px) {
+    .privacy-page {
+      padding-top: 24px;
+    }
+
+    .privacy-page__content {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

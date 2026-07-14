@@ -1,31 +1,36 @@
 import type { APIRoute } from "astro";
-import { forward } from "../../../lib/bff";
+import { apiError, forward } from "../../../lib/bff";
 
 export const prerender = false;
 
+const STAT_RANGES = new Set(["1h", "12h", "24h", "1w", "30d"]);
+
 const handler: APIRoute = (context) => {
   const path = context.params.path ?? "";
-  const upstream = `/api/servers/${path}`;
   const isAuthed = context.locals.auth?.isAuthed ?? false;
 
-  // Per-server stats (CPU/RAM/disk/containers/services time series) are
-  // detail data. Block them entirely unless logged in.
-  if (!isAuthed && /\/stats(?:\?|$)/.test(upstream)) {
-    return new Response(
-      JSON.stringify({ error: "auth-required", scope: "server-stats" }),
-      { status: 401, headers: { "content-type": "application/json" } },
-    );
+  if (context.request.method === "GET" && path === "overview") {
+    return forward("server-status", "/api/servers/overview", context, {
+      isAuthed,
+      transformJson: (body) => stripServerOverview(body, isAuthed),
+    });
   }
 
-  return forward("server-status", upstream, context, {
-    isAuthed,
-    transformJson: (body) => stripServerOverview(body, isAuthed),
-  });
+  const statsMatch = path.match(/^([A-Za-z0-9_-]+)\/stats$/);
+  if (context.request.method === "GET" && statsMatch) {
+    if (!isAuthed) return apiError(401, "auth-required", "server-stats");
+    const range = context.url.searchParams.get("range") || "1h";
+    if (!STAT_RANGES.has(range)) return apiError(400, "invalid-range");
+    return forward("server-status", `/api/servers/${path}`, context, {
+      isAuthed,
+      searchParams: new URLSearchParams({ range }),
+    });
+  }
+
+  return apiError(404, "not-found");
 };
 
 export const GET: APIRoute = handler;
-export const POST: APIRoute = handler;
-export const OPTIONS: APIRoute = handler;
 
 /**
  * Public view of /overview: keep server presence (name/region/status flag) and

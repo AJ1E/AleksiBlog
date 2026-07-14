@@ -6,6 +6,9 @@ export const onRequest = defineMiddleware((context, next) => {
     return context.redirect("/about/", 301);
   }
 
-  context.locals.auth = { isAuthed: readAuthFromCookies(context.cookies) };
+  // Cookies are unavailable while Astro builds prerendered pages.
+  context.locals.auth = {
+    isAuthed: context.isPrerendered ? false : readAuthFromCookies(context.cookies),
+  };
   return next();
 });

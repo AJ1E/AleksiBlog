@@ -36,6 +36,7 @@ export async function buildUsageHeatmap({ now = new Date() } = {}) {
         claude: 0,
         codex: 0,
         gemini: 0,
+        totalTokens: 0,
       };
       dayMap.set(key, bucket);
     }
@@ -77,6 +78,12 @@ export async function buildUsageHeatmap({ now = new Date() } = {}) {
           const bucket = ensureDay(ts);
           bucket.codex += 1;
           bucket.total += 1;
+          const info = entry.payload?.info || {};
+          const last = info.last_token_usage || info.total_token_usage || {};
+          const input = Number(last.input_tokens) || 0;
+          const cached = Number(last.cached_input_tokens) || 0;
+          const output = (Number(last.output_tokens) || 0) + (Number(last.reasoning_output_tokens) || 0);
+          bucket.totalTokens += Number(last.total_tokens) || input + cached + output;
         }
       } catch {
         // skip unreadable file
@@ -134,6 +141,7 @@ export async function buildUsageHeatmap({ now = new Date() } = {}) {
         claude: 0,
         codex: 0,
         gemini: 0,
+        totalTokens: 0,
       },
     );
   }

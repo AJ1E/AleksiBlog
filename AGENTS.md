@@ -65,12 +65,62 @@ Avoid changing auth, BFF proxying, helper backend internals, Beszel integration,
 - Do not introduce OpenSpec, Spec Kit, a CMS, a database, or a heavy search/indexing service unless the user explicitly agrees that the feature is large enough to justify it.
 - If a third-party GitHub project or plugin is proposed, document why it is needed, what files it affects, and how to remove it later before installing it.
 
+## Codex Skills And Plugins Policy
+
+- Installed project-relevant skills: `security-best-practices`, `playwright`, and the third-party `ponytail` plugin.
+- Restart Codex after installing new skills before relying on them being triggerable by name.
+- Project rules have priority over Ponytail. Treat Ponytail as an auxiliary engineering heuristic for reducing unnecessary code and dependencies, never as the project's sole development standard or as permission to skip required reading, validation, security, accessibility, SEO, performance, responsive behavior, or release gates.
+- Use Ponytail after understanding the task and tracing the affected flow: question whether work is needed, reuse existing project patterns, prefer standard library/native browser features/already-installed dependencies, avoid speculative abstractions, and keep the smallest correct diff. Do not use minimalism to justify changing unrelated modules, removing requested behavior, or weakening error handling.
+- For UI work, Ponytail must preserve the existing visual direction, mobile adaptation, dark mode, accessibility, SEO, and performance requirements. A shorter implementation is not preferred if it causes visual inconsistency, overflow, regressions, or weaker semantics.
+- For this Astro project, Ponytail does not override the four-layer architecture, content collections, Astro BFF boundaries, helper privacy, `docs/site-development-guide.md`, `docs/security-readiness.md`, or the requirement to run build, lint, tests, and relevant visual checks after changes.
+- Use `ponytail-review` only as a focused over-engineering review. It complements, and does not replace, correctness, security, accessibility, performance, or normal code review.
+- Use `security-best-practices` only for explicit security reviews, secure-by-default implementation work, or security-sensitive changes. For this Astro/React/Node project, consider both frontend React code and backend/API/helper boundaries, and preserve the Astro BFF layer.
+- Use `playwright` or the Codex browser skill for UI verification when visual behavior matters. Check desktop, mobile, dark mode, overflow, contrast, article pages, tag pages, homepage, and interactive filters. Keep screenshots and browser artifacts under `output/playwright/` if artifacts are needed.
+- For visual, layout, component, responsive, and aesthetic work, prefer the existing Astro components, React islands, CSS variables, global styles, and Jeremy's site as the visual reference. A design skill should guide review and verification, not replace the project's architecture or visual direction.
+- The OpenAI Sites/building workflow is useful for new hosted sites, but this repository is already an Astro SSR blog/dashboard. Do not let Sites, build-web-app, or generic app-builder guidance replace the existing Astro structure unless the user explicitly requests a larger migration.
+- Do not install Vercel, Figma, Canva, Notion, MCP, deployment, telemetry, or external-account plugins just for general polish. Install them only when the user has a concrete workflow that needs that service.
+- Treat third-party skills from videos, lists, or GitHub repos as untrusted until their `README`, `LICENSE`, and `SKILL.md` have been read. Prefer official OpenAI curated skills or already installed trusted plugins.
+- If a future skill or plugin is recommended, record its purpose, source, external-service requirements, project dependency impact, risks, and removal path before installing it.
+
 ## Security Notes
 
 - Never commit `.env`, passwords, tokens, CLI auth files, Beszel databases, snapshots, logs, or local cache data.
 - `SITE_AUTH_DISABLE=1` is only for local development.
 - In production, set real `SITE_AUTH_PASSWORD` and `SITE_AUTH_SECRET`.
 - If exposing the site publicly, expose Astro only; keep AI usage, IP risk, and server status helpers private.
+
+## Security, Privacy, And Release Gate
+
+- Read `docs/security-readiness.md` before any security-sensitive change, dependency upgrade, deployment, or public release. Treat it as the current security baseline and update it after a meaningful review.
+- Treat every repository file as potentially public: source code, `public/` assets, Markdown, deployment documents, images, screenshots, generated reports, commit messages, and Git history. Do not put real server IPs, internal hostnames, administrative URLs, private network diagrams, or unredacted screenshots in the public repository.
+- Data may be published only after an explicit choice: a pen name, public GitHub profile, dedicated public contact address, general interests, and deliberately public project links are normally acceptable. Treat school/work details, city-level location, personal photos, public notes, and usage lists as privacy-sensitive; never publish exact address, phone number, private email, identity documents, travel plans, birth date, or personal account records.
+- Never put secrets in browser-visible code or configuration. `PUBLIC_*`, `import.meta.env`, client React props, HTML, `public/`, and any browser network response are public. Secrets stay only in server-side environment files or a secret manager with restrictive permissions.
+- Before every commit or push, inspect `git status`, review the diff including untracked files, and run a secret/PII scan. If a possible secret or sensitive personal/infrastructure value appears, stop staging it, tell the user what category was detected without repeating its value, and require rotation/revocation before publishing if it was ever exposed.
+- Before every production deployment, run `pnpm build` and `pnpm audit --prod`. Do not deploy while high-severity dependency vulnerabilities remain unless the user explicitly accepts a documented, time-limited exception. Do not run blind bulk fixes such as `pnpm audit --fix`; upgrade direct Astro and integration dependencies deliberately and re-test.
+- Production requires `SITE_AUTH_DISABLE` to be absent or different from `1`; a strong unique `SITE_AUTH_PASSWORD`; a random `SITE_AUTH_SECRET`; and secret files stored outside release directories with restrictive permissions. Never paste these values into chat, docs, commands, screenshots, commits, or CI logs.
+- Keep Astro SSR and all helpers on loopback. ECS security groups/firewall may expose only SSH (restricted to trusted source IPs), HTTP, and HTTPS; never expose `4321`, `4322`, `8787`, `8788`, or `8789`. Do not configure `PUBLIC_*_API_BASE_URL` in production because it bypasses the Astro BFF and login-aware field stripping.
+- Any Nginx/reverse-proxy deployment must overwrite trusted forwarding headers, keep direct Node access unavailable, and add security headers. Introduce CSP in report-only mode first, then enforce it after browser verification; do not solve CSP breakage by adding broad `unsafe-inline` or `unsafe-eval`.
+- Login, logout, or any new state-changing cookie-authenticated endpoint must receive rate-limit and Origin/Referer or CSRF review before it becomes public. Do not add a state-changing GET endpoint.
+- Before adding external scripts, fonts, favicon providers, analytics, IP lookup services, maps, or widgets, document provider, data sent, privacy impact, removal path, and whether a self-hosted alternative is practical. The current visitor IP-risk feature sends IP data to third-party lookup providers; preserve the BFF and add a clear privacy notice or disable the feature before public launch.
+- Enable GitHub Secret Scanning and Push Protection for the repository before public release. Use Dependabot or an equivalent recurring dependency-alert workflow. A future Strix scan is optional only after staging exists: it requires Docker and an LLM API key, must target only user-authorized systems, and must never receive production credentials in arguments, instructions, or reports.
+
+## Security Maintenance Rules
+
+- Current dependency baseline: Astro `7.0.7`, `@astrojs/mdx` `7.0.2`, `@astrojs/node` `11.0.2`, `@astrojs/react` `6.0.1`, and `@astrojs/markdown-remark` `7.2.1`. Keep the explicit `unified()` Markdown processor unless a future migration deliberately compares rendered Markdown/MDX output.
+- For every dependency upgrade, record the reason and target versions in `docs/specs/`, run `pnpm install --frozen-lockfile`, `pnpm build`, and `pnpm audit --prod`, then perform desktop/mobile light/dark smoke checks before accepting the lockfile. Never use blind `pnpm audit --fix`.
+- A green audit means no known advisories at that moment, not that the application is universally secure. Pair it with source review, secret/PII scanning, BFF authorization tests, reverse-proxy checks, and a rollback plan.
+- Keep the current release gate explicit: no public deployment until `pnpm build` and `pnpm audit --prod` pass, production auth is configured, Nginx has been tested, HTTPS is ready, helper ports are private, and an external-network check confirms only 80/443 are reachable.
+- Keep Astro's `security.checkOrigin` enabled. Do not disable it to work around a reverse-proxy problem; fix the proxy headers and verify the login form instead.
+- Treat every BFF route as an allowlist: explicitly define allowed method, path, authentication level, request parameters, response field stripping, and cache policy. Do not restore catch-all proxying or pass arbitrary `OPTIONS`, paths, methods, query strings, cookies, or upstream error messages through the public API.
+- Public dashboard summaries may be cached only when a deliberate privacy review says so. The default for helper/BFF responses is `Cache-Control: no-store`.
+- Helpers default to loopback and no CORS. Add a helper CORS origin only for a documented, necessary browser integration; it must be a single trusted origin, never `*`.
+- Visitor-IP handling trusts `X-Real-IP` only with `TRUST_PROXY_HEADERS=1`, after Nginx is confirmed as the sole public entry point and configured to overwrite that header. Do not trust `X-Forwarded-For`, `Forwarded`, Cloudflare headers, or arbitrary client headers by default.
+- Cookie-authenticated mutations must be POST-only, require Astro's origin check, and be rate-limited at the reverse proxy. Login redirects must stay same-origin paths; never permit an external `next` URL.
+- Do not reveal raw backend, filesystem, URL, database, stack trace, or provider errors to visitors. Keep diagnostic details in protected server logs only.
+- For dependency upgrades, make a baseline visual capture first, upgrade in a small reversible step, run `pnpm build`, and compare desktop/mobile plus light/dark pages before accepting the change. Do not make layout or CSS edits merely to mask an upgrade regression.
+- GitHub Actions must use least-privilege `permissions`, install from the lockfile, run build and production dependency audit, and never receive deployment credentials unless a later deployment design explicitly requires them. Dependabot pull requests must receive the same build and visual review as ordinary changes.
+- Security checks are evidence, not a substitute for judgment. If an external audit or secret scan cannot run, record it as unresolved and do not claim a clean release until it is rerun successfully.
+- Maintain this cadence after public launch: inspect Dependabot and GitHub security alerts weekly; run `pnpm audit --prod`, review dependencies, and take an encrypted server backup monthly; rotate the site password/secret immediately after suspected exposure and at least annually; test rollback after every deployment-process change.
 
 ## Current Local Setup Notes
 

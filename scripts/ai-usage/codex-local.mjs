@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
-import path from "node:path";
 import { detectCodex } from "./detect.mjs";
+import { getUsdToCnyRate } from "./exchange-rate.mjs";
 import { OPENAI_PRICING, priceUsage } from "./pricing.mjs";
 import {
   addUsage,
@@ -16,19 +16,24 @@ import {
 } from "./util.mjs";
 
 const CACHE_TTL_MS = 60_000;
-let cache = null;
+const SEGMENTS = new Set(["desktop", "cli"]);
+let cache = new Map();
 
-export function clearCodexCache() { cache = null; }
+export function clearCodexCache() { cache.clear(); }
 
-export async function buildCodexOverview({ now = new Date(), monthlyBudgetUsd } = {}) {
-  if (cache && Date.now() - cache.builtAt < CACHE_TTL_MS) {
-    return cache.payload;
+export async function buildCodexOverview({ now = new Date(), monthlyBudgetUsd, segment = "cli" } = {}) {
+  const selectedSegment = SEGMENTS.has(segment) ? segment : "cli";
+  const cached = cache.get(selectedSegment);
+  if (cached && Date.now() - cached.builtAt < CACHE_TTL_MS) {
+    return cached.payload;
   }
 
   const detect = await detectCodex();
   if (!detect.installed) {
-    return { ...stubPayload(), installed: false };
+    return { ...stubPayload(selectedSegment), installed: false };
   }
+
+  const authInfo = await readAuthInfo(detect.paths.auth);
 
   const rolloutFiles = await listFilesRecursive(detect.paths.sessions, (name) =>
     name.startsWith("rollout-") && name.endsWith(".jsonl"),
@@ -47,21 +52,23 @@ export async function buildCodexOverview({ now = new Date(), monthlyBudgetUsd } 
   let recentDayTokens = 0;
   let latestRateLimits = null;
   let latestPlanType = null;
+  let unclassifiedEvents = 0;
   const recentCutoffMs = now.getTime() - 24 * 60 * 60 * 1000;
 
   for (const file of rolloutFiles) {
     let currentModel = null;
+    let currentSource = null;
+    let currentProvider = null;
     let lastTotalTokens = 0;
     try {
       for await (const entry of walkJsonl(file)) {
         if (!entry || typeof entry !== "object") continue;
 
         // turn_context carries the active model for the upcoming turn
-        if (entry.type === "turn_context" && typeof entry.payload?.model === "string") {
-          currentModel = entry.payload.model;
-        }
-        if (entry.type === "session_meta" && typeof entry.payload?.model === "string") {
-          currentModel = entry.payload.model;
+        if (entry.type === "turn_context" || entry.type === "session_meta") {
+          if (typeof entry.payload?.model === "string") currentModel = entry.payload.model;
+          currentSource = normalizeSource(entry.payload?.source) || currentSource;
+          currentProvider = normalizeSource(entry.payload?.model_provider) || currentProvider;
         }
         if (entry.type !== "event_msg") continue;
         const payload = entry.payload || {};
@@ -84,6 +91,18 @@ export async function buildCodexOverview({ now = new Date(), monthlyBudgetUsd } 
         const totalTokens =
           Number(last.total_tokens) || inputTokens + cachedInputTokens + outputTokens;
         if (totalTokens <= 0) continue;
+
+        const eventSegment = classifyCodexEvent({
+          source: currentSource,
+          provider: currentProvider,
+          model: currentModel,
+          authMode: authInfo.authMode,
+        });
+        if (!eventSegment) {
+          unclassifiedEvents += 1;
+          continue;
+        }
+        if (eventSegment !== selectedSegment) continue;
 
         const usage = {
           model: currentModel || "codex-unknown",
@@ -125,62 +144,69 @@ export async function buildCodexOverview({ now = new Date(), monthlyBudgetUsd } 
     }
   }
 
-  const cost7d = estimateCost(buckets["7d"].models);
-  const cost30d = estimateCost(buckets["30d"].models);
-  const costMonth = estimateCost(buckets.month.models);
+  const fx = await getUsdToCnyRate();
+  const cost7d = estimateCost(buckets["7d"].models, selectedSegment, fx.rate);
+  const cost30d = estimateCost(buckets["30d"].models, selectedSegment, fx.rate);
+  const costMonth = estimateCost(buckets.month.models, selectedSegment, fx.rate);
 
-  const authInfo = await readAuthInfo(detect.paths.auth);
   const effectivePlan = latestPlanType || authInfo.planType;
-  const planLabel = buildPlanLabel(effectivePlan, authInfo.authMode);
-  // ChatGPT-plan users don't pay per-token; usage drains the rate windows
-  // instead. We surface that as costMode="subscription" and zero out the cost
-  // line so the UI doesn't show misleading dollar figures.
-  const isSubscription = authInfo.authMode === "chatgpt";
-  const costMode = isSubscription ? "subscription" : "estimated";
+  const planLabel = selectedSegment === "desktop"
+    ? buildPlanLabel(effectivePlan, authInfo.authMode)
+    : "Volcengine Coding Plan · GLM-5.2";
+  const costMode = "estimated";
   const quotas = buildQuotas({
     rateLimits: latestRateLimits,
-    monthlyBudgetUsd: isSubscription ? null : monthlyBudgetUsd,
+    monthlyBudgetUsd: selectedSegment === "desktop" ? monthlyBudgetUsd : null,
     monthCostUsd: costMonth.total,
     nowMs: now.getTime(),
   });
 
   const payload = {
-    tool: "codex",
-    name: detect.name,
-    provider: "OpenAI",
+    tool: selectedSegment === "desktop" ? "codex-desktop" : "codex-cli",
+    name: selectedSegment === "desktop" ? "ChatGPT Codex" : "Codex CLI",
+    provider: selectedSegment === "desktop" ? "OpenAI" : "Volcengine Ark",
     installed: true,
     plan: planLabel,
     costMode,
     status: recentDayTokens > 0 ? "active" : "idle",
     generatedAt: new Date().toISOString(),
     lastEventAt: lastEventAtMs > 0 ? new Date(lastEventAtMs).toISOString() : null,
-    quotas,
+    quotas: selectedSegment === "desktop" ? quotas : [],
     rateLimits: normalizeRateLimits(latestRateLimits),
     periods: {
       "7d": {
         ...buckets["7d"].totals,
         totalCostUsd: roundCost(cost7d.total),
+        totalCostCny: roundCost(cost7d.total * fx.rate),
       },
       "30d": {
         ...buckets["30d"].totals,
         totalCostUsd: roundCost(cost30d.total),
+        totalCostCny: roundCost(cost30d.total * fx.rate),
       },
       month: {
         ...buckets.month.totals,
         totalCostUsd: roundCost(costMonth.total),
+        totalCostCny: roundCost(costMonth.total * fx.rate),
       },
     },
     models: {
-      "7d": finalizeModels(buckets["7d"].models, buckets["7d"].totals.totalTokens, cost7d.byModel),
-      "30d": finalizeModels(buckets["30d"].models, buckets["30d"].totals.totalTokens, cost30d.byModel),
+      "7d": finalizeModels(buckets["7d"].models, buckets["7d"].totals.totalTokens, cost7d.byModel, fx.rate),
+      "30d": finalizeModels(buckets["30d"].models, buckets["30d"].totals.totalTokens, cost30d.byModel, fx.rate),
     },
     sources: {
       rolloutFiles: rolloutFiles.length,
+      segment: selectedSegment,
+      exchangeRate: fx,
     },
-    warnings: [],
+    warnings: [
+      ...(unclassifiedEvents > 0 ? [`${unclassifiedEvents} 条 Token 事件无法可靠判断来源，未计入当前模块。`] : []),
+      ...new Set([...cost7d.warnings, ...cost30d.warnings, ...costMonth.warnings]),
+      ...(selectedSegment === "cli" ? ["Coding Plan 费用为 GLM-5.2 等价估算，不代表实际套餐扣费。"] : ["ChatGPT Codex 费用为 GPT 官方价格等价估算，不代表订阅真实扣费。"]),
+    ],
   };
 
-  cache = { builtAt: Date.now(), payload };
+  cache.set(selectedSegment, { builtAt: Date.now(), payload });
   return payload;
 }
 
@@ -191,22 +217,94 @@ function applyToBucket(bucket, range, usage) {
   addUsage(modelBucket, usage);
 }
 
-function estimateCost(modelMap) {
+function estimateCost(modelMap, segment, fxRate) {
   const byModel = new Map();
   let total = 0;
   for (const [model, usage] of modelMap.entries()) {
-    const cost = priceUsage(OPENAI_PRICING, model, usage);
+    const pricing = resolvePricing(segment, model, fxRate);
+    const cost = priceUsage({ [model]: pricing }, model, usage);
     byModel.set(model, cost);
     total += cost;
   }
-  return { total, byModel };
+  return { total, byModel, warnings: [] };
 }
 
-function finalizeModels(modelMap, totalTokens, costMap) {
+function finalizeModels(modelMap, totalTokens, costMap, usdToCnyRate) {
   return rankModels(modelMap, totalTokens).map((model) => ({
     ...model,
     costUsd: roundCost(costMap.get(model.name) || 0),
+    costCny: roundCost((costMap.get(model.name) || 0) * usdToCnyRate),
   }));
+}
+
+function resolvePricing(segment, model, fxRate) {
+  if (segment === "desktop") {
+    return lookupPricingWithDefault(OPENAI_PRICING, model, OPENAI_PRICING["gpt-5.2-codex"]);
+  }
+  return readGlmPricing(fxRate);
+}
+
+function lookupPricingWithDefault(table, model, fallback) {
+  if (table[model]) return table[model];
+  const prefix = Object.keys(table)
+    .filter((key) => model.startsWith(key))
+    .sort((a, b) => b.length - a.length)[0];
+  return prefix ? table[prefix] : fallback;
+}
+
+const GLM_PRICING_CNY = { input: 8, cachedInput: 2, output: 28 };
+
+function readGlmPricing(fxRate) {
+  let cny = GLM_PRICING_CNY;
+  const raw = process.env.AI_USAGE_GLM52_PRICING_JSON;
+  if (raw) {
+    try {
+      const parsed = JSON.parse(raw);
+      const input = Number(parsed.input);
+      const cachedInput = Number(parsed.cachedInput);
+      const output = Number(parsed.output);
+      if ([input, cachedInput, output].every((v) => Number.isFinite(v) && v >= 0)) {
+        cny = { input, cachedInput, output };
+      }
+    } catch {
+      // fall through to default CNY pricing
+    }
+  }
+  const rate = fxRate > 0 ? fxRate : 6.8287;
+  return {
+    input: cny.input / rate,
+    cachedInput: cny.cachedInput / rate,
+    output: cny.output / rate,
+  };
+}
+
+function classifyCodexEvent({ source, provider, model, authMode }) {
+  const sourceText = String(source || "").toLowerCase();
+  const providerText = String(provider || "").toLowerCase();
+  const modelText = String(model || "").toLowerCase();
+
+  if (
+    /(^|[+_\-/])(exec|cli|terminal)([+_\-/]|$)/.test(sourceText) ||
+    /^(glm|ark)([-_.]|$)/.test(modelText) ||
+    /(volc|ark|mimo)/.test(providerText)
+  ) {
+    return "cli";
+  }
+  if (
+    /(^|[+_\-/])(vscode|desktop|app)([+_\-/]|$)/.test(sourceText) ||
+    /^(gpt|codex)([-_.]|$)/.test(modelText) ||
+    providerText === "openai"
+  ) {
+    return "desktop";
+  }
+  if (authMode === "chatgpt" && !modelText) return "desktop";
+  return null;
+}
+
+function normalizeSource(value) {
+  if (typeof value === "string") return value.trim();
+  if (value && typeof value === "object") return Object.keys(value).join("+");
+  return "";
 }
 
 async function readAuthInfo(authPath) {
@@ -333,7 +431,31 @@ function formatWindow(minutes) {
   return `${minutes}m`;
 }
 
-function stubPayload() {
+function stubPayload(segment = "cli") {
+  const isDesktop = segment === "desktop";
+  return {
+    tool: isDesktop ? "codex-desktop" : "codex-cli",
+    name: isDesktop ? "ChatGPT Codex" : "Codex CLI",
+    provider: isDesktop ? "OpenAI" : "Volcengine Ark",
+    plan: "未安装",
+    costMode: "estimated",
+    status: "idle",
+    generatedAt: new Date().toISOString(),
+    lastEventAt: null,
+    quotas: [],
+    rateLimits: null,
+    periods: {
+      "7d": { ...emptyTotals(), totalCostUsd: 0, totalCostCny: 0 },
+      "30d": { ...emptyTotals(), totalCostUsd: 0, totalCostCny: 0 },
+      month: { ...emptyTotals(), totalCostUsd: 0, totalCostCny: 0 },
+    },
+    models: { "7d": [], "30d": [] },
+    sources: { rolloutFiles: 0, segment },
+    warnings: [isDesktop ? "未在本地检测到 ChatGPT Codex 数据。" : "未在本地检测到 Codex CLI 数据。"],
+  };
+}
+
+function legacyStubPayload() {
   return {
     tool: "codex",
     name: "Codex CLI",

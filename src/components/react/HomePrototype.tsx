@@ -1,6 +1,4 @@
 import { memo, useEffect, useMemo, useRef, useState } from "react";
-import * as d3 from "d3";
-import * as topojson from "topojson-client";
 import {
   fetchAiUsageOverview,
   refreshAiTool,
@@ -28,12 +26,14 @@ import {
 import {
   formatSubscriptionCategory,
   formatSubscriptionTag,
+  formatCny,
+  formatUsd,
   getNextRenewalDateString,
   getSubscriptionCategoryColor,
   sortSubscriptionCategories,
   type RenewalConfig
 } from "../../lib/subscriptions";
-import { navItems, siteMeta } from "../../data/site";
+import { navItems, siteCompliance, siteMeta } from "../../data/site";
 
 type Subscription = {
   id: number;
@@ -42,18 +42,23 @@ type Subscription = {
   iconLabel: string;
   color: string;
   price: number;
+  priceCurrency: string;
   priceLabel: string;
   monthlyCost: number;
+  monthlyCostCny: number;
   cy: string;
   cycleLabel: string;
   cat: string;
   status: "active" | "paused" | "planned";
   start: string;
   renewal: RenewalConfig;
+  renewalDate: string;
+  renewalDays: number;
   usage: number;
   usageNote: string;
   desc: string;
   note: string;
+  renewalUrl?: string;
   tags: string[];
   badge: string;
 };
@@ -123,6 +128,8 @@ type Props = {
   servers: Server[];
   posts: Post[];
   isAuthed?: boolean;
+  renderedAt: number;
+  heroPhase: string;
 };
 
 const HOME_SERVER_PREVIEW_LIMIT = 8;
@@ -281,7 +288,7 @@ function FlagImg({ code, width = 52 }: { code: string; width?: number }) {
   );
 }
 
-const AI_USAGE_CACHE_KEY = "kai:ai-usage-overview-v1";
+const AI_USAGE_CACHE_KEY = "kai:ai-usage-overview-v2";
 const SERVERS_CACHE_KEY = "kai:servers-overview-v1";
 const WORLD_ATLAS_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
 
@@ -309,12 +316,20 @@ function fetchVisitorIpRiskSnapshotOnce() {
 
 function fetchWorldAtlasOnce() {
   if (worldAtlasDataCache) return Promise.resolve(worldAtlasDataCache);
-  worldAtlasPromise ??= fetch(WORLD_ATLAS_URL)
-    .then((response) => response.json())
-    .then((data) => {
-      worldAtlasDataCache = data;
-      return data;
-    });
+  worldAtlasPromise ??= (() => {
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 8000);
+    return fetch(WORLD_ATLAS_URL, { signal: controller.signal })
+      .then((response) => {
+        if (!response.ok) throw new Error(`World atlas request failed: ${response.status}`);
+        return response.json();
+      })
+      .then((data) => {
+        worldAtlasDataCache = data;
+        return data;
+      })
+      .finally(() => window.clearTimeout(timeout));
+  })();
   return worldAtlasPromise;
 }
 
@@ -335,25 +350,39 @@ function writeLocalStorageJson(key: string, value: unknown) {
   }
 }
 
-const PLACEHOLDER_AI_TOOLS: AiToolUsage[] = (["claude", "codex", "gemini"] as const).map(
+const VISIBLE_AI_TOOL_IDS = new Set(["codex-desktop", "codex-cli"]);
+
+const PLACEHOLDER_AI_TOOLS: AiToolUsage[] = (["codex-desktop", "codex-cli"] as const).map(
   (id) => {
     const display = TOOL_DISPLAY[id];
+    const provider = id === "codex-desktop" ? "OpenAI" : "Volcengine Ark";
     return {
       id,
       name: display.name,
       icon: display.icon,
       color: display.color,
-      provider: id === "claude" ? "Anthropic" : id === "codex" ? "OpenAI" : "Google",
+      provider,
       plan: "等待后端",
       installed: false,
       costMode: "estimated" as const,
+      billingUnit: "unknown" as const,
       status: "idle" as const,
       lastEventAt: null,
       quotas: [],
       tok7d: 0,
       tok30d: 0,
+      input7d: 0,
+      cachedInput7d: 0,
+      output7d: 0,
+      credits7d: 0,
+      input30d: 0,
+      cachedInput30d: 0,
+      output30d: 0,
+      credits30d: 0,
       cost7d: 0,
       cost30d: 0,
+      costCny7d: 0,
+      costCny30d: 0,
       models7d: [],
       models30d: [],
       warnings: [],
@@ -401,13 +430,13 @@ function formatLocalDayKey(date: Date) {
   return `${year}-${month}-${day}`;
 }
 
-function daysUntil(dateStr: string) {
-  const diff = new Date(dateStr).valueOf() - new Date().valueOf();
+function daysUntil(dateStr: string, from = new Date()) {
+  const diff = new Date(dateStr).valueOf() - from.valueOf();
   return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
 }
 
-function getRenewalDate(sub: Subscription) {
-  return getNextRenewalDateString(sub.start, sub.renewal);
+function getRenewalDate(sub: Subscription, from = new Date()) {
+  return getNextRenewalDateString(sub.start, sub.renewal, from);
 }
 
 function Badge({
@@ -490,8 +519,12 @@ function Skeleton({ w = "100%", h = 14 }: { w?: string; h?: number }) {
   );
 }
 
-function getHeroPhase() {
-  const hour = new Date().getHours();
+function getHeroPhase(timestamp = Date.now()) {
+  const hour = Number(new Intl.DateTimeFormat("en-US", {
+    hour: "2-digit",
+    hourCycle: "h23",
+    timeZone: "Asia/Shanghai",
+  }).format(new Date(timestamp)));
   return hour < 6 ? "深夜构建" : hour < 12 ? "上午记录" : hour < 18 ? "下午调试" : "夜间整理";
 }
 
@@ -500,17 +533,21 @@ const AnimatedHero = memo(function AnimatedHero({
   subscriptions,
   servers,
   aiTools,
+  renderedAt,
+  heroPhase,
 }: {
   posts: Post[];
   subscriptions: Subscription[];
   servers: Server[];
   aiTools: AiToolUsage[];
+  renderedAt: number;
+  heroPhase: string;
 }) {
   const activeSubscriptions = subscriptions.filter((sub) => sub.status === "active");
   const onlineServers = servers.filter(isServerOnline);
   const totalAiTokens7d = aiTools.reduce((total, tool) => total + tool.tok7d, 0);
   const featuredPost = posts[0];
-  const [phase, setPhase] = useState(getHeroPhase);
+  const [phase, setPhase] = useState(heroPhase);
   const [pointer, setPointer] = useState({ x: 50, y: 50 });
   const [pointerInside, setPointerInside] = useState(false);
   const [animateEntrance, setAnimateEntrance] = useState(false);
@@ -1180,6 +1217,7 @@ function Heatmap({
         claude: 0,
         codex: 0,
         gemini: 0,
+        totalTokens: 0,
       });
     }
     return arr;
@@ -1189,7 +1227,7 @@ function Heatmap({
   for (let w = 0; w < Math.ceil(visibleDays.length / 7); w += 1) {
     weeks.push(visibleDays.slice(w * 7, (w + 1) * 7));
   }
-  const maxV = Math.max(...visibleDays.map((d) => d.total), 1);
+  const maxV = Math.max(...visibleDays.map((d) => d.totalTokens), 1);
   const colors = ["var(--ai-heatmap-0)", "var(--ai-heatmap-1)", "var(--ai-heatmap-2)", "var(--ai-heatmap-3)", "var(--ai-heatmap-4)"];
   const cellSize = compact ? 6 : 8;
   const cellGap = 1;
@@ -1220,8 +1258,8 @@ function Heatmap({
               {wk.map((d, di) => (
                 <div
                   key={di}
-                  title={`${d.date} · ${d.total} 次活动 · Claude ${d.claude} / Codex ${d.codex} / Gemini ${d.gemini}`}
-                  style={{ width: "100%", aspectRatio: "1 / 1", maxHeight: cellSize, borderRadius: compact ? 1 : 2, background: getColor(d.total) }}
+                  title={`${d.date} · ${d.totalTokens.toLocaleString()} tokens`}
+                  style={{ width: "100%", aspectRatio: "1 / 1", maxHeight: cellSize, borderRadius: compact ? 1 : 2, background: getColor(d.totalTokens) }}
                 />
               ))}
             </div>
@@ -1287,14 +1325,35 @@ function WorldMap({ servers, compact = false }: { servers: Server[]; compact?: b
   const svgRef = useRef<SVGSVGElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [worldData, setWorldData] = useState<any>(worldAtlasDataCache);
+  const [worldDataError, setWorldDataError] = useState(false);
+  const [mapRuntime, setMapRuntime] = useState<{
+    d3: typeof import("d3");
+    topojson: typeof import("topojson-client");
+  } | null>(null);
+  const [mapRuntimeError, setMapRuntimeError] = useState(false);
   const [mapWidth, setMapWidth] = useState(0);
   const [tooltip, setTooltip] = useState<{ x: number; y: number; cluster: MapCluster } | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    Promise.all([import("d3"), import("topojson-client")])
+      .then(([d3Module, topojsonModule]) => {
+        if (cancelled) return;
+        setMapRuntime({ d3: d3Module, topojson: topojsonModule });
+      })
+      .catch(() => {
+        if (!cancelled) setMapRuntimeError(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     if (worldData) return;
     fetchWorldAtlasOnce()
       .then(setWorldData)
-      .catch(() => {});
+      .catch(() => setWorldDataError(true));
   }, [worldData]);
 
   useEffect(() => {
@@ -1331,7 +1390,8 @@ function WorldMap({ servers, compact = false }: { servers: Server[]; compact?: b
   }, [clusters]);
 
   useEffect(() => {
-    if (!svgRef.current || !worldData) return;
+    if (!svgRef.current || !worldData || !mapRuntime) return;
+    const { d3, topojson } = mapRuntime;
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
 
@@ -1394,16 +1454,18 @@ function WorldMap({ servers, compact = false }: { servers: Server[]; compact?: b
           setTooltip(null);
         });
     });
-  }, [worldData, onlineIds, idToCluster, dotClusters, compact, mapWidth]);
+  }, [worldData, mapRuntime, onlineIds, idToCluster, dotClusters, compact, mapWidth]);
+
+  const mapReady = Boolean(worldData && mapRuntime && !mapRuntimeError);
 
   return (
     <div ref={containerRef} style={{ position: "relative", borderRadius: compact ? 6 : 10, overflow: "hidden" }}>
-      {!worldData && (
+      {!mapReady && (
         <div style={{ height: compact ? 160 : 300, background: "var(--map-bg)", borderRadius: compact ? 6 : 10, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: "var(--text-muted)", fontFamily: "JetBrains Mono" }}>
-          <span style={{ animation: "pulse 1.4s ease-in-out infinite" }}>加载地图中…</span>
+          <span style={{ animation: worldDataError ? "none" : "pulse 1.4s ease-in-out infinite" }}>{worldDataError ? "地图数据暂不可用" : "加载地图中…"}</span>
         </div>
       )}
-      <svg ref={svgRef} style={{ width: "100%", height: "auto", display: worldData ? "block" : "none" }} />
+      <svg ref={svgRef} style={{ width: "100%", height: "auto", display: mapReady ? "block" : "none" }} />
       {tooltip && (() => {
         const W = containerRef.current?.getBoundingClientRect().width ?? 600;
         const left = tooltip.x > W * 0.62 ? tooltip.x - 145 : tooltip.x + 10;
@@ -1550,6 +1612,117 @@ function SubscriptionIcon({ sub, size = 36 }: { sub: Subscription; size?: number
 }
 
 function SubscriptionWidget({ subscriptions, onOpen }: { subscriptions: Subscription[]; onOpen: () => void }) {
+  const active = subscriptions.filter((s) => s.status === "active");
+  const ordered = [...active].sort((a, b) => a.renewalDays - b.renewalDays);
+  const totalUsd = active.reduce((sum, sub) => sum + sub.monthlyCost, 0);
+  const totalCny = active.reduce((sum, sub) => sum + sub.monthlyCostCny, 0);
+  const next = ordered[0];
+  const nextDays = next?.renewalDays ?? null;
+
+  return (
+    <div
+      onClick={onOpen}
+      style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: "var(--r)", padding: 18, cursor: "pointer", boxShadow: "var(--shadow-sm)", transition: "all 0.18s", display: "flex", flexDirection: "column", gap: 10 }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.borderColor = "var(--border)";
+        e.currentTarget.style.boxShadow = "var(--shadow-md)";
+        e.currentTarget.style.transform = "translateY(-1px)";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.boxShadow = "var(--shadow-sm)";
+        e.currentTarget.style.transform = "none";
+      }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+        <div>
+          <div style={{ fontSize: 10, fontWeight: 700, color: "var(--text-faint)", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 2 }}>订阅概览</div>
+          <div style={{ fontSize: 26, fontWeight: 600, fontFamily: "DM Serif Display", letterSpacing: "-0.02em" }}>
+            {formatUsd(totalUsd)}<span style={{ fontSize: 12, fontWeight: 400, color: "var(--text-muted)", marginLeft: 2 }}>/月</span>
+          </div>
+          <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 1 }}>≈ {formatCny(totalCny)} / 月</div>
+        </div>
+        <Badge color="green">{active.length} 活跃</Badge>
+      </div>
+      <div style={{ display: "grid", gap: 6 }}>
+        {ordered.map((sub) => (
+          <div key={sub.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "7px 8px", border: "1px solid var(--border-light)", borderRadius: 8, background: "var(--bg-2)" }}>
+            <SubscriptionIcon sub={sub} size={27} />
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{sub.name}</div>
+              <div style={{ fontSize: 10, color: "var(--text-faint)", marginTop: 2 }}>{sub.cycleLabel}</div>
+            </div>
+            <div style={{ textAlign: "right", flexShrink: 0 }}>
+              <div style={{ fontSize: 11, fontWeight: 600, fontFamily: "JetBrains Mono" }}>{formatUsd(sub.monthlyCost)}</div>
+              <div style={{ fontSize: 10, color: "var(--text-faint)", fontFamily: "JetBrains Mono" }}>≈ {formatCny(sub.monthlyCostCny)}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div style={{ display: "flex", justifyContent: "space-between", paddingTop: 8, borderTop: "1px solid var(--border-light)" }}>
+        <span style={{ fontSize: 11, color: "var(--text-faint)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", paddingRight: 8 }}>下次续费 · {next?.name ?? "暂无"}</span>
+        <span style={{ fontSize: 11, color: "var(--accent)", fontWeight: 600, flexShrink: 0 }}>{nextDays != null ? `${nextDays} 天后 →` : "—"}</span>
+      </div>
+    </div>
+  );
+}
+
+function SubscriptionDrawer({ subscriptions, open, onClose }: { subscriptions: Subscription[]; open: boolean; onClose: () => void }) {
+  if (!open) return null;
+
+  const active = subscriptions.filter((s) => s.status === "active");
+  const ordered = [...subscriptions].sort((a, b) => daysUntil(getRenewalDate(a)) - daysUntil(getRenewalDate(b)));
+  const totalUsd = active.reduce((sum, sub) => sum + sub.monthlyCost, 0);
+  const totalCny = active.reduce((sum, sub) => sum + sub.monthlyCostCny, 0);
+  return (
+    <Drawer open={open} onClose={onClose} title="订阅管理" subtitle={`共 ${subscriptions.length} 项 · 金额为当前汇率近似值`} icon="◈" iconColor="var(--accent)">
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 10, marginBottom: 20 }}>
+        <div style={{ padding: "12px 14px", background: "var(--bg-2)", borderRadius: 10, border: "1px solid var(--border-light)" }}><StatCell label="月度总计" value={formatUsd(totalUsd)} sub={`≈ ${formatCny(totalCny)} / 月`} /></div>
+        <div style={{ padding: "12px 14px", background: "var(--bg-2)", borderRadius: 10, border: "1px solid var(--border-light)" }}><StatCell label="年度预估" value={formatUsd(totalUsd * 12)} sub={`≈ ${formatCny(totalCny * 12)} / 年`} /></div>
+        <div style={{ padding: "12px 14px", background: "var(--bg-2)", borderRadius: 10, border: "1px solid var(--border-light)" }}><StatCell label="活跃数量" value={`${active.length}/${subscriptions.length}`} sub="项订阅" /></div>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {ordered.map((sub) => {
+          const renewalDate = getRenewalDate(sub);
+          const days = daysUntil(renewalDate);
+          const categoryColor = getSubscriptionCategoryColor(sub.cat);
+          return (
+            <div key={sub.id} style={{ padding: "14px 16px", background: "var(--bg)", borderRadius: 10, border: "1px solid var(--border-light)", display: "flex", flexDirection: "column", gap: 12 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <SubscriptionIcon sub={sub} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3, flexWrap: "wrap" }}>
+                    <span style={{ fontSize: 13, fontWeight: 600 }}>{sub.name}</span>
+                    <span style={{ fontSize: 10, padding: "2px 6px", borderRadius: 4, background: tint(categoryColor, 14), color: categoryColor, fontWeight: 600 }}>{formatSubscriptionCategory(sub.cat)}</span>
+                  </div>
+                  <div style={{ fontSize: 11, color: "var(--text-muted)" }}>{sub.desc}</div>
+                </div>
+                <div style={{ textAlign: "right", flexShrink: 0 }}>
+                  <div style={{ fontSize: 14, fontWeight: 600, fontFamily: "DM Serif Display" }}>{sub.priceLabel}</div>
+                  <div style={{ fontSize: 10, color: "var(--text-faint)" }}>{sub.cycleLabel}</div>
+                </div>
+              </div>
+              {sub.status === "active" && <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 8 }}>
+                <StatCell label="开始日期" value={sub.start} mono />
+                <StatCell label="续费日期" value={renewalDate} mono />
+                <StatCell label="距离续费" value={`${days} 天`} sub={days < 7 ? "即将到期" : days < 30 ? "本月内" : ""} />
+              </div>}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                <StatCell label="计费周期" value={sub.cycleLabel} />
+                <StatCell label="月均折算" value={formatUsd(sub.monthlyCost)} sub={`≈ ${formatCny(sub.monthlyCostCny)}`} mono />
+              </div>
+              {(sub.note || sub.renewalUrl) && <div style={{ fontSize: 11, color: "var(--text-muted)", lineHeight: 1.6, padding: "10px 12px", borderRadius: 8, background: "var(--bg-card)", border: "1px solid var(--border-light)" }}>
+                {sub.note && <div>{sub.note}</div>}
+                {sub.renewalUrl && <a href={sub.renewalUrl} target="_blank" rel="noopener noreferrer" style={{ color: "var(--accent)", textDecoration: "none", wordBreak: "break-all" }}>续费链接：{sub.renewalUrl}</a>}
+              </div>}
+            </div>
+          );
+        })}
+      </div>
+    </Drawer>
+  );
+}
+
+function SubscriptionWidgetLegacy({ subscriptions, onOpen }: { subscriptions: Subscription[]; onOpen: () => void }) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   const active = subscriptions.filter((s) => s.status === "active");
@@ -1602,7 +1775,7 @@ function SubscriptionWidget({ subscriptions, onOpen }: { subscriptions: Subscrip
   );
 }
 
-function SubscriptionDrawer({ subscriptions, open, onClose }: { subscriptions: Subscription[]; open: boolean; onClose: () => void }) {
+function SubscriptionDrawerLegacy({ subscriptions, open, onClose }: { subscriptions: Subscription[]; open: boolean; onClose: () => void }) {
   const [cat, setCat] = useState("全部");
   const categories = sortSubscriptionCategories([...new Set(subscriptions.map((s) => s.cat))]);
   const cats = ["全部", ...categories];
@@ -1698,7 +1871,8 @@ function AIUsageWidget({
 }) {
   const total7d = tools.reduce((a, t) => a + t.tok7d, 0);
   const totalCost7d = tools.reduce((a, t) => a + t.cost7d, 0);
-  const hasApproxCost = tools.some((t) => t.costMode === "subscription" && t.tok7d > 0);
+  const totalCostCny7d = tools.reduce((a, t) => a + t.costCny7d, 0);
+  const hasApproxCost = tools.some((t) => t.costMode === "estimated" && t.tok7d > 0);
   const hasData = installedCount > 0;
   return (
     <div
@@ -1720,14 +1894,14 @@ function AIUsageWidget({
           <div style={{ fontSize: 11, color: "var(--text-muted)" }}>{hasData ? "tokens · 过去 7 天" : backendConnected ? "未检测到本地工具" : "等待后端"}</div>
         </div>
         <div style={{ textAlign: "right" }}>
-          <div style={{ fontSize: 14, fontWeight: 600, color: "var(--accent)" }}>{hasData ? `${hasApproxCost ? "~" : ""}$${totalCost7d.toFixed(0)}` : "—"}</div>
-          <div style={{ fontSize: 10, color: "var(--text-faint)" }}>{hasApproxCost ? "本周等价费用" : "本周花费"}</div>
+          <div style={{ fontSize: 14, fontWeight: 600, color: "var(--accent)" }}>{hasData && (totalCost7d > 0 || totalCostCny7d > 0) ? `${hasApproxCost ? "~" : ""}$${totalCost7d.toFixed(2)}` : "—"}</div>
+          <div style={{ fontSize: 10, color: "var(--text-faint)" }}>{hasData && totalCostCny7d > 0 ? `≈ ¥${totalCostCny7d.toFixed(2)}` : "费用待配置"}</div>
         </div>
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         {tools.map((t) => {
           const pct = sharePct(t.tok7d, total7d);
-          return <div key={t.id} style={{ padding: "10px 12px", background: "var(--bg-2)", borderRadius: 10, border: "1px solid var(--border-light)", display: "flex", alignItems: "center", gap: 12 }}><div style={{ display: "flex", alignItems: "center", gap: 6, minWidth: 0, flex: 1 }}><span style={{ fontSize: 11, color: t.color, fontWeight: 700 }}>{t.icon}</span><span style={{ fontSize: 10, color: "var(--text-muted)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{t.name}</span></div><div style={{ display: "flex", alignItems: "center", gap: 14, flexShrink: 0 }}><div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11 }}><span style={{ color: "var(--text-muted)" }}>占比</span><span style={{ color: hasData ? "var(--text)" : "var(--text-faint)", fontFamily: "JetBrains Mono" }}>{hasData ? `${pct}%` : "—"}</span></div><div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11 }}><span style={{ color: "var(--text-muted)" }}>7d</span><span style={{ color: "var(--text-faint)", fontFamily: "JetBrains Mono" }}>{t.tok7d > 0 ? fmt(t.tok7d) : "0"}</span></div><Badge color={t.status === "active" ? "green" : "gray"} small>{!t.installed ? "未装" : t.status === "active" ? "运行" : "待机"}</Badge></div></div>;
+          return <div key={t.id} style={{ padding: "10px 12px", background: "var(--bg-2)", borderRadius: 10, border: "1px solid var(--border-light)", display: "flex", alignItems: "center", gap: 12 }}><div style={{ display: "flex", alignItems: "center", gap: 6, minWidth: 0, flex: 1 }}><AiToolIcon tool={t} size={14} /><span style={{ fontSize: 10, color: "var(--text-muted)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{t.name}</span></div><div style={{ display: "flex", alignItems: "center", gap: 14, flexShrink: 0 }}><div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11 }}><span style={{ color: "var(--text-muted)" }}>占比</span><span style={{ color: hasData ? "var(--text)" : "var(--text-faint)", fontFamily: "JetBrains Mono" }}>{hasData ? `${pct}%` : "—"}</span></div><div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11 }}><span style={{ color: "var(--text-muted)" }}>7d</span><span style={{ color: "var(--text-faint)", fontFamily: "JetBrains Mono" }}>{t.tok7d > 0 ? fmt(t.tok7d) : "0"}</span></div><Badge color={t.status === "active" ? "green" : "gray"} small>{!t.installed ? "未装" : t.status === "active" ? "运行" : "待机"}</Badge></div></div>;
         })}
       </div>
       <div style={{ paddingTop: 8, borderTop: "1px solid var(--border-light)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -1740,6 +1914,19 @@ function AIUsageWidget({
       </div>
     </div>
   );
+}
+
+function AiToolIcon({
+  tool,
+  size = 14,
+}: {
+  tool: Pick<AiToolUsage, "id" | "icon" | "color">;
+  size?: number;
+}) {
+  if (tool.id === "codex-desktop") {
+    return <img src="/assets/openai-chatgpt-icon.png" alt="" aria-hidden="true" style={{ width: size, height: size, objectFit: "contain", display: "block", mixBlendMode: "multiply" }} />;
+  }
+  return <span style={{ fontSize: size, color: tool.color, fontWeight: 700, lineHeight: 1 }}>{tool.icon}</span>;
 }
 
 function AIUsageDrawer({
@@ -1762,7 +1949,6 @@ function AIUsageDrawer({
   onToolRefreshed: (updated: AiToolUsage) => void;
 }) {
   const [period, setPeriod] = useState<"7d" | "30d">("7d");
-  const [tool, setTool] = useState("all");
   const [refreshingTool, setRefreshingTool] = useState<string | null>(null);
 
   async function handleRefreshTool(toolId: string) {
@@ -1781,16 +1967,22 @@ function AIUsageDrawer({
   const total30d = tools.reduce((a, t) => a + t.tok30d, 0);
   const cost7d = tools.reduce((a, t) => a + t.cost7d, 0);
   const cost30d = tools.reduce((a, t) => a + t.cost30d, 0);
+  const costCny7d = tools.reduce((a, t) => a + t.costCny7d, 0);
+  const costCny30d = tools.reduce((a, t) => a + t.costCny30d, 0);
   const totalTok = period === "7d" ? total7d : total30d;
   const totalCost = period === "7d" ? cost7d : cost30d;
-  const hasApproxCost = tools.some((t) => t.costMode === "subscription" && (period === "7d" ? t.tok7d : t.tok30d) > 0);
+  const totalCostCny = period === "7d" ? costCny7d : costCny30d;
+  const hasApproxCost = tools.some((t) => t.costMode === "estimated" && (period === "7d" ? t.tok7d : t.tok30d) > 0);
+  const orderedTools = useMemo(() => [...tools].sort((a, b) => {
+    const aTokens = period === "7d" ? a.tok7d : a.tok30d;
+    const bTokens = period === "7d" ? b.tok7d : b.tok30d;
+    return bTokens - aTokens || a.name.localeCompare(b.name);
+  }), [period, tools]);
   const installedTools = tools.filter((t) => t.installed);
-  const subtitle = installedTools.length > 0
-    ? installedTools.map((t) => t.name).join(" · ")
-    : "未检测到本地工具";
+  const subtitle = "ChatGPT Codex · Codex CLI";
   return (
     <Drawer open={open} onClose={onClose} title="AI 工具用量分析" subtitle={subtitle} icon="⬡" iconColor="var(--accent-teal)" width={640}>
-      <style>{`@keyframes ai-refresh-spin { to { transform: rotate(360deg); } }`}</style>
+      <style>{`@keyframes ai-refresh-spin { to { transform: rotate(360deg); } } .ai-usage-tool-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }`}</style>
       {!backendConnected && (
         <div style={{ marginBottom: 16, padding: "10px 14px", background: "var(--accent-light)", borderRadius: 8, border: "1px solid var(--border-light)", fontSize: 11, color: "var(--text-muted)" }}>
           {backendError ? (
@@ -1804,7 +1996,7 @@ function AIUsageDrawer({
       )}
       {backendConnected && installedTools.length === 0 && (
         <div style={{ marginBottom: 16, padding: "10px 14px", background: "var(--bg-2)", borderRadius: 8, border: "1px solid var(--border-light)", fontSize: 11, color: "var(--text-muted)" }}>
-          后端运行正常，但未在本地检测到任何 Claude Code / Codex CLI / Gemini CLI 数据。请确认这些工具已登录并产生过会话日志。
+          后端运行正常，但未在本地检测到两个 AI 工具的结构化用量数据。请先产生过 ChatGPT Codex 或 Codex CLI 会话日志。
         </div>
       )}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
@@ -1818,33 +2010,54 @@ function AIUsageDrawer({
       <div style={{ marginBottom: 20, padding: "20px 24px", background: "var(--bg-2)", borderRadius: 12, border: "1px solid var(--border-light)" }}>
         <div style={{ fontSize: 10, fontWeight: 700, color: "var(--text-faint)", letterSpacing: "0.08em", textTransform: "uppercase", textAlign: "center", marginBottom: 8 }}>TOTAL TOKENS</div>
         <div style={{ fontSize: 36, fontWeight: 700, textAlign: "center", letterSpacing: "-0.03em", fontFamily: "DM Serif Display" }}>{totalTok.toLocaleString()}</div>
-        <div style={{ fontSize: 16, color: "var(--accent)", fontWeight: 600, textAlign: "center", marginTop: 4 }}>{hasApproxCost ? "~" : ""}${totalCost.toFixed(2)}</div>
-        {hasApproxCost && <div style={{ fontSize: 10, color: "var(--text-faint)", textAlign: "center", marginTop: 2 }}>~ = 订阅套餐按量等价估算</div>}
+        <div style={{ fontSize: 16, color: "var(--accent)", fontWeight: 600, textAlign: "center", marginTop: 4 }}>{totalCost > 0 ? `${hasApproxCost ? "~" : ""}$${totalCost.toFixed(2)}` : "费用待配置官方单价"}</div>
+        <div style={{ fontSize: 11, color: "var(--text-muted)", textAlign: "center", marginTop: 4 }}>{totalCostCny > 0 ? `≈ ¥${totalCostCny.toFixed(2)} · USD/CNY cached daily` : "人民币费用待配置官方单价"}</div>
+        {hasApproxCost && totalCost > 0 && <div style={{ fontSize: 10, color: "var(--text-faint)", textAlign: "center", marginTop: 2 }}>~ = 官方单价等价估算，不代表实际扣费</div>}
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8, marginBottom: 20 }}>
-        {tools.map((t) => {
-          const tok = period === "7d" ? t.tok7d : t.tok30d;
-          const models = period === "7d" ? t.models7d : t.models30d;
-          const pct = sharePct(tok, totalTok);
-          return <div key={t.id} onClick={() => setTool(tool === t.id ? "all" : t.id)} style={{ padding: "12px 14px", background: tool === t.id ? tint(t.color, 16) : "var(--bg-2)", borderRadius: 10, border: `1px solid ${tool === t.id ? tint(t.color, 42) : "var(--border-light)"}`, cursor: "pointer", transition: "all 0.15s" }}><div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 4 }}><span style={{ color: t.color, fontWeight: 700, fontSize: 12 }}>{t.icon}</span><span style={{ fontSize: 10, fontWeight: 600, color: "var(--text-muted)" }}>{t.name.toUpperCase()}</span></div><div style={{ fontSize: 20, fontWeight: 700, fontFamily: "DM Serif Display" }}>{pct}%</div><div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 1 }}>{models.length} 个模型</div></div>;
-        })}
-      </div>
-      {tools.filter((t) => (tool === "all" ? true : t.id === tool)).map((t) => {
+      <div className="ai-usage-tool-grid">
+      {orderedTools.map((t) => {
         const tok = period === "7d" ? t.tok7d : t.tok30d;
+        const credits = period === "7d" ? t.credits7d : t.credits30d;
         const cost = period === "7d" ? t.cost7d : t.cost30d;
+        const costCny = period === "7d" ? t.costCny7d : t.costCny30d;
         const models = period === "7d" ? t.models7d : t.models30d;
-        const costLabel = t.costMode === "unknown"
-          ? "—"
+        const usagePct = sharePct(tok, totalTok);
+        const usageLabel = t.billingUnit === "credits" ? "Credits" : "Token用量";
+        const usageValue = t.billingUnit === "credits" ? (credits > 0 ? fmt(credits) : "—") : (tok > 0 ? fmt(tok) : "—");
+        const costLabel = t.costMode === "unknown" || (t.costMode === "estimated" && cost <= 0 && tok > 0)
+          ? "待配置官方单价"
           : t.costMode === "subscription"
             ? `~$${cost.toFixed(2)}`
-            : `$${cost.toFixed(2)}${t.costMode === "estimated" ? "*" : ""}`;
+            : `$${cost.toFixed(2)}${t.costMode === "estimated" ? "*" : ""} / ¥${costCny.toFixed(2)}`;
         const fiveHour = t.windows?.fiveHour;
         const sevenDay = t.windows?.sevenDay;
         const hasInformationalWindows = (fiveHour || sevenDay) && t.quotas.length === 0;
-        return <div key={t.id} style={{ marginBottom: 16, padding: 16, background: "var(--bg)", borderRadius: 12, border: "1px solid var(--border-light)" }}><div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}><div style={{ width: 32, height: 32, borderRadius: 8, background: tint(t.color, 20), color: t.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700 }}>{t.icon}</div><div><div style={{ fontSize: 13, fontWeight: 600 }}>{t.name}</div><div style={{ fontSize: 11, color: "var(--text-muted)" }}>{t.provider} · {t.plan}</div></div><div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 8 }}><button onClick={(e) => { e.stopPropagation(); handleRefreshTool(t.id); }} disabled={refreshingTool === t.id} title="刷新" style={{ background: "none", border: "none", cursor: refreshingTool === t.id ? "default" : "pointer", padding: "2px 4px", borderRadius: 4, color: "var(--text-faint)", fontSize: 14, lineHeight: 1, display: "flex", alignItems: "center", opacity: refreshingTool !== null && refreshingTool !== t.id ? 0.4 : 1 }}><span style={{ display: "inline-block", animation: refreshingTool === t.id ? "ai-refresh-spin 0.8s linear infinite" : "none" }}>↻</span></button><Badge color={t.status === "active" ? "green" : "gray"}>{t.status === "active" ? "运行中" : "待机"}</Badge></div></div>{t.quotas.length > 0 && <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 12 }}>{t.quotas.map((q) => <div key={q.label}><div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 12, marginBottom: 4, fontSize: 11 }}><div><div style={{ color: "var(--text-muted)" }}>{q.label}</div>{q.note && <div style={{ fontSize: 10, color: "var(--text-faint)", marginTop: 2, fontFamily: "JetBrains Mono" }}>{q.note}</div>}</div><span style={{ fontWeight: 600, fontFamily: "JetBrains Mono", whiteSpace: "nowrap" }}>{q.used}{q.unit} / {q.total}{q.unit}</span></div><Bar val={q.used} max={q.total} color={t.color} h={5} /></div>)}</div>}{hasInformationalWindows && <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 8, marginBottom: 12 }}>{fiveHour && <div style={{ padding: "10px 12px", background: "var(--bg-2)", borderRadius: 8, border: "1px solid var(--border-light)" }}><div style={{ fontSize: 10, fontWeight: 700, color: "var(--text-faint)", letterSpacing: "0.06em", marginBottom: 4 }}>5h 滚动窗口</div><div style={{ fontSize: 16, fontWeight: 700, fontFamily: "DM Serif Display" }}>{fmt(fiveHour.totalTokens)} <span style={{ fontSize: 10, fontWeight: 400, color: "var(--text-muted)" }}>tokens</span></div><div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2, fontFamily: "JetBrains Mono" }}>{fiveHour.requests} 次请求</div></div>}{sevenDay && <div style={{ padding: "10px 12px", background: "var(--bg-2)", borderRadius: 8, border: "1px solid var(--border-light)" }}><div style={{ fontSize: 10, fontWeight: 700, color: "var(--text-faint)", letterSpacing: "0.06em", marginBottom: 4 }}>7d 滚动窗口</div><div style={{ fontSize: 16, fontWeight: 700, fontFamily: "DM Serif Display" }}>{fmt(sevenDay.totalTokens)} <span style={{ fontSize: 10, fontWeight: 400, color: "var(--text-muted)" }}>tokens</span></div><div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2, fontFamily: "JetBrains Mono" }}>{sevenDay.requests} 次请求</div></div>}</div>}<div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 8 }}><StatCell label="Token用量" value={tok > 0 ? fmt(tok) : "—"} mono /><StatCell label="花费" value={costLabel} mono />{models.slice(0, 2).map((m) => <StatCell key={m.name} label={m.name} value={`${m.pct}%`} mono />)}</div>{models.length > 0 && <div style={{ marginTop: 10 }}>{models.map((m) => <div key={m.name} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5 }}><span style={{ fontSize: 10, color: "var(--text-muted)", fontFamily: "JetBrains Mono", width: 120, flexShrink: 0 }}>{m.name}</span><div style={{ flex: 1 }}><Bar val={m.pct} color={t.color} h={4} /></div><span style={{ fontSize: 11, fontWeight: 600, width: 30, textAlign: "right" }}>{m.pct}%</span></div>)}</div>}{t.warnings.length > 0 && <div style={{ marginTop: 10, padding: "8px 10px", background: "var(--bg-2)", borderRadius: 8, fontSize: 10, color: "var(--text-faint)" }}>{t.warnings.map((w, i) => <div key={i}>· {w}</div>)}</div>}</div>;
+        return <div key={t.id} style={{ padding: 16, background: "var(--bg)", borderRadius: 12, border: "1px solid var(--border-light)", minWidth: 0 }}><div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14, minWidth: 0 }}><div style={{ width: 32, height: 32, borderRadius: 8, background: tint(t.color, 20), color: t.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700, flexShrink: 0 }}><AiToolIcon tool={t} size={20} /></div><div style={{ minWidth: 0 }}><div style={{ fontSize: 13, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{t.name}</div><div style={{ fontSize: 11, color: "var(--text-muted)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{t.provider} · {t.plan}</div></div><div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}><span style={{ fontSize: 10, color: "var(--text-muted)", whiteSpace: "nowrap" }}>使用占比：{totalTok > 0 ? `${usagePct}%` : "—"}</span><button onClick={(e) => { e.stopPropagation(); handleRefreshTool(t.id); }} disabled={refreshingTool === t.id} title="刷新" aria-label={`${t.name}刷新`} style={{ width: 28, height: 28, background: "var(--bg-2)", border: "1px solid var(--border-light)", cursor: refreshingTool === t.id ? "default" : "pointer", padding: 0, borderRadius: "50%", color: "var(--text-faint)", fontSize: 14, lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center", opacity: refreshingTool !== null && refreshingTool !== t.id ? 0.4 : 1 }}><span style={{ display: "inline-block", animation: refreshingTool === t.id ? "ai-refresh-spin 0.8s linear infinite" : "none" }}>↻</span></button><Badge color={t.status === "active" ? "green" : "gray"}>{t.status === "active" ? "运行中" : "待机"}</Badge></div></div>{t.quotas.length > 0 && <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 12 }}>{t.quotas.map((q) => <div key={q.label}><div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 12, marginBottom: 4, fontSize: 11 }}><div><div style={{ color: "var(--text-muted)" }}>{q.label}</div>{q.note && <div style={{ fontSize: 10, color: "var(--text-faint)", marginTop: 2, fontFamily: "JetBrains Mono" }}>{q.note}</div>}</div><span style={{ fontWeight: 600, fontFamily: "JetBrains Mono", whiteSpace: "nowrap" }}>{q.used}{q.unit} / {q.total}{q.unit}</span></div><Bar val={q.used} max={q.total} color={t.color} h={5} /></div>)}</div>}{hasInformationalWindows && <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 8, marginBottom: 12 }}>{fiveHour && <div style={{ padding: "10px 12px", background: "var(--bg-2)", borderRadius: 8, border: "1px solid var(--border-light)" }}><div style={{ fontSize: 10, fontWeight: 700, color: "var(--text-faint)", letterSpacing: "0.06em", marginBottom: 4 }}>5h 滚动窗口</div><div style={{ fontSize: 16, fontWeight: 700, fontFamily: "DM Serif Display" }}>{fmt(fiveHour.totalTokens)} <span style={{ fontSize: 10, fontWeight: 400, color: "var(--text-muted)" }}>tokens</span></div><div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2, fontFamily: "JetBrains Mono" }}>{fiveHour.requests} 次请求</div></div>}{sevenDay && <div style={{ padding: "10px 12px", background: "var(--bg-2)", borderRadius: 8, border: "1px solid var(--border-light)" }}><div style={{ fontSize: 10, fontWeight: 700, color: "var(--text-faint)", letterSpacing: "0.06em", marginBottom: 4 }}>7d 滚动窗口</div><div style={{ fontSize: 16, fontWeight: 700, fontFamily: "DM Serif Display" }}>{fmt(sevenDay.totalTokens)} <span style={{ fontSize: 10, fontWeight: 400, color: "var(--text-muted)" }}>tokens</span></div><div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2, fontFamily: "JetBrains Mono" }}>{sevenDay.requests} 次请求</div></div>}</div>}<div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 8 }}><StatCell label={usageLabel} value={usageValue} mono /><StatCell label="花费" value={costLabel} mono />{models.slice(0, 2).map((m) => <StatCell key={m.name} label={m.name} value={`${m.pct}%`} mono />)}</div>{models.length > 0 && <div style={{ marginTop: 10 }}>{models.map((m) => <div key={m.name} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5 }}><span style={{ fontSize: 10, color: "var(--text-muted)", fontFamily: "JetBrains Mono", width: 120, flexShrink: 0 }}>{m.name}</span><div style={{ flex: 1 }}><Bar val={m.pct} color={t.color} h={4} /></div><span style={{ fontSize: 11, fontWeight: 600, width: 30, textAlign: "right" }}>{m.pct}%</span></div>)}</div>}{t.warnings.length > 0 && <div style={{ marginTop: 10, padding: "8px 10px", background: "var(--bg-2)", borderRadius: 8, fontSize: 10, color: "var(--text-faint)" }}>{t.warnings.map((w, i) => <div key={i}>· {w}</div>)}</div>}</div>;
       })}
+      </div>
+      <div style={{ marginTop: 16, marginBottom: 18 }}>
+        <SectionLabel>Token 分项</SectionLabel>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8 }}>
+          {orderedTools.map((t) => {
+            const input = period === "7d" ? t.input7d : t.input30d;
+            const cached = period === "7d" ? t.cachedInput7d : t.cachedInput30d;
+            const output = period === "7d" ? t.output7d : t.output30d;
+            const costUsd = period === "7d" ? t.cost7d : t.cost30d;
+            const costCny = period === "7d" ? t.costCny7d : t.costCny30d;
+            return <div key={t.id} style={{ padding: "10px 12px", background: "var(--bg-2)", borderRadius: 9, border: "1px solid var(--border-light)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}><AiToolIcon tool={t} size={14} /><span style={{ fontSize: 11, fontWeight: 600 }}>{t.name}</span></div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 6 }}>
+                <StatCell label="输入" value={fmt(input)} mono />
+                <StatCell label="缓存命中" value={fmt(cached)} mono />
+                <StatCell label="输出" value={fmt(output)} mono />
+              </div>
+              <div style={{ marginTop: 8, fontSize: 10, color: "var(--text-muted)" }}>{t.billingUnit === "credits" ? `Credits ${fmt(period === "7d" ? t.credits7d : t.credits30d)} · 官方套餐计费` : `估算 ${costUsd > 0 ? `~$${costUsd.toFixed(2)} / ¥${costCny.toFixed(2)}` : "待配置官方单价"}`}</div>
+            </div>;
+          })}
+        </div>
+      </div>
       <div style={{ marginTop: 8 }}>
-        <SectionLabel>活跃度热力图 ({heatmap.timezone})</SectionLabel>
+        <SectionLabel>活跃度热力图</SectionLabel>
         <Heatmap days={heatmap.days} timezone={heatmap.timezone} />
       </div>
     </Drawer>
@@ -1852,6 +2065,7 @@ function AIUsageDrawer({
 }
 
 function ServerWidget({ servers, onOpen }: { servers: Server[]; onOpen: () => void }) {
+  const hasLiveServers = servers.some((server) => server.status !== "placeholder");
   const online = servers.filter(isServerOnline).length;
   const warn = servers.filter((s) => s.status === "warning").length;
   const offline = servers.filter((s) => s.status === "offline").length;
@@ -1873,29 +2087,50 @@ function ServerWidget({ servers, onOpen }: { servers: Server[]; onOpen: () => vo
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
         <div>
           <div style={{ fontSize: 10, fontWeight: 700, color: "var(--text-faint)", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 2 }}>服务器监控</div>
-          <div style={{ fontSize: 26, fontWeight: 600, fontFamily: "DM Serif Display", letterSpacing: "-0.02em" }}>{online}<span style={{ fontSize: 12, fontWeight: 400, color: "var(--text-muted)", marginLeft: 2 }}>/{servers.length} 在线</span></div>
+          <div style={{ fontSize: 26, fontWeight: 600, fontFamily: "DM Serif Display", letterSpacing: "-0.02em" }}>
+            {hasLiveServers ? online : "—"}
+            <span style={{ fontSize: 12, fontWeight: 400, color: "var(--text-muted)", marginLeft: 2 }}>
+              {hasLiveServers ? `/${servers.length} 在线` : "等待接入"}
+            </span>
+          </div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 4, alignItems: "flex-end" }}>
-          {warn > 0 && <Badge color="yellow">{warn} 告警</Badge>}
-          {offline > 0 && <Badge color="red">{offline} 离线</Badge>}
-          {warn === 0 && offline === 0 && <Badge color="green">全部正常</Badge>}
+          {!hasLiveServers && <Badge color="gray">待配置</Badge>}
+          {hasLiveServers && warn > 0 && <Badge color="yellow">{warn} 告警</Badge>}
+          {hasLiveServers && offline > 0 && <Badge color="red">{offline} 离线</Badge>}
+          {hasLiveServers && warn === 0 && offline === 0 && <Badge color="green">全部正常</Badge>}
         </div>
       </div>
-      <WorldMap servers={servers} compact />
-      <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-        {previewServers.map((s) => <div key={s.id} style={{ display: "flex", alignItems: "center", gap: 4, padding: "3px 8px", background: "var(--bg-2)", borderRadius: 6, border: "1px solid var(--border-light)" }}><div style={{ width: 6, height: 6, borderRadius: "50%", background: s.status === "online" ? "var(--green)" : s.status === "warning" ? "var(--yellow)" : s.status === "offline" ? "var(--red)" : "var(--border)" }} /><span style={{ fontSize: 10, fontFamily: "JetBrains Mono", color: "var(--text-muted)" }}>{s.name}</span></div>)}
-        {hiddenServerCount > 0 && <div style={{ display: "flex", alignItems: "center", gap: 4, padding: "3px 8px", background: "var(--accent-light)", borderRadius: 6, border: "1px solid var(--accent-light)", color: "var(--accent)", fontSize: 10, fontFamily: "JetBrains Mono", fontWeight: 600 }}>更多 +{hiddenServerCount}</div>}
-      </div>
+      {hasLiveServers ? (
+        <>
+          <WorldMap servers={servers} compact />
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+            {previewServers.map((s) => <div key={s.id} style={{ display: "flex", alignItems: "center", gap: 4, padding: "3px 8px", background: "var(--bg-2)", borderRadius: 6, border: "1px solid var(--border-light)" }}><div style={{ width: 6, height: 6, borderRadius: "50%", background: s.status === "online" ? "var(--green)" : s.status === "warning" ? "var(--yellow)" : s.status === "offline" ? "var(--red)" : "var(--border)" }} /><span style={{ fontSize: 10, fontFamily: "JetBrains Mono", color: "var(--text-muted)" }}>{s.name}</span></div>)}
+            {hiddenServerCount > 0 && <div style={{ display: "flex", alignItems: "center", gap: 4, padding: "3px 8px", background: "var(--accent-light)", borderRadius: 6, border: "1px solid var(--accent-light)", color: "var(--accent)", fontSize: 10, fontFamily: "JetBrains Mono", fontWeight: 600 }}>更多 +{hiddenServerCount}</div>}
+          </div>
+        </>
+      ) : (
+        <div style={{ minHeight: 126, display: "flex", alignItems: "center", justifyContent: "center", padding: "16px", borderRadius: 10, background: "var(--bg-2)", border: "1px solid var(--border-light)", color: "var(--text-muted)", fontSize: 12, textAlign: "center", lineHeight: 1.6 }}>
+          暂未接入 Beszel 监控数据<br />部署完成后可按需配置
+        </div>
+      )}
     </div>
   );
 }
 
 function ServerDrawer({ servers, open, onClose, generatedAt }: { servers: Server[]; open: boolean; onClose: () => void; generatedAt: string | null }) {
   const [sel, setSel] = useState<string | number | null>(null);
+  const hasLiveServers = servers.some((server) => server.status !== "placeholder");
   const online = servers.filter(isServerOnline).length;
   const isLive = servers.some((s) => s.dataUpdatedAt);
   return (
     <Drawer open={open} onClose={onClose} title="服务器监控" subtitle={`Beszel · ${servers.length} 台服务器`} icon="⬢" iconColor="var(--accent-teal)" width={580}>
+      {!hasLiveServers ? (
+        <div style={{ padding: "28px 20px", textAlign: "center", border: "1px solid var(--border-light)", borderRadius: 12, background: "var(--bg-2)", color: "var(--text-muted)", fontSize: 13, lineHeight: 1.7 }}>
+          暂未接入 Beszel 监控数据。<br />当前不会展示示例节点或虚构的在线状态。
+        </div>
+      ) : (
+        <>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 8, marginBottom: 20 }}>
         {[{ label: "在线", value: online, color: "var(--green)" }, { label: "告警", value: servers.filter((s) => s.status === "warning").length, color: "var(--yellow)" }, { label: "离线", value: servers.filter((s) => s.status === "offline").length, color: "var(--red)" }, { label: "总计", value: servers.length, color: "var(--text-muted)" }].map((s) => <div key={s.label} style={{ padding: "12px 14px", background: "var(--bg-2)", borderRadius: 10, border: "1px solid var(--border-light)", textAlign: "center" }}><div style={{ fontSize: 24, fontWeight: 700, fontFamily: "DM Serif Display", color: s.color }}>{s.value}</div><div style={{ fontSize: 10, color: "var(--text-faint)", marginTop: 2 }}>{s.label}</div></div>)}
       </div>
@@ -1968,6 +2203,8 @@ function ServerDrawer({ servers, open, onClose, generatedAt }: { servers: Server
           );
         })}
       </div>
+        </>
+      )}
     </Drawer>
   );
 }
@@ -2327,63 +2564,9 @@ function PostCard({ post }: { post: Post }) {
   );
 }
 
-function HomeLoadingScreen() {
-  return (
-    <div
-      style={{
-        minHeight: "100vh",
-        display: "grid",
-        placeItems: "center",
-        padding: 32,
-        color: "var(--text)",
-      }}
-    >
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
-        <div
-          style={{
-            width: 36,
-            height: 36,
-            borderRadius: 10,
-            background: "linear-gradient(135deg,var(--accent) 0%,oklch(0.58 0.16 55) 100%)",
-            color: "white",
-            display: "grid",
-            placeItems: "center",
-            fontFamily: "DM Serif Display",
-            fontSize: 18,
-            fontWeight: 700,
-            boxShadow: "var(--shadow-md)",
-          }}
-        >
-          A
-        </div>
-        <div style={{ fontFamily: "DM Serif Display", fontSize: 18 }}>{siteMeta.title}</div>
-        <div
-          style={{
-            width: 160,
-            height: 3,
-            borderRadius: 99,
-            background: "var(--border-light)",
-            overflow: "hidden",
-          }}
-        >
-          <div
-            style={{
-              width: "42%",
-              height: "100%",
-              borderRadius: 99,
-              background: "var(--accent)",
-              animation: "home-loading-bar 1.05s ease-in-out infinite",
-            }}
-          />
-        </div>
-      </div>
-    </div>
-  );
-}
-
 type AuthGateScope = "subscriptions" | "ai" | "server" | "ip" | null;
 
-export default function HomePrototype({ subscriptions, apis, servers, posts, isAuthed = false }: Props) {
+export default function HomePrototype({ subscriptions, apis, servers, posts, isAuthed = false, renderedAt, heroPhase }: Props) {
   const [subOpen, setSubOpen] = useState(false);
   const [aiOpen, setAiOpen] = useState(false);
   const [srvOpen, setSrvOpen] = useState(false);
@@ -2406,7 +2589,6 @@ export default function HomePrototype({ subscriptions, apis, servers, posts, isA
   const [aiReady, setAiReady] = useState(false);
   const [serversReady, setServersReady] = useState(false);
   const [ipReady, setIpReady] = useState(false);
-  const [mapReady, setMapReady] = useState(Boolean(worldAtlasDataCache));
 
   function handleToolRefreshed(updated: AiToolUsage) {
     setAiTools((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
@@ -2597,37 +2779,26 @@ export default function HomePrototype({ subscriptions, apis, servers, posts, isA
   }, []);
 
   useEffect(() => {
-    let cancelled = false;
-
-    fetchWorldAtlasOnce()
-      .catch(() => null)
-      .finally(() => {
-        if (!cancelled) setMapReady(true);
-      });
-
-    return () => {
-      cancelled = true;
-    };
+    fetchWorldAtlasOnce().catch(() => null);
   }, []);
 
   const displayServers = useMemo(
     () => liveServers ?? servers,
     [liveServers, servers],
   );
-  const installedAiTools = useMemo(
-    () => aiTools.filter((tool) => tool.installed),
+  const visibleAiTools = useMemo(
+    () => aiTools.filter((tool) => VISIBLE_AI_TOOL_IDS.has(tool.id)),
     [aiTools],
   );
+  const installedAiTools = useMemo(
+    () => visibleAiTools.filter((tool) => tool.installed),
+    [visibleAiTools],
+  );
+  const displayAiTools = visibleAiTools.length > 0 ? visibleAiTools : PLACEHOLDER_AI_TOOLS;
   const ipApi = useMemo(
     () => apis.find((api) => api.id === "net-coffee-claude") ?? apis[0] ?? null,
     [apis],
   );
-  const pageReady = aiReady && serversReady && ipReady && mapReady;
-
-  if (!pageReady) {
-    return <HomeLoadingScreen />;
-  }
-
   return (
     <div style={{ minHeight: "100vh" }}>
       <Nav isAuthed={isAuthed} />
@@ -2636,12 +2807,14 @@ export default function HomePrototype({ subscriptions, apis, servers, posts, isA
           posts={posts}
           subscriptions={subscriptions}
           servers={displayServers}
-          aiTools={installedAiTools.length > 0 ? installedAiTools : aiTools}
+          aiTools={displayAiTools}
+          renderedAt={renderedAt}
+          heroPhase={heroPhase}
         />
         <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 250px), 1fr))", gap: 14, marginBottom: 48 }}>
           <SubscriptionWidget subscriptions={subscriptions} onOpen={() => (isAuthed ? setSubOpen(true) : setAuthGateOpen("subscriptions"))} />
           <AIUsageWidget
-            tools={installedAiTools.length > 0 ? installedAiTools : aiTools}
+            tools={displayAiTools}
             installedCount={installedAiTools.length}
             backendConnected={hasAiUsageBackend() && aiBackendError === null}
             generatedAt={aiGeneratedAt}
@@ -2684,9 +2857,26 @@ export default function HomePrototype({ subscriptions, apis, servers, posts, isA
           }}>查看更多文章</a>
         </div>
       </main>
+      <footer
+        aria-label="网站备案与隐私说明"
+        style={{
+          width: "min(1200px, calc(100% - 32px))",
+          margin: "0 auto",
+          padding: "0 0 42px",
+          display: "flex",
+          justifyContent: "center",
+          gap: 8,
+          color: "var(--text-faint)",
+          fontSize: 12,
+        }}
+      >
+        <a href={siteCompliance.icpUrl} style={{ color: "inherit", textDecoration: "none" }}>{siteCompliance.icpRecord}</a>
+        <span aria-hidden="true">·</span>
+        <a href="/privacy/" style={{ color: "inherit", textDecoration: "none" }}>隐私说明</a>
+      </footer>
       <SubscriptionDrawer subscriptions={subscriptions} open={subOpen} onClose={() => setSubOpen(false)} />
       <AIUsageDrawer
-        tools={installedAiTools.length > 0 ? installedAiTools : aiTools}
+        tools={displayAiTools}
         heatmap={aiHeatmap}
         backendConnected={hasAiUsageBackend() && aiBackendError === null}
         backendError={aiBackendError}

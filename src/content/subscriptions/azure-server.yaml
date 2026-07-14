@@ -1,0 +1,23 @@
+name: Microsoft Azure
+category: Cloud
+provider: Microsoft Azure
+status: active
+startedAt: "2024-12-12"
+tags: []
+renewal:
+  unit: year
+  interval: 1
+price:
+  amount: 100
+  currency: USD
+usage:
+  percent: 0
+  note: ""
+description: 用于云端实验和开发环境的 Microsoft Azure 服务。
+note: ""
+renewalUrl: https://portal.azure.com/
+badge: Active
+accent: blue
+icon: /subscription-icons/microsoft.ico
+iconLabel: Microsoft Azure
+color: "#0078D4"

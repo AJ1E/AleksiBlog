@@ -105,11 +105,64 @@ export async function detectGemini() {
   };
 }
 
+export async function detectQoder() {
+  const home = resolveToolHomeFromEnv(["QODER_HOME", "QODER_CONFIG_DIR"], ".qoder");
+  const explicitUsage = process.env.QODER_USAGE_FILE?.trim();
+  const usageCandidates = explicitUsage
+    ? [path.resolve(explicitUsage)]
+    : [path.join(home, "usage.jsonl"), path.join(home, "usage.json")];
+  const [hasHome, usageFile] = await Promise.all([
+    dirHasEntries(home),
+    firstExistingFile(usageCandidates),
+  ]);
+
+  return {
+    id: "qoder",
+    name: "Qoder",
+    home,
+    installed: hasHome || Boolean(usageFile),
+    hasAuth: false,
+    hasLogs: Boolean(usageFile),
+    paths: { home, usageFile },
+  };
+}
+
+export async function detectWorkBuddy() {
+  const home = resolveToolHomeFromEnv(["WORKBUDDY_HOME", "WORKBUDDY_CONFIG_DIR"], ".workbuddy");
+  const explicitUsage = process.env.WORKBUDDY_USAGE_FILE?.trim();
+  const usageCandidates = explicitUsage
+    ? [path.resolve(explicitUsage)]
+    : [path.join(home, "usage.jsonl"), path.join(home, "usage.json")];
+  const [hasHome, usageFile] = await Promise.all([
+    dirHasEntries(home),
+    firstExistingFile(usageCandidates),
+  ]);
+
+  return {
+    id: "workbuddy",
+    name: "WorkBuddy",
+    home,
+    installed: hasHome || Boolean(usageFile),
+    hasAuth: false,
+    hasLogs: Boolean(usageFile),
+    paths: { home, usageFile },
+  };
+}
+
 export async function detectAllTools() {
-  const [claude, codex, gemini] = await Promise.all([
+  const [claude, codex, gemini, qoder, workbuddy] = await Promise.all([
     detectClaude(),
     detectCodex(),
     detectGemini(),
+    detectQoder(),
+    detectWorkBuddy(),
   ]);
-  return { claude, codex, gemini };
+  return { claude, codex, gemini, qoder, workbuddy };
+}
+
+async function firstExistingFile(candidates) {
+  for (const candidate of candidates) {
+    if (await pathExists(candidate)) return candidate;
+  }
+  return null;
 }

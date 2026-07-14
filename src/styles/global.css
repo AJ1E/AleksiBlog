@@ -1701,6 +1701,386 @@ pre {
   line-height: 1.8;
 }
 
+/* ── Bucketlist ───────────────────────────────────────── */
+
+.bucketlist-page {
+  padding-top: 12px;
+  padding-bottom: 80px;
+}
+
+.bucketlist-hero {
+  max-width: 1000px;
+}
+
+.bucketlist-browser {
+  width: 100%;
+}
+
+.bucketlist-browser__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 28px 0 12px;
+  flex-wrap: wrap;
+}
+
+.bucketlist-browser__search {
+  flex: 1 1 300px;
+  max-width: 440px;
+}
+
+.bucketlist-browser__filters {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.bucketlist-browser__filters button,
+.bucketlist-pagination button,
+.bucketlist-empty button {
+  border: 1px solid var(--border-light);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+
+.bucketlist-browser__filters button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 0 14px;
+  font-size: 0.78rem;
+}
+
+.bucketlist-browser__filters button small {
+  color: var(--text-faint);
+  font-size: 0.68rem;
+}
+
+.bucketlist-browser__filters button:hover:not(:disabled),
+.bucketlist-pagination button:hover:not(:disabled),
+.bucketlist-empty button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.bucketlist-browser__filters button.is-active {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: white;
+}
+
+.bucketlist-browser__filters button.is-active small {
+  color: color-mix(in oklch, white 78%, var(--accent));
+}
+
+.bucketlist-browser__filters button:disabled {
+  cursor: not-allowed;
+  opacity: 0.52;
+}
+
+.bucketlist-browser__summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 34px;
+  margin-bottom: 14px;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.bucketlist-browser__summary strong {
+  color: var(--text);
+}
+
+.bucketlist-browser__source {
+  color: var(--text-faint);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.68rem;
+}
+
+.bucketlist-movie-list {
+  display: grid;
+  gap: 12px;
+}
+
+.bucketlist-movie {
+  display: grid;
+  grid-template-columns: 54px 88px minmax(0, 1fr) 44px;
+  gap: 16px;
+  align-items: center;
+  min-width: 0;
+  padding: 14px 16px 14px 12px;
+  border: 1px solid var(--border-light);
+  border-left: 3px solid var(--accent);
+  border-radius: 18px;
+  background: var(--bg-card);
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
+}
+
+.bucketlist-movie:hover {
+  border-color: color-mix(in oklch, var(--accent) 42%, var(--border-light));
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.bucketlist-movie.is-watched {
+  border-left-color: var(--green);
+}
+
+.bucketlist-movie__rank {
+  color: var(--text-faint);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.76rem;
+  text-align: center;
+}
+
+.bucketlist-movie__poster {
+  position: relative;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+  background:
+    radial-gradient(circle at 78% 18%, color-mix(in oklch, var(--accent) 28%, transparent), transparent 34%),
+    linear-gradient(145deg, color-mix(in oklch, var(--accent-soft) 80%, var(--bg-card)), var(--bg-soft));
+}
+
+.bucketlist-movie__poster img {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bucketlist-movie__poster-fallback {
+  display: flex;
+  position: absolute;
+  inset: 0;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 8px;
+  color: color-mix(in oklch, var(--accent) 72%, var(--text));
+  font-family: "DM Serif Display", serif;
+}
+
+.bucketlist-movie__poster-fallback span {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.bucketlist-movie__poster-fallback small {
+  color: var(--text-faint);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.56rem;
+  letter-spacing: 0.12em;
+}
+
+.bucketlist-movie__body {
+  min-width: 0;
+}
+
+.bucketlist-movie__eyebrow {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+  color: var(--text-faint);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.bucketlist-movie__body h2 {
+  margin: 0;
+  font-family: "DM Serif Display", serif;
+  font-size: clamp(1.18rem, 2vw, 1.45rem);
+  font-weight: 400;
+  line-height: 1.18;
+}
+
+.bucketlist-movie__body h2 a,
+.bucketlist-movie__english a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.bucketlist-movie__body h2 a:hover,
+.bucketlist-movie__english a:hover {
+  color: var(--accent);
+}
+
+.bucketlist-movie__english {
+  margin: 4px 0 8px;
+  color: var(--text-muted);
+  font-size: 0.83rem;
+}
+
+.bucketlist-movie__meta {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.bucketlist-movie__meta span {
+  padding: 3px 8px;
+  border: 1px solid var(--border-light);
+  border-radius: 999px;
+  color: var(--text-muted);
+  font-size: 0.68rem;
+}
+
+.bucketlist-movie__summary {
+  max-width: 72ch;
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  line-height: 1.6;
+}
+
+.bucketlist-movie__watched {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--border-light);
+  border-radius: 50%;
+  background: var(--bg-soft);
+  color: var(--text-faint);
+  font-size: 1.15rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+
+.bucketlist-movie__watched:hover {
+  border-color: var(--green);
+  color: var(--green);
+  transform: scale(1.04);
+}
+
+.bucketlist-movie.is-watched .bucketlist-movie__watched {
+  border-color: var(--green);
+  background: var(--green-soft);
+  color: var(--green);
+}
+
+.bucketlist-empty {
+  display: grid;
+  place-items: center;
+  gap: 8px;
+  min-height: 180px;
+  padding: 30px;
+  border: 1px dashed var(--border);
+  border-radius: 18px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.bucketlist-empty > span {
+  color: var(--accent);
+  font-size: 1.8rem;
+}
+
+.bucketlist-empty p {
+  margin: 0;
+}
+
+.bucketlist-empty button {
+  padding: 7px 13px;
+  font-size: 0.78rem;
+}
+
+.bucketlist-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 22px;
+}
+
+.bucketlist-pagination button {
+  min-height: 34px;
+  padding: 0 12px;
+  font-size: 0.76rem;
+}
+
+.bucketlist-pagination button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.bucketlist-pagination__pages {
+  display: flex;
+  gap: 5px;
+  max-width: min(60vw, 520px);
+  overflow-x: auto;
+  padding: 2px;
+}
+
+.bucketlist-pagination__pages button {
+  min-width: 34px;
+  padding: 0 8px;
+  border-radius: 10px;
+}
+
+.bucketlist-pagination__pages button.is-active {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: white;
+}
+
+@media (max-width: 720px) {
+  .bucketlist-browser__summary {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .bucketlist-movie {
+    grid-template-columns: 34px 68px minmax(0, 1fr) 34px;
+    gap: 10px;
+    padding: 12px 10px 12px 8px;
+    border-radius: 15px;
+  }
+
+  .bucketlist-movie__rank {
+    font-size: 0.65rem;
+  }
+
+  .bucketlist-movie__body h2 {
+    font-size: 1.12rem;
+  }
+
+  .bucketlist-movie__english {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .bucketlist-movie__summary {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .bucketlist-movie__watched {
+    width: 30px;
+    height: 30px;
+  }
+}
+
 .home-header {
   margin-bottom: 32px;
   padding-top: 36px;
@@ -3602,6 +3982,26 @@ pre {
   font-size: 0.84rem;
 }
 
+.footer__compliance {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding-top: 16px;
+  color: var(--text-faint);
+  font-size: 0.76rem;
+}
+
+.footer__compliance a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+
+.footer__compliance a:hover {
+  color: var(--accent);
+  border-bottom-color: color-mix(in oklch, var(--accent) 45%, transparent);
+}
+
 @media (max-width: 960px) {
   .hero__grid,
   .article-archive-hero-grid,
@@ -3803,8 +4203,6 @@ pre {
 @keyframes heroConstellationDrift { 0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); } 50% { transform: translate3d(4px, -3px, 0) rotate(0.45deg); } }
 @keyframes heroOrbitSpin { to { transform: rotate(360deg); } }
 @keyframes heroOrbitReverse { to { transform: rotate(-360deg); } }
-@keyframes home-loading-bar { 0% { transform: translateX(-110%); } 100% { transform: translateX(260%); } }
-
 .home-dynamic-hero {
   position: relative;
   min-height: 392px;
@@ -4779,11 +5177,28 @@ html[data-theme="dark"] .project-visual {
   object-fit: contain;
 }
 
+.navigation-link__image--crop-left {
+  object-fit: cover !important;
+  object-position: left center;
+}
+
 .navigation-link__fallback {
   color: color-mix(in oklch, var(--nav-accent) 72%, var(--text));
   font-family: "JetBrains Mono", monospace;
   font-size: 0.78rem;
   font-weight: 700;
+}
+
+.navigation-link__fallback--visible {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid color-mix(in oklch, var(--nav-accent) 35%, transparent);
+  border-radius: 10px;
+  background: color-mix(in oklch, var(--nav-accent-soft) 78%, var(--bg-card));
+  letter-spacing: -0.02em;
 }
 
 .navigation-link__name {

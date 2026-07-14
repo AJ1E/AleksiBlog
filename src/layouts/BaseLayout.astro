@@ -1,7 +1,7 @@
 ---
 import "../styles/global.css";
 import ThemeToggle from "../components/react/ThemeToggle";
-import { navItems, siteMeta } from "../data/site";
+import { navItems, siteCompliance, siteMeta } from "../data/site";
 
 interface Props {
   title?: string;
@@ -39,12 +39,7 @@ const normalizedCurrentPath = normalizePath(currentPath);
       href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
-    <script is:inline>
-      (() => {
-        const stored = localStorage.getItem("kai-theme");
-        if (stored === "dark") document.documentElement.dataset.theme = "dark";
-      })();
-    </script>
+    <script is:inline src="/scripts/theme-init.js"></script>
   </head>
   <body>
     {!hideHeader && (
@@ -85,6 +80,11 @@ const normalizedCurrentPath = normalizePath(currentPath);
         <div class="container footer__inner">
           <div>{siteMeta.title}</div>
           <div>{siteMeta.description}</div>
+        </div>
+        <div class="container footer__compliance">
+          <a href={siteCompliance.icpUrl}>{siteCompliance.icpRecord}</a>
+          <span aria-hidden="true">·</span>
+          <a href="/privacy/">隐私说明</a>
         </div>
       </footer>
     )}

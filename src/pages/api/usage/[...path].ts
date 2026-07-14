@@ -1,33 +1,54 @@
 import type { APIRoute } from "astro";
-import { forward } from "../../../lib/bff";
+import { apiError, forward } from "../../../lib/bff";
 
 export const prerender = false;
 
+const TOOLS = new Set(["claude", "codex-desktop", "codex-cli", "gemini"]);
+const VISIBLE_TOOLS = new Set(["codex-desktop", "codex-cli"]);
+
 const handler: APIRoute = (context) => {
   const path = context.params.path ?? "";
-  const upstream = `/api/usage/${path}`;
   const isAuthed = context.locals.auth?.isAuthed ?? false;
 
-  return forward("ai-usage", upstream, context, {
-    isAuthed,
-    transformJson: (body) => stripAiUsage(body, isAuthed),
-  });
+  if (context.request.method === "GET" && path === "overview") {
+    return forward("ai-usage", "/api/usage/overview", context, {
+      isAuthed,
+      transformJson: (body) => stripAiUsage(body, isAuthed),
+    });
+  }
+
+  if (context.request.method === "GET" && TOOLS.has(path)) {
+    if (!isAuthed) return apiError(401, "auth-required", "ai-usage-details");
+    return forward("ai-usage", `/api/usage/${path}`, context, { isAuthed });
+  }
+
+  const refreshTool = path.match(/^([^/]+)\/refresh$/)?.[1];
+  if (context.request.method === "POST" && refreshTool && TOOLS.has(refreshTool)) {
+    if (!isAuthed) return apiError(401, "auth-required", "ai-usage-refresh");
+    return forward("ai-usage", `/api/usage/${path}`, context, { isAuthed });
+  }
+
+  return apiError(404, "not-found");
 };
 
 export const GET: APIRoute = handler;
 export const POST: APIRoute = handler;
-export const OPTIONS: APIRoute = handler;
 
 /**
  * Public view keeps the high-level totals (per-period totalTokens / totalCostUsd
  * and the heatmap), but locks per-window quotas and per-model breakdowns.
  */
 function stripAiUsage(body: unknown, isAuthed: boolean): unknown {
-  if (isAuthed || !body || typeof body !== "object") return body;
+  if (!body || typeof body !== "object") return body;
   const root = body as Record<string, any>;
 
   if (Array.isArray(root.tools)) {
-    return { ...root, tools: root.tools.map(stripTool), locked: { quotas: true, models: true, windows: true } };
+    const visibleTools = root.tools.filter((tool: any) => VISIBLE_TOOLS.has(tool?.tool));
+    return {
+      ...root,
+      tools: isAuthed ? visibleTools : visibleTools.map(stripTool),
+      locked: isAuthed ? undefined : { quotas: true, models: true, windows: true },
+    };
   }
   if (typeof root.tool === "string") {
     return stripTool(root);

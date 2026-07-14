@@ -1,0 +1,41 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import BucketlistMovies from "../components/react/BucketlistMovies";
+import { siteMeta } from "../data/site";
+
+export const prerender = false;
+
+if (!Astro.locals.auth.isAuthed) {
+  return Astro.redirect(`/login?next=${encodeURIComponent("/bucketlist/")}`);
+}
+
+const entries = await getCollection("bucketlist", ({ data }) => data.kind === "movie");
+const movies = [...entries]
+  .sort((a, b) => (a.data.rank ?? Number.MAX_SAFE_INTEGER) - (b.data.rank ?? Number.MAX_SAFE_INTEGER))
+  .map((entry) => ({
+    id: entry.id,
+    ...entry.data
+  }));
+---
+
+<BaseLayout
+  title={`Bucketlist — ${siteMeta.title}`}
+  description="Aleksi 的电影、剧集、书籍与目的地清单。"
+  currentPath="/bucketlist"
+>
+  <main class="container bucketlist-page">
+    <header class="projects-header bucketlist-hero">
+      <div class="article-archive-header__eyebrow">
+        <span class="article-archive-header__line"></span>
+        Bucketlist · {movies.length}
+      </div>
+      <h1 class="projects-header__title">Bucketlist <span>Movies · TV Shows · Books · Destinations</span></h1>
+      <p class="projects-header__copy">
+        把想看的电影、剧集、书和想去的地方放在这里。第一阶段先整理 IMDb Top 250 电影，状态只保存在当前浏览器。
+      </p>
+    </header>
+
+    <BucketlistMovies client:load items={movies} />
+  </main>
+</BaseLayout>

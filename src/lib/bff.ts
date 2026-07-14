@@ -25,15 +25,9 @@ export type ForwardOptions = {
   isAuthed: boolean;
   /** Optional response transform (e.g., field stripping) */
   transformJson?: (body: unknown, isAuthed: boolean) => unknown;
+  /** Explicitly allowlisted query parameters for the selected upstream path. */
+  searchParams?: URLSearchParams;
 };
-
-const HOP_BY_HOP_REQUEST_HEADERS = new Set([
-  "host",
-  "connection",
-  "content-length",
-  "cookie",
-  "accept-encoding",
-]);
 
 const HOP_BY_HOP_RESPONSE_HEADERS = new Set([
   "transfer-encoding",
@@ -50,7 +44,7 @@ export async function forward(
 ): Promise<Response> {
   const base = getBackendBase(backend);
   const url = new URL(upstreamPath, base + "/");
-  for (const [key, value] of context.url.searchParams) {
+  for (const [key, value] of options.searchParams ?? []) {
     url.searchParams.append(key, value);
   }
 
@@ -73,9 +67,15 @@ export async function forward(
       JSON.stringify({
         error: "backend-unreachable",
         backend,
-        message: error instanceof Error ? error.message : String(error),
+        message: "The requested service is temporarily unavailable.",
       }),
-      { status: 502, headers: { "content-type": "application/json" } },
+      {
+        status: 502,
+        headers: {
+          "content-type": "application/json; charset=utf-8",
+          "cache-control": "no-store",
+        },
+      },
     );
   }
 
@@ -99,10 +99,12 @@ export async function forward(
 
 function filterRequestHeaders(headers: Headers): Headers {
   const out = new Headers();
-  for (const [key, value] of headers) {
-    if (HOP_BY_HOP_REQUEST_HEADERS.has(key.toLowerCase())) continue;
-    out.set(key, value);
-  }
+  // Helpers do not need browser identity, cookies, forwarding headers, or
+  // arbitrary client supplied metadata. Only forward content negotiation.
+  const accept = headers.get("accept");
+  if (accept) out.set("accept", accept);
+  const contentType = headers.get("content-type");
+  if (contentType) out.set("content-type", contentType);
   return out;
 }
 
@@ -112,6 +114,9 @@ function filterResponseHeaders(headers: Headers): Headers {
     if (HOP_BY_HOP_RESPONSE_HEADERS.has(key.toLowerCase())) continue;
     out.set(key, value);
   }
+  // Dashboard responses can contain account and infrastructure summaries.
+  // Never allow an intermediary cache to retain them.
+  out.set("cache-control", "no-store");
   return out;
 }
 
@@ -119,6 +124,16 @@ function jsonResponseHeaders(source: Headers): Headers {
   const out = filterResponseHeaders(source);
   out.set("content-type", "application/json; charset=utf-8");
   return out;
+}
+
+export function apiError(status: number, error: string, scope?: string): Response {
+  return new Response(JSON.stringify({ error, ...(scope ? { scope } : {}) }), {
+    status,
+    headers: {
+      "content-type": "application/json; charset=utf-8",
+      "cache-control": "no-store",
+    },
+  });
 }
 
 /**

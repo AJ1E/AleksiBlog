@@ -3,6 +3,8 @@ import { getBackendBase } from "../../../lib/bff";
 
 export const prerender = false;
 
+const TRUST_PROXY_HEADERS = process.env.TRUST_PROXY_HEADERS === "1";
+
 export const GET: APIRoute = async ({ request }) => {
   const ip = getVisitorIp(request.headers);
   if (!ip) {
@@ -39,12 +41,12 @@ export const GET: APIRoute = async ({ request }) => {
         "cache-control": "no-store",
       },
     });
-  } catch (error) {
+  } catch {
     return json(
       {
         unavailable: true,
         reason: "ip-risk-helper-unreachable",
-        message: error instanceof Error ? error.message : "IP helper is unreachable",
+        message: "The IP helper is temporarily unavailable.",
       },
       200,
     );
@@ -52,29 +54,13 @@ export const GET: APIRoute = async ({ request }) => {
 };
 
 function getVisitorIp(headers: Headers): string {
-  const candidates = [
-    headers.get("cf-connecting-ip"),
-    headers.get("true-client-ip"),
-    headers.get("x-real-ip"),
-    ...splitForwardedFor(headers.get("x-forwarded-for")),
-    ...splitForwardedHeader(headers.get("forwarded")),
-  ];
+  // Nginx overwrites X-Real-IP with the TCP peer address. Never trust a
+  // client-supplied forwarding header unless that reverse-proxy contract has
+  // explicitly been enabled in production.
+  if (!TRUST_PROXY_HEADERS) return "";
+  const candidates = [headers.get("x-real-ip")];
 
   return candidates.map(cleanIpCandidate).find(isPublicIp) || "";
-}
-
-function splitForwardedFor(value: string | null): string[] {
-  return value ? value.split(",").map((item) => item.trim()) : [];
-}
-
-function splitForwardedHeader(value: string | null): string[] {
-  if (!value) return [];
-  return value
-    .split(",")
-    .flatMap((group) => group.split(";"))
-    .map((part) => part.trim())
-    .filter((part) => part.toLowerCase().startsWith("for="))
-    .map((part) => part.slice(4));
 }
 
 function cleanIpCandidate(value: string | null | undefined): string {

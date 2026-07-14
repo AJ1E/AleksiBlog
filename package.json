@@ -5,7 +5,7 @@
   "private": false,
   "license": "MIT",
   "type": "module",
-  "packageManager": "pnpm@10.30.3",
+  "packageManager": "pnpm@10.30.3+sha512.c961d1e0a2d8e354ecaa5166b822516668b7f44cb5bd95122d590dd81922f606f5473b6d23ec4a5be05e7fcd18e8488d47d978bbe981872f1145d06e9a740017",
   "scripts": {
     "predev": "node scripts/sync-notes.mjs",
     "dev": "concurrently --names \"astro,ai-usage,ip-risk,srv-status\" --prefix-colors \"cyan,yellow,magenta,blue\" \"astro dev\" \"node scripts/ai-usage-server.mjs\" \"node scripts/ip-risk-server.mjs\" \"node scripts/server-status-server.mjs\"",
@@ -24,10 +24,11 @@
     "update:fx": "node scripts/update-exchange-rates.mjs"
   },
   "dependencies": {
-    "@astrojs/mdx": "^5.0.4",
-    "@astrojs/node": "^10.0.6",
-    "@astrojs/react": "^5.0.4",
-    "astro": "^6.1.9",
+    "@astrojs/markdown-remark": "7.2.1",
+    "@astrojs/mdx": "^7.0.2",
+    "@astrojs/node": "^11.0.2",
+    "@astrojs/react": "^6.0.1",
+    "astro": "^7.0.7",
     "better-sqlite3": "^12.9.0",
     "d3": "^7.9.0",
     "react": "^19.2.5",

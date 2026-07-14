@@ -1,5 +1,5 @@
 import { defineCollection, z } from "astro:content";
-import { glob } from "astro/loaders";
+import { file, glob } from "astro/loaders";
 
 const blog = defineCollection({
   loader: glob({ base: "./src/content/blog", pattern: "**/*.{md,mdx}" }),
@@ -38,6 +38,7 @@ const subscriptions = defineCollection({
       interval: z.number().int().positive().default(1),
       anchor: z.string().optional()
     }),
+    renewalUrl: z.string().url().optional(),
     price: z.object({
       amount: z.number(),
       currency: z.string().default("USD")
@@ -130,4 +131,21 @@ const notes = defineCollection({
   })
 });
 
-export const collections = { blog, subscriptions, apis, servers, projects, notes };
+const bucketlist = defineCollection({
+  loader: file("./src/content/bucketlist/catalog.json"),
+  schema: z.object({
+    kind: z.enum(["movie", "tv", "book", "destination"]),
+    rank: z.number().int().positive().optional(),
+    imdbId: z.string().optional(),
+    titleZh: z.string(),
+    titleEn: z.string(),
+    releaseYear: z.number().int().optional(),
+    runtimeMinutes: z.number().int().positive().optional(),
+    genres: z.array(z.string()).default([]),
+    summary: z.string(),
+    imdbUrl: z.string().url().optional(),
+    poster: z.string().optional()
+  })
+});
+
+export const collections = { blog, subscriptions, apis, servers, projects, notes, bucketlist };

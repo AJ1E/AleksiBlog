@@ -14,6 +14,8 @@ export type NavigationLink = {
   href: string;
   domain: string;
   abbr: string;
+  iconUrl?: string | null;
+  iconMode?: "contain" | "crop-left";
   note?: string;
 };
 
@@ -39,7 +41,7 @@ export const navigationLinks: NavigationLink[] = [
   { category: "AI", name: "DeepSeek", href: "https://www.deepseek.com/", domain: "deepseek.com", abbr: "DS" },
   { category: "AI", name: "Claude", href: "https://claude.com/", domain: "claude.com", abbr: "C" },
   { category: "AI", name: "Grok", href: "https://grok.com/", domain: "grok.com", abbr: "GX", note: "xAI" },
-  { category: "AI", name: "Qwen", href: "https://www.qianwen.com/", domain: "qianwen.com", abbr: "Q" },
+  { category: "AI", name: "Qwen", href: "https://www.qianwen.com/", domain: "qianwen.com", abbr: "Q", iconUrl: "/assets/navigation/qwen-logo.jpg", iconMode: "crop-left" },
   { category: "AI", name: "豆包", href: "https://www.doubao.com/", domain: "doubao.com", abbr: "豆" },
   { category: "AI", name: "GLM", href: "https://chatglm.cn/", domain: "chatglm.cn", abbr: "GL" },
   { category: "AI", name: "Arena AI", href: "https://arena.ai/", domain: "arena.ai", abbr: "AR" },
@@ -77,7 +79,7 @@ export const navigationLinks: NavigationLink[] = [
   { category: "Tools", name: "IP.SKK.MOE", href: "https://ip.skk.moe/", domain: "ip.skk.moe", abbr: "IP" },
   { category: "Tools", name: "Ping0", href: "https://www.ping0.cc/", domain: "ping0.cc", abbr: "P0" },
   { category: "Tools", name: "测速网站", href: "https://test.ustc.edu.cn/", domain: "test.ustc.edu.cn", abbr: "测" },
-  { category: "Tools", name: "KuKuTool", href: "https://dy.kukutool.com/", domain: "kukutool.com", abbr: "KT" },
+  { category: "Tools", name: "KuKuTool", href: "https://dy.kukutool.com/", domain: "kukutool.com", abbr: "Ku", iconUrl: null },
   { category: "Tools", name: "Visa Index", href: "https://visaindex.com/", domain: "visaindex.com", abbr: "VI" },
   { category: "Tools", name: "Find Cheap Subs", href: "https://www.findcheapsubs.com/", domain: "findcheapsubs.com", abbr: "FS" },
 ];

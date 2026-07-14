@@ -8,7 +8,4 @@ export const POST: APIRoute = ({ cookies, redirect }) => {
   return redirect("/", 303);
 };
 
-export const GET: APIRoute = ({ cookies, redirect }) => {
-  clearAuthCookie(cookies);
-  return redirect("/", 303);
-};
+export const GET: APIRoute = () => new Response("Method Not Allowed", { status: 405 });

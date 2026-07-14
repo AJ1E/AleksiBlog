@@ -20,6 +20,7 @@ export function emptyTotals() {
     outputTokens: 0,
     totalTokens: 0,
     requests: 0,
+    credits: 0,
   };
 }
 
@@ -29,6 +30,7 @@ export function addUsage(target, source) {
   target.outputTokens += source.outputTokens || 0;
   target.totalTokens += source.totalTokens || 0;
   target.requests += source.requests || 0;
+  target.credits += source.credits || 0;
 }
 
 export function roundCost(value) {
@@ -109,6 +111,7 @@ export function rankModels(byModel, totalTokens) {
       inputTokens: usage.inputTokens,
       cachedInputTokens: usage.cachedInputTokens,
       outputTokens: usage.outputTokens,
+      credits: usage.credits,
       requests: usage.requests,
       sharePct: fmtSharePct(usage.totalTokens, totalTokens),
     }))

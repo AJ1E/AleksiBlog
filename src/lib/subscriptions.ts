@@ -52,10 +52,14 @@ const subscriptionTagLabels: Record<string, string> = {
 };
 
 export function formatSubscriptionCategory(category: string) {
+  if (category === "Cloud") return "云服务";
+  if (category === "Domain") return "域名";
   return subscriptionCategoryMeta[category]?.label ?? category;
 }
 
 export function getSubscriptionCategoryColor(category: string) {
+  if (category === "Cloud") return "var(--accent-teal)";
+  if (category === "Domain") return "var(--accent-purple)";
   return subscriptionCategoryMeta[category]?.color ?? "var(--text-muted)";
 }
 
@@ -103,6 +107,16 @@ export function convertToUsd(amount: number, currency: string) {
   return amount / rate;
 }
 
+export function convertToCny(amount: number, currency: string) {
+  const normalizedCurrency = currency.trim().toUpperCase();
+  const rates = exchangeRates.rates as Record<string, number>;
+  if (normalizedCurrency === "CNY") return amount;
+  const usdAmount = normalizedCurrency === "USD" ? amount : convertToUsd(amount, normalizedCurrency);
+  const usdToCny = rates.CNY;
+  if (!Number.isFinite(usdToCny) || usdToCny <= 0) return usdAmount;
+  return usdAmount * usdToCny;
+}
+
 export function formatRenewalCycle(renewal: RenewalConfig) {
   if (renewal.unit === "month") {
     return renewal.interval === 1 ? "每月" : `每 ${renewal.interval} 个月`;
@@ -127,8 +141,16 @@ export function getMonthlyCostUsd(price: PriceConfig, renewal: RenewalConfig) {
   return convertToUsd(getMonthlyCost(price, renewal), price.currency);
 }
 
+export function getMonthlyCostCny(price: PriceConfig, renewal: RenewalConfig) {
+  return convertToCny(getMonthlyCost(price, renewal), price.currency);
+}
+
 export function formatUsd(amount: number) {
   return `$${amount.toFixed(2)}`;
+}
+
+export function formatCny(amount: number) {
+  return `¥${amount.toFixed(2)}`;
 }
 
 export function formatPrice(price: PriceConfig) {

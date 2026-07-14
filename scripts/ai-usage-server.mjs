@@ -6,13 +6,20 @@ import { detectAllTools } from "./ai-usage/detect.mjs";
 import { buildClaudeOverview, clearClaudeCache } from "./ai-usage/claude-local.mjs";
 import { buildCodexOverview, clearCodexCache } from "./ai-usage/codex-local.mjs";
 import { buildGeminiOverview, clearGeminiCache } from "./ai-usage/gemini-local.mjs";
+import {
+  buildQoderOverview,
+  buildWorkBuddyOverview,
+  clearStructuredUsageCache,
+} from "./ai-usage/structured-local.mjs";
 import { buildUsageHeatmap } from "./ai-usage/heatmap.mjs";
 
 const PORT = parsePort(process.env.PORT, 8787);
 // Default to 127.0.0.1 so local usage details stay behind the Astro BFF.
 // Prefer exposing Astro, not this helper, when deploying remotely.
 const HOST = process.env.HOST || "127.0.0.1";
-const CORS_ALLOW_ORIGIN = process.env.AI_USAGE_CORS_ALLOW_ORIGIN || "*";
+// Astro's same-origin BFF is the only intended browser entry point. Keep CORS
+// disabled unless an operator deliberately configures one trusted origin.
+const CORS_ALLOW_ORIGIN = process.env.AI_USAGE_CORS_ALLOW_ORIGIN?.trim() || "";
 const SNAPSHOT_REFRESH_INTERVAL_MS = 60_000;
 const SNAPSHOT_FILE =
   process.env.AI_USAGE_SNAPSHOT_FILE ||
@@ -28,14 +35,20 @@ const CLAUDE_BUDGETS = {
 
 const TOOL_BUILDERS = {
   claude: () => buildClaudeOverview({ budgets: CLAUDE_BUDGETS }),
-  codex: () => buildCodexOverview({ monthlyBudgetUsd: CODEX_MONTHLY_BUDGET_USD }),
+  "codex-desktop": () => buildCodexOverview({ segment: "desktop", monthlyBudgetUsd: CODEX_MONTHLY_BUDGET_USD }),
+  "codex-cli": () => buildCodexOverview({ segment: "cli", monthlyBudgetUsd: CODEX_MONTHLY_BUDGET_USD }),
   gemini: () => buildGeminiOverview({ monthlyBudgetUsd: GEMINI_MONTHLY_BUDGET_USD }),
+  qoder: () => buildQoderOverview(),
+  workbuddy: () => buildWorkBuddyOverview(),
 };
 
 const CACHE_CLEARERS = {
   claude: clearClaudeCache,
-  codex: clearCodexCache,
+  "codex-desktop": clearCodexCache,
+  "codex-cli": clearCodexCache,
   gemini: clearGeminiCache,
+  qoder: () => clearStructuredUsageCache("qoder"),
+  workbuddy: () => clearStructuredUsageCache("workbuddy"),
 };
 
 let latestOverviewSnapshot = await readOverviewSnapshot();
@@ -48,13 +61,14 @@ const server = http.createServer(async (req, res) => {
 
     if (req.method === "OPTIONS") return sendNoContent(res);
 
-    const refreshMatch = /^\/api\/usage\/(claude|codex|gemini)\/refresh$/.exec(url.pathname);
+    const refreshMatch = /^\/api\/usage\/(claude|codex-desktop|codex-cli|gemini|qoder|workbuddy)\/refresh$/.exec(url.pathname);
     if (refreshMatch) {
       if (req.method !== "POST") return sendJson(res, 405, { error: "Method not allowed" });
       const tool = refreshMatch[1];
+      const detectionId = detectionIdForTool(tool);
       CACHE_CLEARERS[tool]();
       const detection = await detectAllTools();
-      if (!detection[tool]?.installed) {
+      if (!detection[detectionId]?.installed) {
         return sendJson(res, 200, { tool, installed: false });
       }
       const payload = await TOOL_BUILDERS[tool]();
@@ -66,7 +80,7 @@ const server = http.createServer(async (req, res) => {
             t?.tool === tool ? { ...payload, installed: true } : t,
           ),
         };
-        void writeOverviewSnapshot(latestOverviewSnapshot);
+        void persistOverviewSnapshot(latestOverviewSnapshot);
       }
       return sendJson(res, 200, payload);
     }
@@ -96,9 +110,10 @@ const server = http.createServer(async (req, res) => {
       return sendJson(res, 200, snapshot);
     }
 
-    const match = /^\/api\/usage\/(claude|codex|gemini)$/.exec(url.pathname);
+    const match = /^\/api\/usage\/(claude|codex-desktop|codex-cli|gemini|qoder|workbuddy)$/.exec(url.pathname);
     if (match) {
       const tool = match[1];
+      const detectionId = detectionIdForTool(tool);
       const cachedTool = latestOverviewSnapshot?.tools?.find((entry) => entry?.tool === tool);
       if (cachedTool) {
         if (isSnapshotStale(latestOverviewSnapshot)) {
@@ -107,7 +122,7 @@ const server = http.createServer(async (req, res) => {
         return sendJson(res, 200, cachedTool);
       }
       const detection = await detectAllTools();
-      if (!detection[tool]?.installed) {
+      if (!detection[detectionId]?.installed) {
         return sendJson(res, 200, { tool, installed: false });
       }
       const payload = await TOOL_BUILDERS[tool]();
@@ -160,7 +175,8 @@ async function refreshOverviewSnapshot({ reason = "manual" } = {}) {
     const [overview, heatmap] = await Promise.all([
       Promise.all(
         Object.keys(TOOL_BUILDERS).map(async (tool) => {
-          if (!detection[tool]?.installed) {
+          const detectionId = detectionIdForTool(tool);
+          if (!detection[detectionId]?.installed) {
             return { tool, installed: false };
           }
           try {
@@ -169,7 +185,7 @@ async function refreshOverviewSnapshot({ reason = "manual" } = {}) {
           } catch (error) {
             return {
               tool,
-              installed: detection[tool].installed,
+              installed: detection[detectionId].installed,
               error: error instanceof Error ? error.message : "Unknown error",
             };
           }
@@ -184,7 +200,7 @@ async function refreshOverviewSnapshot({ reason = "manual" } = {}) {
       heatmap,
     };
     latestOverviewSnapshot = snapshot;
-    await writeOverviewSnapshot(snapshot);
+    await persistOverviewSnapshot(snapshot);
     process.stdout.write(
       `[ai-usage-server] refreshed snapshot (${reason}) at ${snapshot.generatedAt}\n`,
     );
@@ -217,6 +233,9 @@ async function readOverviewSnapshot() {
     if (!parsed || typeof parsed !== "object") return null;
     if (!Array.isArray(parsed.tools)) return null;
     if (!parsed.heatmap || !Array.isArray(parsed.heatmap.days)) return null;
+    // Invalidate snapshots written before the Token heatmap field existed.
+    // The next startup/interval will rebuild it from local usage records.
+    if (!parsed.heatmap.days.every((day) => typeof day?.totalTokens === "number")) return null;
     return parsed;
   } catch {
     return null;
@@ -231,12 +250,21 @@ async function writeOverviewSnapshot(snapshot) {
   await fs.rename(tempFile, SNAPSHOT_FILE);
 }
 
+async function persistOverviewSnapshot(snapshot) {
+  try {
+    await writeOverviewSnapshot(snapshot);
+  } catch (error) {
+    // A read-only or locked cache must not take down the local helper.
+    process.stderr.write(
+      `[ai-usage-server] snapshot cache write skipped: ${formatErrorMessage(error)}\n`,
+    );
+  }
+}
+
 function sendJson(res, statusCode, payload) {
   res.writeHead(statusCode, {
     "Content-Type": "application/json; charset=utf-8",
-    "Access-Control-Allow-Origin": CORS_ALLOW_ORIGIN,
-    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    ...corsHeaders("GET, POST, OPTIONS", "Content-Type, Authorization"),
     "Cache-Control": "no-store",
   });
   res.end(JSON.stringify(payload, null, 2));
@@ -244,17 +272,29 @@ function sendJson(res, statusCode, payload) {
 
 function sendNoContent(res) {
   res.writeHead(204, {
-    "Access-Control-Allow-Origin": CORS_ALLOW_ORIGIN,
-    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    ...corsHeaders("GET, POST, OPTIONS", "Content-Type, Authorization"),
   });
   res.end();
+}
+
+function corsHeaders(methods, allowedHeaders) {
+  if (!CORS_ALLOW_ORIGIN) return {};
+  return {
+    "Access-Control-Allow-Origin": CORS_ALLOW_ORIGIN,
+    "Access-Control-Allow-Methods": methods,
+    "Access-Control-Allow-Headers": allowedHeaders,
+    Vary: "Origin",
+  };
 }
 
 function parsePort(value, fallback) {
   const numeric = Number(value);
   if (!Number.isInteger(numeric) || numeric <= 0) return fallback;
   return numeric;
+}
+
+function detectionIdForTool(tool) {
+  return tool === "codex-desktop" || tool === "codex-cli" ? "codex" : tool;
 }
 
 function parseFiniteNumber(value) {

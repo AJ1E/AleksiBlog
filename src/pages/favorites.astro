@@ -1,17 +1,5 @@
 ---
-import BaseLayout from "../layouts/BaseLayout.astro";
-import { siteMeta } from "../data/site";
----
+export const prerender = false;
 
-<BaseLayout title={`收藏 — ${siteMeta.title}`} description="收藏清单入口，后续用于管理书籍、电影和其他想看的内容。" currentPath="/favorites">
-  <main class="container utility-page">
-    <section class="utility-hero">
-      <div class="article-archive-header__eyebrow">
-        <span class="article-archive-header__line"></span>
-        Favorites · Planned
-      </div>
-      <h1>收藏</h1>
-      <p>这里会放想看的书、电影和资料清单。以后可以加入简介、标签、观看状态和阅读状态。</p>
-    </section>
-  </main>
-</BaseLayout>
+return Astro.redirect("/bucketlist/", 308);
+---

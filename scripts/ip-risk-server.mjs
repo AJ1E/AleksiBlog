@@ -10,7 +10,8 @@ const execFileAsync = promisify(execFile);
 
 const PORT = parsePort(process.env.IP_RISK_PORT ?? process.env.PORT, 8788);
 const HOST = process.env.HOST || "127.0.0.1";
-const CORS_ALLOW_ORIGIN = process.env.IP_RISK_CORS_ALLOW_ORIGIN || "*";
+// The helper stays behind Astro's same-origin BFF. Do not grant wildcard CORS.
+const CORS_ALLOW_ORIGIN = process.env.IP_RISK_CORS_ALLOW_ORIGIN?.trim() || "";
 const SNAPSHOT_REFRESH_INTERVAL_MS = 3 * 60_000;
 const SNAPSHOT_FILE =
   process.env.IP_RISK_SNAPSHOT_FILE ||
@@ -67,9 +68,9 @@ const server = http.createServer(async (req, res) => {
     }
 
     return sendJson(res, 404, { error: "Not found" });
-  } catch (error) {
+  } catch {
     return sendJson(res, 500, {
-      error: error instanceof Error ? error.message : "Unknown error",
+      error: "Internal server error",
     });
   }
 });
@@ -380,9 +381,7 @@ async function writeSnapshot(snapshot) {
 function sendJson(res, statusCode, payload) {
   res.writeHead(statusCode, {
     "Content-Type": "application/json; charset=utf-8",
-    "Access-Control-Allow-Origin": CORS_ALLOW_ORIGIN,
-    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    ...corsHeaders("GET, POST, OPTIONS", "Content-Type, Authorization"),
     "Cache-Control": "no-store",
   });
   res.end(JSON.stringify(payload, null, 2));
@@ -390,9 +389,7 @@ function sendJson(res, statusCode, payload) {
 
 function sendNoContent(res) {
   res.writeHead(204, {
-    "Access-Control-Allow-Origin": CORS_ALLOW_ORIGIN,
-    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    ...corsHeaders("GET, POST, OPTIONS", "Content-Type, Authorization"),
   });
   res.end();
 }
@@ -412,6 +409,16 @@ function normalizeInteger(value) {
   const numeric = Number(value);
   if (!Number.isFinite(numeric)) return null;
   return Math.round(numeric);
+}
+
+function corsHeaders(methods, allowedHeaders) {
+  if (!CORS_ALLOW_ORIGIN) return {};
+  return {
+    "Access-Control-Allow-Origin": CORS_ALLOW_ORIGIN,
+    "Access-Control-Allow-Methods": methods,
+    "Access-Control-Allow-Headers": allowedHeaders,
+    Vary: "Origin",
+  };
 }
 
 function isPublicIp(value) {
