@@ -16,7 +16,9 @@ if [[ -L "$CURRENT" ]]; then
 fi
 
 run_as_app() {
-  runuser -u "$RUN_AS" -- "$@"
+  local command
+  printf -v command ' %q' "$@"
+  su -s /bin/bash "$RUN_AS" -c "${command:1}"
 }
 
 if [[ ! -d "$REPO/.git" ]]; then
