@@ -83,15 +83,24 @@ server.listen(PORT, HOST, () => {
     );
   }
   if (latestSnapshot) {
-    void refreshIfIpChanged({ reason: "startup-ip-check" });
+    refreshInBackground("startup-ip-check");
   } else {
-    void refreshSnapshot({ reason: "startup" });
+    refreshInBackground("startup");
   }
   const timer = setInterval(() => {
-    void refreshIfIpChanged({ reason: "interval-ip-check" });
+    refreshInBackground("interval-ip-check");
   }, SNAPSHOT_REFRESH_INTERVAL_MS);
   timer.unref?.();
 });
+
+function refreshInBackground(reason) {
+  const task = latestSnapshot ? refreshIfIpChanged({ reason }) : refreshSnapshot({ reason });
+  void task.catch((error) => {
+    process.stderr.write(
+      `[ip-risk-server] background refresh skipped (${reason}): ${formatErrorMessage(error)}\n`,
+    );
+  });
+}
 
 async function getSnapshot() {
   if (latestSnapshot) {
