@@ -32,7 +32,7 @@ SHORT_COMMIT="${COMMIT:0:12}"
 RELEASE="$RELEASES/$(date -u +%Y%m%d-%H%M%S)-$SHORT_COMMIT"
 
 mkdir -p "$RELEASE"
-git -C "$REPO" archive "$COMMIT" | tar -x -C "$RELEASE"
+run_as_app git -C "$REPO" archive "$COMMIT" | tar -x -C "$RELEASE"
 printf '%s\n' "$COMMIT" > "$RELEASE/.release-commit"
 chown -R "$RUN_AS:$RUN_AS" "$RELEASE"
 
