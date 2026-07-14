@@ -44,7 +44,16 @@ if systemctl is-enabled --quiet aleksiz-ip-risk.service; then
   systemctl restart aleksiz-ip-risk.service
 fi
 
-if ! curl --fail --silent --show-error --max-time 15 http://127.0.0.1:4322/ > /dev/null; then
+healthy=false
+for _ in {1..15}; do
+  if curl --fail --silent --show-error --max-time 3 http://127.0.0.1:4322/ > /dev/null; then
+    healthy=true
+    break
+  fi
+  sleep 1
+done
+
+if [[ "$healthy" != true ]]; then
   echo "New release health check failed; restoring the previous release." >&2
   if [[ -n "$PREVIOUS" && -d "$PREVIOUS" ]]; then
     ln -sfn "$PREVIOUS" "$CURRENT"
