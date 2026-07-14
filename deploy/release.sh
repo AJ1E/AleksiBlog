@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Run as root: /usr/local/sbin/aleksiz-release
 set -Eeuo pipefail
+export PATH=/usr/local/bin:/usr/bin:/bin
 
 APP_ROOT=/var/www/aleksiz
 REPO="$APP_ROOT/repo"
@@ -33,7 +34,7 @@ git -C "$REPO" archive "$COMMIT" | tar -x -C "$RELEASE"
 printf '%s\n' "$COMMIT" > "$RELEASE/.release-commit"
 chown -R "$RUN_AS:$RUN_AS" "$RELEASE"
 
-run_as_app bash -lc "cd '$RELEASE' && pnpm install --frozen-lockfile && pnpm build"
+run_as_app bash -lc "export PATH=/usr/local/bin:/usr/bin:/bin; cd '$RELEASE' && /usr/local/bin/pnpm install --frozen-lockfile && /usr/local/bin/pnpm build"
 
 ln -sfn "$RELEASE" "$CURRENT"
 systemctl restart aleksiz-astro.service

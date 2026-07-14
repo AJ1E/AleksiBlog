@@ -44,7 +44,7 @@ command -v node
 command -v pnpm
 ```
 
-If Node.js is absent or too old, install Node 22 LTS using the current official Node.js instructions before continuing. Confirm that `node` and `pnpm` are available to a non-login system service; do not assume a shell profile will be read by systemd.
+If Node.js is absent or too old, install the current supported Node.js LTS release using the official Node.js instructions before continuing. Confirm that `node` and `pnpm` are available to a non-login system service; do not assume a shell profile will be read by systemd.
 
 ## 2. Create The Service Account And Directories
 

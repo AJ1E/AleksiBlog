@@ -12,7 +12,7 @@ EnvironmentFile=/var/www/aleksiz/shared/.env
 Environment=HOST=127.0.0.1
 Environment=IP_RISK_PORT=8788
 Environment=IP_RISK_SNAPSHOT_FILE=/var/www/aleksiz/shared/ip-risk-egress.json
-ExecStart=/usr/bin/node scripts/ip-risk-server.mjs
+ExecStart=/usr/local/bin/node scripts/ip-risk-server.mjs
 Restart=on-failure
 RestartSec=5
 TimeoutStopSec=30
