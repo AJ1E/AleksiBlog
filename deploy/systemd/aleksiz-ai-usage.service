@@ -1,0 +1,29 @@
+[Unit]
+Description=Aleksi Blog AI usage snapshot helper
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=aleksiz
+Group=aleksiz
+WorkingDirectory=/var/www/aleksiz/current
+EnvironmentFile=/var/www/aleksiz/shared/.env
+Environment=NODE_ENV=production
+Environment=HOST=127.0.0.1
+Environment=PORT=8787
+Environment=AI_USAGE_SNAPSHOT_ONLY=1
+Environment=AI_USAGE_SNAPSHOT_FILE=/var/www/aleksiz/shared/token-usage/ai-usage-overview.json
+ExecStart=/usr/local/bin/node scripts/ai-usage-server.mjs
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=full
+ReadWritePaths=/var/www/aleksiz/shared /var/www/aleksiz/current
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,17 @@
+[Unit]
+Description=Pull the redacted TokenUsage snapshot from GitHub
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=aleksiz
+Group=aleksiz
+EnvironmentFile=/var/www/aleksiz/shared/.env
+ExecStart=/usr/local/sbin/aleksiz-token-usage-sync
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=full
+ReadWritePaths=/var/www/aleksiz/shared

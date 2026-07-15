@@ -24,6 +24,10 @@ const SNAPSHOT_REFRESH_INTERVAL_MS = 60_000;
 const SNAPSHOT_FILE =
   process.env.AI_USAGE_SNAPSHOT_FILE ||
   path.join(os.homedir(), ".cache", "kai-space", "ai-usage-overview.json");
+// Production does not have the developer workstation's local Codex records.
+// In snapshot-only mode the helper only serves a validated, externally synced
+// aggregate and never overwrites it with an empty server-side collection.
+const SNAPSHOT_ONLY = process.env.AI_USAGE_SNAPSHOT_ONLY === "1";
 const CODEX_MONTHLY_BUDGET_USD = parseFiniteNumber(process.env.CODEX_MONTHLY_BUDGET_USD);
 const GEMINI_MONTHLY_BUDGET_USD = parseFiniteNumber(process.env.GEMINI_MONTHLY_BUDGET_USD);
 const CLAUDE_BUDGETS = {
@@ -65,6 +69,11 @@ const server = http.createServer(async (req, res) => {
     if (refreshMatch) {
       if (req.method !== "POST") return sendJson(res, 405, { error: "Method not allowed" });
       const tool = refreshMatch[1];
+      if (SNAPSHOT_ONLY) {
+        const snapshot = await refreshExternalSnapshot();
+        const cachedTool = snapshot.tools.find((entry) => entry?.tool === tool);
+        return sendJson(res, cachedTool ? 200 : 404, cachedTool || { tool, installed: false });
+      }
       const detectionId = detectionIdForTool(tool);
       CACHE_CLEARERS[tool]();
       const detection = await detectAllTools();
@@ -88,6 +97,14 @@ const server = http.createServer(async (req, res) => {
     if (req.method !== "GET") return sendJson(res, 405, { error: "Method not allowed" });
 
     if (url.pathname === "/health") {
+      if (SNAPSHOT_ONLY) {
+        return sendJson(res, 200, {
+          ok: true,
+          mode: "snapshot-only",
+          generatedAt: latestOverviewSnapshot?.generatedAt || null,
+          snapshotAvailable: Boolean(latestOverviewSnapshot),
+        });
+      }
       const detection = await detectAllTools();
       return sendJson(res, 200, {
         ok: true,
@@ -121,6 +138,7 @@ const server = http.createServer(async (req, res) => {
         }
         return sendJson(res, 200, cachedTool);
       }
+      if (SNAPSHOT_ONLY) return sendJson(res, 200, { tool, installed: false });
       const detection = await detectAllTools();
       if (!detection[detectionId]?.installed) {
         return sendJson(res, 200, { tool, installed: false });
@@ -139,6 +157,15 @@ const server = http.createServer(async (req, res) => {
 
 server.listen(PORT, HOST, () => {
   process.stdout.write(`[ai-usage-server] listening on http://${HOST}:${PORT}\n`);
+  if (SNAPSHOT_ONLY) {
+    process.stdout.write(`[ai-usage-server] snapshot-only mode using ${SNAPSHOT_FILE}\n`);
+    void refreshExternalSnapshot();
+    const timer = setInterval(() => {
+      void refreshExternalSnapshot();
+    }, SNAPSHOT_REFRESH_INTERVAL_MS);
+    timer.unref?.();
+    return;
+  }
   detectAllTools().then((detection) => {
     const summary = Object.entries(detection)
       .map(([id, info]) => `${id}=${info.installed ? "✓" : "—"}`)
@@ -158,6 +185,7 @@ server.listen(PORT, HOST, () => {
 });
 
 async function getOverviewSnapshot() {
+  if (SNAPSHOT_ONLY) return refreshExternalSnapshot();
   if (latestOverviewSnapshot) {
     if (isSnapshotStale(latestOverviewSnapshot)) {
       void refreshOverviewSnapshot({ reason: "overview-stale-request" });
@@ -168,6 +196,7 @@ async function getOverviewSnapshot() {
 }
 
 async function refreshOverviewSnapshot({ reason = "manual" } = {}) {
+  if (SNAPSHOT_ONLY) return refreshExternalSnapshot();
   if (overviewRefreshPromise) return overviewRefreshPromise;
 
   overviewRefreshPromise = (async () => {
@@ -240,6 +269,20 @@ async function readOverviewSnapshot() {
   } catch {
     return null;
   }
+}
+
+async function refreshExternalSnapshot() {
+  const snapshot = await readOverviewSnapshot();
+  if (snapshot) latestOverviewSnapshot = snapshot;
+  return latestOverviewSnapshot || createEmptySnapshot();
+}
+
+function createEmptySnapshot() {
+  return {
+    generatedAt: null,
+    tools: [],
+    heatmap: { days: [] },
+  };
 }
 
 async function writeOverviewSnapshot(snapshot) {
