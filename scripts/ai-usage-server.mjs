@@ -104,6 +104,15 @@ const server = http.createServer(async (req, res) => {
       return sendJson(res, 200, payload);
     }
 
+    if (url.pathname === "/api/usage/refresh") {
+      if (req.method !== "POST") return sendJson(res, 405, { error: "Method not allowed" });
+      if (SNAPSHOT_ONLY) {
+        const snapshot = await refreshExternalSnapshot({ pullFromGitHub: true });
+        return sendJson(res, 200, snapshot);
+      }
+      return sendJson(res, 200, await refreshOverviewSnapshot({ reason: "manual-overview-refresh" }));
+    }
+
     if (req.method !== "GET") return sendJson(res, 405, { error: "Method not allowed" });
 
     if (url.pathname === "/health") {
@@ -135,15 +144,6 @@ const server = http.createServer(async (req, res) => {
     if (url.pathname === "/api/usage/overview") {
       const snapshot = await getOverviewSnapshot();
       return sendJson(res, 200, snapshot);
-    }
-
-    if (url.pathname === "/api/usage/refresh") {
-      if (req.method !== "POST") return sendJson(res, 405, { error: "Method not allowed" });
-      if (SNAPSHOT_ONLY) {
-        const snapshot = await refreshExternalSnapshot({ pullFromGitHub: true });
-        return sendJson(res, 200, snapshot);
-      }
-      return sendJson(res, 200, await refreshOverviewSnapshot({ reason: "manual-overview-refresh" }));
     }
 
     const match = /^\/api\/usage\/(claude|codex-desktop|codex-cli|gemini|qoder|workbuddy)$/.exec(url.pathname);
