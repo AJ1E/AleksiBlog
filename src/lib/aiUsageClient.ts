@@ -188,11 +188,18 @@ export async function fetchAiUsageOverview(): Promise<AiUsageOverview | null> {
 }
 
 export async function refreshAiUsageOverview(): Promise<AiUsageOverview | null> {
-  const data = await fetchAiUsageJson<OverviewResponse>("/api/usage/refresh", {
-    method: "POST",
-    headers: { Accept: "application/json" },
-  });
-  return normalizeOverview(data);
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), 25_000);
+  try {
+    const data = await fetchAiUsageJson<OverviewResponse>("/api/usage/refresh", {
+      method: "POST",
+      headers: { Accept: "application/json" },
+      signal: controller.signal,
+    });
+    return normalizeOverview(data);
+  } finally {
+    window.clearTimeout(timeout);
+  }
 }
 
 function normalizeOverview(data: OverviewResponse | null): AiUsageOverview | null {
