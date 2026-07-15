@@ -18,6 +18,7 @@
     "new:post": "node scripts/new-post.mjs",
     "notes:sync": "node scripts/sync-notes.mjs",
     "ai-usage:dev": "node scripts/ai-usage-server.mjs",
+    "token-usage:export": "node scripts/export-token-usage-snapshot.mjs",
     "ip-risk:dev": "node scripts/ip-risk-server.mjs",
     "server-status:dev": "node scripts/server-status-server.mjs",
     "ai-usage:detect": "node scripts/ai-usage/detect-cli.mjs",

@@ -24,6 +24,10 @@ The snapshot may contain totals, model names, token counts, estimated costs, and
 4. `aleksiz-token-usage-sync.service` rejects missing, oversized, malformed, or unexpected-tool snapshots and preserves the prior valid file.
 5. `aleksiz-ai-usage.service` runs in snapshot-only mode on `127.0.0.1:8787`; the browser sees data only through Astro's authenticated BFF.
 
+## Local Export
+
+Run `pnpm token-usage:export -- <output-file>` on the developer workstation. The command reads the local AI helper's aggregate snapshot, then writes only the whitelisted dashboard fields. It never reads or uploads raw session files and never performs Git operations; a dedicated sync workflow is responsible for reviewing and pushing the result to the private repository.
+
 ## Manual Setup Still Required
 
 The owner must add the server-generated public key to the private TokenUsage repository as a read-only Deploy Key. Do not reuse the blog repository key, a personal SSH key, or a GitHub personal access token. The protected server environment file then receives only the private repository SSH URL and optional branch/path settings.
