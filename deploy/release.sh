@@ -46,7 +46,7 @@ fi
 
 healthy=false
 for _ in {1..15}; do
-  if curl --fail --silent --show-error --max-time 3 http://127.0.0.1:4322/ > /dev/null; then
+  if curl --fail --silent --max-time 3 http://127.0.0.1:4322/ > /dev/null; then
     healthy=true
     break
   fi
