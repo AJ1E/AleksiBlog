@@ -59,7 +59,7 @@ const normalizedCurrentPath = normalizePath(currentPath);
             </nav>
             <div class="nav-divider" />
             {isAuthed ? (
-              <form method="POST" action="/api/auth/logout" class="auth-link-form">
+              <form method="POST" action="/api/auth/logout" class="auth-link-form" data-auth-logout>
                 <button type="submit" class="auth-link" title="退出登录">退出</button>
               </form>
             ) : (
@@ -88,5 +88,18 @@ const normalizedCurrentPath = normalizePath(currentPath);
         </div>
       </footer>
     )}
+    <script>
+      document.querySelectorAll<HTMLFormElement>("[data-auth-logout]").forEach((form) => {
+        form.addEventListener("submit", async (event) => {
+          event.preventDefault();
+          const response = await fetch(form.action, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Accept: "application/json" },
+            body: "{}",
+          });
+          if (response.ok) window.location.assign("/");
+        });
+      });
+    </script>
   </body>
 </html>

@@ -1578,8 +1578,17 @@ function AuthButton({ isAuthed, next }: { isAuthed: boolean; next: string }) {
       <a href={`/login?next=${encodeURIComponent(next)}`} style={baseStyle} onMouseEnter={onEnter} onMouseLeave={onLeave}>登录</a>
     );
   }
+  const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const response = await fetch("/api/auth/logout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: "{}",
+    });
+    if (response.ok) window.location.assign("/");
+  };
   return (
-    <form method="POST" action="/api/auth/logout" style={{ margin: 0, display: "inline-flex" }}>
+    <form method="POST" action="/api/auth/logout" style={{ margin: 0, display: "inline-flex" }} onSubmit={onSubmit}>
       <button type="submit" style={baseStyle} onMouseEnter={onEnter} onMouseLeave={onLeave}>退出</button>
     </form>
   );

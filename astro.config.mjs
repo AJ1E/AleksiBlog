@@ -19,10 +19,8 @@ export default defineConfig({
   },
   output: "server",
   adapter: node({ mode: "standalone" }),
-  // Reverse proxies (Caddy / nginx in front of this site) often rewrite the
-  // Origin header, which trips Astro's default same-origin POST check. Disable
-  // it — the auth cookie is HttpOnly + SameSite=Lax, which already blocks
-  // cross-site form CSRF for state-changing requests.
+  // Keep Astro's SSR form-origin protection enabled. Auth JSON endpoints also
+  // validate Nginx's overwritten forwarding headers on loopback deployments.
   security: { checkOrigin: true },
   server: {
     host: true,
