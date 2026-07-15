@@ -44,7 +44,9 @@ After deployment is stable, create a separate Codex task for a constrained note/
 
 ## Token Usage Data
 
-`AJ1E/TokenUsage` is private and should contain only sanitized aggregate usage data. Do not upload Codex authentication files, raw session/rollout JSONL, prompts, source paths, logs, or provider keys. The current server does not yet sync this repository automatically; implement that later as a small, reviewed feature using a read-only ECS deploy key, schema validation, and a systemd timer.
+`AJ1E/TokenUsage` is private and contains only sanitized aggregate usage data. Do not upload Codex authentication files, raw session/rollout JSONL, prompts, source paths, logs, or provider keys. ECS pulls its single validated snapshot with a read-only deploy key through `aleksiz-token-usage-sync.timer`; the service keeps the last known-good snapshot if validation fails.
+
+After pushing a reviewed TokenUsage snapshot, wait for the six-hour timer or, after signing in to the blog, use the AI usage refresh control. The browser never fetches GitHub directly: the same-origin, login-protected POST action is rate-limited and can start only the scoped read-only sync service.
 
 ## Future Timed Sync
 
