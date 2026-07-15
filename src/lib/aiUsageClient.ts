@@ -180,19 +180,22 @@ export function hasAiUsageBackend() {
   return resolveBackendUrls().length > 0;
 }
 
-export async function refreshAiTool(toolId: string): Promise<AiToolUsage | null> {
-  const data = await fetchAiUsageJson<ToolPayload>(`/api/usage/${toolId}/refresh`, {
-    method: "POST",
-    headers: { Accept: "application/json" },
-  });
-  if (!data) return null;
-  return normalizeTool(data);
-}
-
 export async function fetchAiUsageOverview(): Promise<AiUsageOverview | null> {
   const data = await fetchAiUsageJson<OverviewResponse>("/api/usage/overview", {
     headers: { Accept: "application/json" },
   });
+  return normalizeOverview(data);
+}
+
+export async function refreshAiUsageOverview(): Promise<AiUsageOverview | null> {
+  const data = await fetchAiUsageJson<OverviewResponse>("/api/usage/refresh", {
+    method: "POST",
+    headers: { Accept: "application/json" },
+  });
+  return normalizeOverview(data);
+}
+
+function normalizeOverview(data: OverviewResponse | null): AiUsageOverview | null {
   if (!data) return null;
   return {
     generatedAt: data.generatedAt || new Date().toISOString(),

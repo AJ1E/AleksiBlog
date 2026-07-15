@@ -1,7 +1,9 @@
 import http from "node:http";
+import { execFile } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { promisify } from "node:util";
 import { detectAllTools } from "./ai-usage/detect.mjs";
 import { buildClaudeOverview, clearClaudeCache } from "./ai-usage/claude-local.mjs";
 import { buildCodexOverview, clearCodexCache } from "./ai-usage/codex-local.mjs";
@@ -28,6 +30,12 @@ const SNAPSHOT_FILE =
 // In snapshot-only mode the helper only serves a validated, externally synced
 // aggregate and never overwrites it with an empty server-side collection.
 const SNAPSHOT_ONLY = process.env.AI_USAGE_SNAPSHOT_ONLY === "1";
+const MANUAL_SNAPSHOT_SYNC_ENABLED = SNAPSHOT_ONLY && process.env.AI_USAGE_MANUAL_SYNC_ENABLED === "1";
+const MANUAL_SNAPSHOT_SYNC_COOLDOWN_MS = parsePositiveInt(
+  process.env.AI_USAGE_MANUAL_SYNC_COOLDOWN_MS,
+  60_000,
+);
+const execFileAsync = promisify(execFile);
 const CODEX_MONTHLY_BUDGET_USD = parseFiniteNumber(process.env.CODEX_MONTHLY_BUDGET_USD);
 const GEMINI_MONTHLY_BUDGET_USD = parseFiniteNumber(process.env.GEMINI_MONTHLY_BUDGET_USD);
 const CLAUDE_BUDGETS = {
@@ -57,6 +65,8 @@ const CACHE_CLEARERS = {
 
 let latestOverviewSnapshot = await readOverviewSnapshot();
 let overviewRefreshPromise = null;
+let manualSnapshotSyncPromise = null;
+let lastManualSnapshotSyncAtMs = 0;
 
 const server = http.createServer(async (req, res) => {
   try {
@@ -127,6 +137,15 @@ const server = http.createServer(async (req, res) => {
       return sendJson(res, 200, snapshot);
     }
 
+    if (url.pathname === "/api/usage/refresh") {
+      if (req.method !== "POST") return sendJson(res, 405, { error: "Method not allowed" });
+      if (SNAPSHOT_ONLY) {
+        const snapshot = await refreshExternalSnapshot({ pullFromGitHub: true });
+        return sendJson(res, 200, snapshot);
+      }
+      return sendJson(res, 200, await refreshOverviewSnapshot({ reason: "manual-overview-refresh" }));
+    }
+
     const match = /^\/api\/usage\/(claude|codex-desktop|codex-cli|gemini|qoder|workbuddy)$/.exec(url.pathname);
     if (match) {
       const tool = match[1];
@@ -149,8 +168,9 @@ const server = http.createServer(async (req, res) => {
 
     return sendJson(res, 404, { error: "Not found" });
   } catch (error) {
+    process.stderr.write(`[ai-usage-server] request failed: ${formatErrorMessage(error)}\n`);
     return sendJson(res, 500, {
-      error: error instanceof Error ? error.message : "Unknown error",
+      error: "AI usage request failed",
     });
   }
 });
@@ -271,10 +291,36 @@ async function readOverviewSnapshot() {
   }
 }
 
-async function refreshExternalSnapshot() {
+async function refreshExternalSnapshot({ pullFromGitHub = false } = {}) {
+  if (pullFromGitHub && MANUAL_SNAPSHOT_SYNC_ENABLED) {
+    await pullExternalSnapshot();
+  }
   const snapshot = await readOverviewSnapshot();
   if (snapshot) latestOverviewSnapshot = snapshot;
   return latestOverviewSnapshot || createEmptySnapshot();
+}
+
+async function pullExternalSnapshot() {
+  if (manualSnapshotSyncPromise) return manualSnapshotSyncPromise;
+  if (Date.now() - lastManualSnapshotSyncAtMs < MANUAL_SNAPSHOT_SYNC_COOLDOWN_MS) return;
+
+  manualSnapshotSyncPromise = execFileAsync(
+    "/usr/bin/sudo",
+    ["-n", "/usr/bin/systemctl", "start", "aleksiz-token-usage-sync.service"],
+    { timeout: 30_000, windowsHide: true },
+  )
+    .then(() => {
+      lastManualSnapshotSyncAtMs = Date.now();
+    })
+    .catch((error) => {
+      process.stderr.write(`[ai-usage-server] manual snapshot sync failed: ${formatErrorMessage(error)}\n`);
+      throw new Error("snapshot-sync-failed");
+    })
+    .finally(() => {
+      manualSnapshotSyncPromise = null;
+    });
+
+  return manualSnapshotSyncPromise;
 }
 
 function createEmptySnapshot() {
@@ -334,6 +380,11 @@ function parsePort(value, fallback) {
   const numeric = Number(value);
   if (!Number.isInteger(numeric) || numeric <= 0) return fallback;
   return numeric;
+}
+
+function parsePositiveInt(value, fallback) {
+  const numeric = Number(value);
+  return Number.isInteger(numeric) && numeric > 0 ? numeric : fallback;
 }
 
 function detectionIdForTool(tool) {

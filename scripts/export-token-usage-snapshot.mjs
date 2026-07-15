@@ -1,33 +1,46 @@
 import fs from "node:fs/promises";
-import os from "node:os";
+import { execFile } from "node:child_process";
 import path from "node:path";
 import process from "node:process";
+import { promisify } from "node:util";
 
-const outputPath = process.argv[2];
-const sourcePath =
-  process.env.AI_USAGE_SOURCE_SNAPSHOT_FILE ||
-  path.join(os.homedir(), ".cache", "kai-space", "ai-usage-overview.json");
+const outputPath = process.argv.slice(2).find((argument) => argument !== "--");
 
 if (!outputPath) {
   throw new Error("Usage: pnpm token-usage:export -- <output-file>");
 }
 
-const source = await readSourceSnapshot(sourcePath);
-const desktop = source.tools.find((tool) => tool?.tool === "codex-desktop");
-const cli = source.tools.find((tool) => tool?.tool === "codex-cli");
+// Build from the workstation's current aggregate records instead of a cache
+// written by a dev server. Each collector receives its own short-lived Node
+// process: large local session histories can otherwise retain too much memory
+// before desktop, CLI, and heatmap scans have all completed.
+const codexCollectorModule = new URL("./ai-usage/codex-local.mjs", import.meta.url).href;
+const heatmapCollectorModule = new URL("./ai-usage/heatmap.mjs", import.meta.url).href;
+const desktop = await collectJson(`import { buildCodexOverview } from ${JSON.stringify(codexCollectorModule)}; process.stdout.write(JSON.stringify(await buildCodexOverview({ segment: "desktop" })));`);
+const cli = await collectJson(`import { buildCodexOverview } from ${JSON.stringify(codexCollectorModule)}; process.stdout.write(JSON.stringify(await buildCodexOverview({ segment: "cli" })));`);
+const heatmap = await collectJson(`import { buildUsageHeatmap } from ${JSON.stringify(heatmapCollectorModule)}; process.stdout.write(JSON.stringify(await buildUsageHeatmap()));`);
 
 const snapshot = {
   generatedAt: new Date().toISOString(),
   tools: [sanitizeTool(desktop, "codex-desktop"), sanitizeTool(cli, "codex-cli")],
   heatmap: {
-    days: Array.isArray(source.heatmap?.days)
-      ? source.heatmap.days.map(sanitizeHeatmapDay).filter(Boolean).slice(-366)
+    days: Array.isArray(heatmap?.days)
+      ? heatmap.days.map(sanitizeHeatmapDay).filter(Boolean).slice(-366)
       : [],
   },
 };
 
 await writeJsonAtomically(path.resolve(outputPath), snapshot);
 process.stdout.write(`Wrote redacted TokenUsage snapshot with ${snapshot.tools.length} tools.\n`);
+
+async function collectJson(source) {
+  const { stdout } = await promisify(execFile)(
+    process.execPath,
+    ["--input-type=module", "--eval", source],
+    { timeout: 120_000, maxBuffer: 2 * 1024 * 1024 },
+  );
+  return JSON.parse(stdout);
+}
 
 function sanitizeTool(source, expectedTool) {
   return {
@@ -50,19 +63,6 @@ function sanitizeTool(source, expectedTool) {
       "30d": sanitizeModels(source?.models?.["30d"]),
     },
   };
-}
-
-async function readSourceSnapshot(filePath) {
-  try {
-    const source = JSON.parse(await fs.readFile(filePath, "utf8"));
-    if (!source || typeof source !== "object" || !Array.isArray(source.tools)) {
-      throw new Error("missing tools array");
-    }
-    return source;
-  } catch (error) {
-    const detail = error instanceof Error ? error.message : "unknown error";
-    throw new Error(`Unable to read local AI usage snapshot: ${detail}`);
-  }
 }
 
 function sanitizePeriod(period) {

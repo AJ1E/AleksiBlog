@@ -23,10 +23,11 @@ The snapshot may contain totals, model names, token counts, estimated costs, and
 3. `aleksiz-token-usage-sync.timer` fetches every six hours with a randomized delay.
 4. `aleksiz-token-usage-sync.service` rejects missing, oversized, malformed, or unexpected-tool snapshots and preserves the prior valid file.
 5. `aleksiz-ai-usage.service` runs in snapshot-only mode on `127.0.0.1:8787`; the browser sees data only through Astro's authenticated BFF.
+6. A signed-in user may manually refresh the snapshot from the dashboard. The Astro BFF accepts only same-origin `POST /api/usage/refresh`; Nginx rate-limits it, and the helper can start only the single read-only sync service through a narrowly scoped sudoers rule. The action has a one-minute helper cooldown.
 
 ## Local Export
 
-Run `pnpm token-usage:export -- <output-file>` on the developer workstation. The command reads the local AI helper's aggregate snapshot, then writes only the whitelisted dashboard fields. It never reads or uploads raw session files and never performs Git operations; a dedicated sync workflow is responsible for reviewing and pushing the result to the private repository.
+Run `pnpm token-usage:export -- <output-file>` on the developer workstation. The command directly rebuilds the current Codex aggregate and heatmap from local records, then writes only the whitelisted dashboard fields. It never uploads raw session files and never performs Git operations; a dedicated sync workflow is responsible for reviewing and pushing the result to the private repository.
 
 ## Manual Setup Still Required
 

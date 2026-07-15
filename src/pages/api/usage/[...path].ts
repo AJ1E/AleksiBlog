@@ -22,6 +22,14 @@ const handler: APIRoute = (context) => {
     return forward("ai-usage", `/api/usage/${path}`, context, { isAuthed });
   }
 
+  if (context.request.method === "POST" && path === "refresh") {
+    if (!isAuthed) return apiError(401, "auth-required", "ai-usage-refresh");
+    return forward("ai-usage", "/api/usage/refresh", context, {
+      isAuthed,
+      transformJson: (body) => stripAiUsage(body, true),
+    });
+  }
+
   const refreshTool = path.match(/^([^/]+)\/refresh$/)?.[1];
   if (context.request.method === "POST" && refreshTool && TOOLS.has(refreshTool)) {
     if (!isAuthed) return apiError(401, "auth-required", "ai-usage-refresh");

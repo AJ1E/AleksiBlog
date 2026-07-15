@@ -1,0 +1,3 @@
+# Allow the loopback-only AI helper to start exactly one read-only snapshot
+# synchronization service. Do not add wildcards, shells, or other commands.
+aleksiz ALL=(root) NOPASSWD: /usr/bin/systemctl start aleksiz-token-usage-sync.service

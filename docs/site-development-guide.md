@@ -49,6 +49,19 @@
 
 每次大改前，先在 `docs/specs/` 写一份变更说明。说明里至少写清楚：为什么要改、改哪些页面、哪些地方不改、怎么验收。
 
+### 发布节奏与部署边界
+
+现在仍处于“部署优化和生产验证”阶段，还不能把第一版视为正式完成。直到你明确说“第一版完成”或“完全部署好”之前，优先把登录、HTTPS、Nginx、helper 后端、监控、外网访问、安全检查和回滚流程验证完整。
+
+第一版确认完成后，日常小改动不需要每改一点就上传服务器：
+
+1. 在本地完成一组相关的小改动或一篇文章，先自己预览和验证。
+2. 累积成一个容易说明、容易回滚的小版本，再检查 diff、敏感信息和 `pnpm build`。
+3. 当你明确要发布，或内容需要上线、一个功能完成、修复访客可见问题、需要应用安全更新时，Codex 应主动提醒你进入“提交、推送、部署”流程。
+4. 提醒不等于自动上线。除非你明确确认，本地修改只保留在本地和开发分支。
+
+任务职责也要分开：主博客任务负责代码、部署、安全和服务器监控；笔记同步任务只维护公开笔记仓库；TokenUsage 同步任务只维护脱敏后的私有快照仓库。两个同步任务都不能自行部署博客或修改项目指导文档。
+
 ## 4. 推荐工具路线
 
 ### 现在就应该坚持的检查
@@ -210,7 +223,13 @@ SITE_AUTH_SECRET=...
 
 ## 9. 参考资料
 
-- Jeremy 文章：`https://blog.czhifang.com/blog/how-this-website-runs/?from=home`
+- Jeremy Chen 的网站运行说明：`https://blog.czhifang.com/blog/how-this-website-runs/`
+  - 学习 Astro 页面、内容集合、React islands、本地 helper 和 Astro BFF 的分层；helper 保持私有，浏览器只访问 Astro。
+  - 这篇文章中的 Cloudflare Tunnel 设置不能原样复制到本项目。本站使用 Nginx + HTTPS，必须保留 Astro 的 `security.checkOrigin`，通过正确的反向代理头解决登录问题。
+- Jeremy Chen 的内容维护流程：`https://blog.czhifang.com/blog/how-to-manage-this-blog/`
+  - 文章使用稳定 slug、明确 frontmatter 和草稿状态；改正文后更新 `updatedAt`；发布前本地预览并运行构建检查。
+- Jeremy Chen 的图片管理流程：`https://blog.czhifang.com/blog/how-to-manage-blog-images/`
+  - 公共图片集中放在 `public/uploads/`，文件名应表达内容；封面和正文图要有尺寸、压缩、alt/caption 规范；发布前去除 EXIF/GPS 和隐私信息。
 - Astro CLI：`https://docs.astro.build/en/reference/cli-reference/`
 - Biome：`https://biomejs.dev/`
 - Playwright：`https://playwright.dev/docs/intro`

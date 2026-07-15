@@ -55,6 +55,23 @@ Avoid changing auth, BFF proxying, helper backend internals, Beszel integration,
 - After implementation, summarize changed files, explain why they changed, run available validation commands such as `pnpm build`, and review the diff.
 - If validation fails, fix the errors before handing the work back unless the failure is unrelated or blocked by missing user input.
 
+## Release Batching And Deployment Ownership
+
+- The project is currently in the deployment-optimization and production-validation stage. Do not call the first release complete until the user explicitly confirms that the first version is fully deployed and accepted.
+- Until that confirmation, prioritize deployment correctness, production auth, helper availability, monitoring, security checks, external-network verification, and rollback readiness over new cosmetic work.
+- After the first release is accepted, small changes, drafts, and individual posts should be developed and verified locally first. Do not push or deploy every small edit immediately.
+- Batch related changes into a coherent, reviewable release. When a release is appropriate, proactively remind the user to review the diff, scan for secrets, run validation, commit/push, and deploy, then wait for the user's confirmation before publishing.
+- A release reminder is appropriate when the user asks to publish, an article needs to go live, a coherent feature or several related changes are complete, a visitor-facing bug is fixed, or a security/dependency update should be applied.
+- Keep responsibilities separate: this main desktop Codex task owns blog code, release review, deployment, server monitoring, and security. Dedicated note-sync or token-usage tasks may only prepare and push their approved source repositories; they must not deploy the blog or edit guidance documents.
+
+## Standing Reference Articles
+
+- Treat these Jeremy Chen articles as maintained reference material, alongside the existing live-site visual reference:
+  - `https://blog.czhifang.com/blog/how-this-website-runs/`: preserve the Astro/content/React/helper layers, auth-aware BFF, loopback helpers, and cache boundaries.
+  - `https://blog.czhifang.com/blog/how-to-manage-this-blog/`: keep content operations explicit, use stable slugs and frontmatter, update `updatedAt` when editing, and validate drafts and builds before release.
+  - `https://blog.czhifang.com/blog/how-to-manage-blog-images/`: keep public images organized under `public/uploads/`, use descriptive filenames, provide alt text/captions, optimize dimensions and formats, and remove EXIF/GPS or private information before publishing.
+- Extract principles, not environment-specific configuration. Jeremy's public setup may use Cloudflare Tunnel; this project uses Nginx and HTTPS, so keep `security.checkOrigin` enabled and adapt reverse-proxy settings to this deployment.
+
 ## Recommended Tooling And Skills
 
 - Keep the default validation lightweight first: run `pnpm build` for content, routing, MDX, and Astro integration checks.

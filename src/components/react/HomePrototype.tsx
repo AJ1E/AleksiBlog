@@ -1,7 +1,7 @@
 import { memo, useEffect, useMemo, useRef, useState } from "react";
 import {
   fetchAiUsageOverview,
-  refreshAiTool,
+  refreshAiUsageOverview,
   hasAiUsageBackend,
   TOOL_DISPLAY,
   type AiUsageOverview,
@@ -1907,10 +1907,11 @@ function AIUsageWidget({
           <div style={{ fontSize: 10, color: "var(--text-faint)" }}>{hasData && totalCostCny7d > 0 ? `≈ ¥${totalCostCny7d.toFixed(2)}` : "费用待配置"}</div>
         </div>
       </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+      <style>{`@media (max-width: 420px) { .ai-usage-summary-grid { grid-template-columns: 1fr !important; } }`}</style>
+      <div className="ai-usage-summary-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8 }}>
         {tools.map((t) => {
           const pct = sharePct(t.tok7d, total7d);
-          return <div key={t.id} style={{ padding: "10px 12px", background: "var(--bg-2)", borderRadius: 10, border: "1px solid var(--border-light)", display: "flex", alignItems: "center", gap: 12 }}><div style={{ display: "flex", alignItems: "center", gap: 6, minWidth: 0, flex: 1 }}><AiToolIcon tool={t} size={14} /><span style={{ fontSize: 10, color: "var(--text-muted)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{t.name}</span></div><div style={{ display: "flex", alignItems: "center", gap: 14, flexShrink: 0 }}><div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11 }}><span style={{ color: "var(--text-muted)" }}>占比</span><span style={{ color: hasData ? "var(--text)" : "var(--text-faint)", fontFamily: "JetBrains Mono" }}>{hasData ? `${pct}%` : "—"}</span></div><div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11 }}><span style={{ color: "var(--text-muted)" }}>7d</span><span style={{ color: "var(--text-faint)", fontFamily: "JetBrains Mono" }}>{t.tok7d > 0 ? fmt(t.tok7d) : "0"}</span></div><Badge color={t.status === "active" ? "green" : "gray"} small>{!t.installed ? "未装" : t.status === "active" ? "运行" : "待机"}</Badge></div></div>;
+          return <div key={t.id} style={{ minWidth: 0, padding: "12px", background: "var(--bg-2)", borderRadius: 10, border: "1px solid var(--border-light)", display: "flex", flexDirection: "column", gap: 10 }}><div style={{ display: "flex", alignItems: "center", gap: 7, minWidth: 0 }}><div style={{ width: 24, height: 24, borderRadius: 7, background: tint(t.color, 18), display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><AiToolIcon tool={t} size={15} /></div><span style={{ fontSize: 11, fontWeight: 600, minWidth: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{t.name}</span><Badge color={t.status === "active" ? "green" : "gray"} small>{!t.installed ? "未装" : t.status === "active" ? "运行" : "待机"}</Badge></div><div><div style={{ fontSize: 17, fontWeight: 600, fontFamily: "DM Serif Display", letterSpacing: "-0.01em" }}>{t.tok7d > 0 ? fmt(t.tok7d) : "—"}</div><div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 1 }}>tokens · 过去 7 天</div></div><div><div style={{ display: "flex", justifyContent: "space-between", gap: 8, marginBottom: 5, fontSize: 10 }}><span style={{ color: "var(--text-muted)" }}>使用占比</span><span style={{ color: hasData ? "var(--text)" : "var(--text-faint)", fontFamily: "JetBrains Mono", fontWeight: 600 }}>{hasData ? `${pct}%` : "—"}</span></div><Bar val={pct} color={t.color} h={4} /></div></div>;
         })}
       </div>
       <div style={{ paddingTop: 8, borderTop: "1px solid var(--border-light)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -1946,7 +1947,7 @@ function AIUsageDrawer({
   backendConnected,
   backendError,
   generatedAt,
-  onToolRefreshed,
+  onOverviewRefreshed,
 }: {
   open: boolean;
   onClose: () => void;
@@ -1955,7 +1956,7 @@ function AIUsageDrawer({
   backendConnected: boolean;
   backendError: string | null;
   generatedAt: string | null;
-  onToolRefreshed: (updated: AiToolUsage) => void;
+  onOverviewRefreshed: (overview: AiUsageOverview) => void;
 }) {
   const [period, setPeriod] = useState<"7d" | "30d">("7d");
   const [refreshingTool, setRefreshingTool] = useState<string | null>(null);
@@ -1964,8 +1965,8 @@ function AIUsageDrawer({
     if (refreshingTool) return;
     setRefreshingTool(toolId);
     try {
-      const updated = await refreshAiTool(toolId);
-      if (updated) onToolRefreshed(updated);
+      const overview = await refreshAiUsageOverview();
+      if (overview) onOverviewRefreshed(overview);
     } catch {
       // silently ignore
     } finally {
@@ -2599,9 +2600,13 @@ export default function HomePrototype({ subscriptions, apis, servers, posts, isA
   const [serversReady, setServersReady] = useState(false);
   const [ipReady, setIpReady] = useState(false);
 
-  function handleToolRefreshed(updated: AiToolUsage) {
-    setAiTools((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
-    setAiGeneratedAt(new Date().toISOString());
+  function handleAiUsageOverviewRefreshed(overview: AiUsageOverview) {
+    aiUsageOverviewPromise = Promise.resolve(overview);
+    setAiTools(overview.tools);
+    setAiHeatmap(overview.heatmap);
+    setAiGeneratedAt(overview.generatedAt);
+    setAiBackendError(null);
+    writeLocalStorageJson(AI_USAGE_CACHE_KEY, overview);
   }
 
   async function handleRefreshIpRisk() {
@@ -2890,7 +2895,7 @@ export default function HomePrototype({ subscriptions, apis, servers, posts, isA
         backendConnected={hasAiUsageBackend() && aiBackendError === null}
         backendError={aiBackendError}
         generatedAt={aiGeneratedAt}
-        onToolRefreshed={handleToolRefreshed}
+        onOverviewRefreshed={handleAiUsageOverviewRefreshed}
         open={aiOpen}
         onClose={() => setAiOpen(false)}
       />
