@@ -6,10 +6,22 @@ export PATH=/usr/local/bin:/usr/bin:/bin
 APP_ROOT=/var/www/aleksiz
 REPO="$APP_ROOT/repo"
 RELEASES="$APP_ROOT/releases"
-BRANCH="${1:-main}"
 RUN_AS=aleksiz
 CURRENT="$APP_ROOT/current"
 PREVIOUS=""
+
+BRANCH="main"
+COMMIT=""
+
+if [[ "${1:-}" == "--commit" ]]; then
+  COMMIT="${2:-}"
+  [[ "$COMMIT" =~ ^[0-9a-f]{40}$ ]] || {
+    echo "A 40-character commit hash is required after --commit." >&2
+    exit 2
+  }
+elif [[ -n "${1:-}" ]]; then
+  BRANCH="$1"
+fi
 
 if [[ -L "$CURRENT" ]]; then
   PREVIOUS="$(readlink -f "$CURRENT")"
@@ -26,8 +38,15 @@ if [[ ! -d "$REPO/.git" ]]; then
   exit 1
 fi
 
-run_as_app git -C "$REPO" fetch --quiet origin "$BRANCH"
-COMMIT="$(run_as_app git -C "$REPO" rev-parse "origin/$BRANCH")"
+if [[ -z "$COMMIT" ]]; then
+  run_as_app git -C "$REPO" fetch --quiet origin "$BRANCH"
+  COMMIT="$(run_as_app git -C "$REPO" rev-parse "origin/$BRANCH")"
+else
+  # Fetch the normal deployment branch first so the selected current release
+  # can be verified locally without accepting arbitrary browser input.
+  run_as_app git -C "$REPO" fetch --quiet origin "$BRANCH"
+  run_as_app git -C "$REPO" cat-file -e "$COMMIT^{commit}"
+fi
 SHORT_COMMIT="${COMMIT:0:12}"
 RELEASE="$RELEASES/$(date -u +%Y%m%d-%H%M%S)-$SHORT_COMMIT"
 

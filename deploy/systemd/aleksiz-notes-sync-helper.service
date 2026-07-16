@@ -1,0 +1,28 @@
+[Unit]
+Description=Aleksi Blog protected notes synchronization helper
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=aleksiz
+Group=aleksiz
+WorkingDirectory=/var/www/aleksiz/current
+EnvironmentFile=/var/www/aleksiz/shared/.env
+Environment=NODE_ENV=production
+Environment=HOST=127.0.0.1
+Environment=NOTES_SYNC_PORT=8790
+Environment=NOTES_MANUAL_SYNC_ENABLED=1
+ExecStart=/usr/local/bin/node scripts/notes-sync-server.mjs
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+UMask=0077
+# The helper can start only the exact notes rebuild unit allowlisted in sudoers.
+# NoNewPrivileges would block that intentionally narrow privilege transition.
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target

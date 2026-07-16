@@ -39,6 +39,7 @@ The blog build runs `scripts/sync-notes.mjs` and reads Markdown from `AJ1E/Obsdi
 - Only Markdown inside subfolders is published; root-level Markdown stays hidden.
 - Do a separate review before pushing the notes repository. Do not publish credentials, personal records, private plans, raw screenshots, or private attachments.
 - A website release always refreshes notes during `pnpm build`.
+- After login, the notes page also provides “同步笔记”. It starts a rate-limited, server-side rebuild of the **current deployed commit** with the latest public notes. It does not deploy newer blog code from `main`; wait for the page reload before opening new notes.
 
 After deployment is stable, create a separate Codex task for a constrained note/token sync workflow. It should export only reviewed data, push only the two intended repositories, and report its diff without touching site code.
 
@@ -50,7 +51,7 @@ After pushing a reviewed TokenUsage snapshot, wait for the six-hour timer or, af
 
 ## Future Timed Sync
 
-Once the first release has been stable for a while, the safe order is:
+For any future timed notes refresh, the safe order is:
 
 1. Create read-only deploy keys for each data repository, scoped to the `aleksiz` service account.
 2. Add a small sync script that writes only under `/var/www/aleksiz/shared/`.
@@ -58,7 +59,7 @@ Once the first release has been stable for a while, the safe order is:
 4. Trigger a blog rebuild for notes; refresh only the protected usage cache for token data.
 5. Run it from a systemd timer daily at first, log failures, and preserve the last known-good content.
 
-Do not let a browser button fetch GitHub directly. A future manual refresh must be a login-protected, POST-only, origin-checked, rate-limited server action.
+Do not let a browser button fetch GitHub directly. The existing manual action is login-protected, POST-only, origin-checked, rate-limited, loopback-only, and may only start its dedicated systemd unit.
 
 ## Rollback
 

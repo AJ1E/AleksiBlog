@@ -1,17 +1,19 @@
 import type { APIContext } from "astro";
 
-export type BackendId = "ai-usage" | "ip-risk" | "server-status";
+export type BackendId = "ai-usage" | "ip-risk" | "server-status" | "notes-sync";
 
 const BACKEND_DEFAULTS: Record<BackendId, string> = {
   "ai-usage": "http://127.0.0.1:8787",
   "ip-risk": "http://127.0.0.1:8788",
   "server-status": "http://127.0.0.1:8789",
+  "notes-sync": "http://127.0.0.1:8790",
 };
 
 const ENV_KEY: Record<BackendId, string> = {
   "ai-usage": "AI_USAGE_BACKEND_URL",
   "ip-risk": "IP_RISK_BACKEND_URL",
   "server-status": "SERVER_STATUS_BACKEND_URL",
+  "notes-sync": "NOTES_SYNC_BACKEND_URL",
 };
 
 export function getBackendBase(id: BackendId): string {

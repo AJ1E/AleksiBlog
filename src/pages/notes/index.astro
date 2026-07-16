@@ -3,6 +3,8 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import NotesVault from "../../components/react/NotesVault";
 import { siteMeta } from "../../data/site";
 import { getPublishedNotes, noteDisplayDate, noteHref } from "../../lib/notes";
+import { stat } from "node:fs/promises";
+import { resolve } from "node:path";
 
 const notes = await getPublishedNotes();
 const pageNotes = notes.map((note) => ({
@@ -15,10 +17,18 @@ const pageNotes = notes.map((note) => ({
   sourcePath: note.data.sourcePath,
   dateLabel: noteDisplayDate(note),
 }));
+
+let lastSyncedAt: string | null = null;
+try {
+  lastSyncedAt = (await stat(resolve(".cache/notes/manifest.json"))).mtime.toISOString();
+} catch {
+  // A failed initial repository clone should not prevent the notes page rendering.
+}
+const canSync = Astro.locals.auth?.isAuthed ?? false;
 ---
 
 <BaseLayout title={`笔记 — ${siteMeta.title}`} description="从 Obsidian 笔记仓库同步的公开笔记。" currentPath="/notes">
   <main class="container">
-    <NotesVault client:load notes={pageNotes} />
+    <NotesVault client:load notes={pageNotes} lastSyncedAt={lastSyncedAt} canSync={canSync} />
   </main>
 </BaseLayout>

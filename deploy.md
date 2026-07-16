@@ -107,10 +107,15 @@ Copy the reviewed templates, including the release script:
 ```bash
 sudo install -m 644 /var/www/aleksiz/repo/deploy/systemd/aleksiz-astro.service /etc/systemd/system/aleksiz-astro.service
 sudo install -m 644 /var/www/aleksiz/repo/deploy/systemd/aleksiz-ip-risk.service /etc/systemd/system/aleksiz-ip-risk.service
+sudo install -m 644 /var/www/aleksiz/repo/deploy/systemd/aleksiz-notes-sync-helper.service /etc/systemd/system/aleksiz-notes-sync-helper.service
+sudo install -m 644 /var/www/aleksiz/repo/deploy/systemd/aleksiz-notes-sync.service /etc/systemd/system/aleksiz-notes-sync.service
 sudo install -m 644 /var/www/aleksiz/repo/deploy/nginx/aleksiz-proxy-headers.conf /etc/nginx/conf.d/aleksiz-proxy-headers.conf
 sudo install -m 755 /var/www/aleksiz/repo/deploy/release.sh /usr/local/sbin/aleksiz-release
+sudo install -m 755 /var/www/aleksiz/repo/deploy/notes-sync.sh /usr/local/sbin/aleksiz-notes-sync
+sudo install -m 440 /var/www/aleksiz/repo/deploy/sudoers/aleksiz-notes-sync /etc/sudoers.d/aleksiz-notes-sync
+sudo visudo -cf /etc/sudoers.d/aleksiz-notes-sync
 sudo systemctl daemon-reload
-sudo systemctl enable --now aleksiz-astro.service aleksiz-ip-risk.service
+sudo systemctl enable --now aleksiz-astro.service aleksiz-ip-risk.service aleksiz-notes-sync-helper.service
 sudo /usr/local/sbin/aleksiz-release
 ```
 
@@ -179,6 +184,8 @@ Test-NetConnection aleksiz.com -Port 8788
 ```
 
 Expected result: HTTPS returns a valid certificate and the latter two probes fail. In a browser, check home, blog, notes, projects, navigation, bucketlist/login protection, about, dark mode, and mobile layout. Log in once, open the four dashboard drawers, and verify the visitor-IP drawer reports the current visitor rather than the server address.
+
+For the protected notes refresh, confirm that an anonymous `POST /api/notes/sync` returns `401`. Then log in, select **同步笔记** on `/notes`, wait for the page to reload, and confirm the displayed update time changes. The browser must never be given a GitHub credential or direct helper address.
 
 ## Rollback
 

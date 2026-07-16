@@ -13,6 +13,8 @@ type NoteItem = {
 
 type Props = {
   notes: NoteItem[];
+  lastSyncedAt: string | null;
+  canSync: boolean;
 };
 
 const ALL_FILTER = "全部";
@@ -28,10 +30,12 @@ function folderTone(folder: string) {
   return "default";
 }
 
-export default function NotesVault({ notes }: Props) {
+export default function NotesVault({ notes, lastSyncedAt, canSync }: Props) {
   const [query, setQuery] = useState("");
   const [folder, setFolder] = useState(ALL_FILTER);
   const [tag, setTag] = useState(ALL_FILTER);
+  const [syncing, setSyncing] = useState(false);
+  const [syncError, setSyncError] = useState("");
 
   const folders = useMemo(() => [ALL_FILTER, ...Array.from(new Set(notes.map((note) => note.folder)))], [notes]);
   const scopedNotes = useMemo(
@@ -73,6 +77,28 @@ export default function NotesVault({ notes }: Props) {
     setQuery("");
     setFolder(ALL_FILTER);
     setTag(ALL_FILTER);
+  }
+
+  async function syncNotes() {
+    if (syncing || !canSync) return;
+    setSyncing(true);
+    setSyncError("");
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 130_000);
+    try {
+      const response = await fetch("/api/notes/sync", {
+        method: "POST",
+        headers: { Accept: "application/json" },
+        signal: controller.signal,
+      });
+      if (!response.ok) throw new Error("notes-sync-failed");
+      window.location.reload();
+    } catch {
+      setSyncError("同步未完成，请稍后重试。");
+      setSyncing(false);
+    } finally {
+      window.clearTimeout(timeout);
+    }
   }
 
   return (
@@ -131,10 +157,19 @@ export default function NotesVault({ notes }: Props) {
             <span>
               当前显示 <strong>{filtered.length}</strong> / {notes.length} 篇笔记
             </span>
+            <div className="notes-vault__sync-status">
+              {lastSyncedAt && <span>上次更新 {formatSyncTime(lastSyncedAt)}</span>}
+              {canSync && (
+                <button type="button" className="notes-vault__sync-button" onClick={syncNotes} disabled={syncing}>
+                  {syncing ? "正在同步" : "同步笔记"}
+                </button>
+              )}
+            </div>
             {(query || folder !== ALL_FILTER || tag !== ALL_FILTER) && (
               <button type="button" onClick={clearFilters}>清除筛选</button>
             )}
           </div>
+          {syncError && <div className="notes-vault__sync-error" role="status">{syncError}</div>}
         </div>
       </div>
 
@@ -214,4 +249,16 @@ export default function NotesVault({ notes }: Props) {
       </div>
     </section>
   );
+}
+
+function formatSyncTime(raw: string) {
+  const date = new Date(raw);
+  if (!Number.isFinite(date.valueOf())) return "--";
+  return new Intl.DateTimeFormat("zh-CN", {
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(date);
 }

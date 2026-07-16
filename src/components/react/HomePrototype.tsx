@@ -1907,10 +1907,48 @@ function AIUsageWidget({
           <div style={{ fontSize: 10, color: "var(--text-faint)" }}>{hasData && totalCostCny7d > 0 ? `≈ ¥${totalCostCny7d.toFixed(2)}` : "费用待配置"}</div>
         </div>
       </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         {tools.map((t) => {
           const pct = sharePct(t.tok7d, total7d);
-          return <div key={t.id} style={{ minWidth: 0, padding: "10px 12px", background: "var(--bg-2)", borderRadius: 10, border: "1px solid var(--border-light)", display: "grid", gridTemplateColumns: "minmax(0, 1.2fr) minmax(70px, 0.7fr) minmax(74px, 0.8fr)", gap: 10, alignItems: "center" }}><div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}><div style={{ width: 26, height: 26, borderRadius: 7, background: tint(t.color, 18), display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><AiToolIcon tool={t} size={16} /></div><div style={{ minWidth: 0 }}><div style={{ display: "flex", alignItems: "center", gap: 5, minWidth: 0 }}><span style={{ fontSize: 11, fontWeight: 600, minWidth: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{t.name}</span><Badge color={t.status === "active" ? "green" : "gray"} small>{!t.installed ? "未装" : t.status === "active" ? "运行" : "待机"}</Badge></div><div style={{ fontSize: 9, color: "var(--text-faint)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginTop: 2 }}>{t.provider || "本地用量"}</div></div></div><div><div style={{ fontSize: 16, fontWeight: 600, fontFamily: "DM Serif Display", letterSpacing: "-0.01em" }}>{t.tok7d > 0 ? fmt(t.tok7d) : "—"}</div><div style={{ fontSize: 9, color: "var(--text-muted)", marginTop: 1 }}>7d tokens</div></div><div><div style={{ display: "flex", justifyContent: "space-between", gap: 5, marginBottom: 5, fontSize: 9 }}><span style={{ color: "var(--text-muted)" }}>使用占比</span><span style={{ color: hasData ? "var(--text)" : "var(--text-faint)", fontFamily: "JetBrains Mono", fontWeight: 600 }}>{hasData ? `${pct}%` : "—"}</span></div><Bar val={pct} color={t.color} h={4} /></div></div>;
+          const status = !t.installed ? "未装" : t.status === "active" ? "运行中" : "待机";
+          return (
+            <div
+              key={t.id}
+              style={{
+                minWidth: 0,
+                minHeight: 68,
+                padding: "10px 12px",
+                background: "var(--bg-2)",
+                borderRadius: 10,
+                border: "1px solid var(--border-light)",
+                display: "grid",
+                gridTemplateColumns: "minmax(0, 1fr) 76px 74px",
+                gap: 8,
+                alignItems: "center",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 9, minWidth: 0 }}>
+                <div style={{ width: 30, height: 30, borderRadius: 8, background: tint(t.color, 18), display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <AiToolIcon tool={t} size={17} />
+                </div>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, lineHeight: 1.25, overflow: "hidden", textOverflow: "ellipsis" }}>{t.name}</div>
+                  <div style={{ marginTop: 4 }}><Badge color={t.status === "active" ? "green" : "gray"} small>{status}</Badge></div>
+                </div>
+              </div>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontSize: 17, fontWeight: 600, lineHeight: 1, fontFamily: "DM Serif Display", letterSpacing: "-0.01em", whiteSpace: "nowrap" }}>{t.tok7d > 0 ? fmt(t.tok7d) : "—"}</div>
+                <div style={{ fontSize: 9, color: "var(--text-muted)", marginTop: 5 }}>7d tokens</div>
+              </div>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 4, marginBottom: 6, fontSize: 9 }}>
+                  <span style={{ color: "var(--text-muted)" }}>占比</span>
+                  <span style={{ color: hasData ? "var(--text)" : "var(--text-faint)", fontFamily: "JetBrains Mono", fontWeight: 600 }}>{hasData ? `${pct}%` : "—"}</span>
+                </div>
+                <Bar val={pct} color={t.color} h={4} />
+              </div>
+            </div>
+          );
         })}
       </div>
       <div style={{ paddingTop: 8, borderTop: "1px solid var(--border-light)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
