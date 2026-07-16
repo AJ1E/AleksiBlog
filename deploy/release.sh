@@ -65,7 +65,7 @@ fi
 
 # Do not use a login shell here: its profile can replace PATH and make pnpm
 # unable to find Node. Keep the build environment explicit and reproducible.
-run_as_app env HOME="$APP_ROOT" PATH=/usr/local/bin:/usr/bin:/bin NOTES_SYNC_REQUIRED="${NOTES_SYNC_REQUIRED:-0}" /bin/bash -c "cd '$RELEASE' && /usr/local/bin/pnpm install --frozen-lockfile && /usr/local/bin/pnpm build"
+run_as_app env HOME="$APP_ROOT" PATH=/usr/local/bin:/usr/bin:/bin NOTES_SYNC_REQUIRED="${NOTES_SYNC_REQUIRED:-0}" NOTES_SYNC_TRANSPORT="${NOTES_SYNC_TRANSPORT:-archive}" /bin/bash -c "cd '$RELEASE' && /usr/local/bin/pnpm install --frozen-lockfile && /usr/local/bin/pnpm build"
 
 ln -sfn "$RELEASE" "$CURRENT"
 systemctl restart aleksiz-astro.service

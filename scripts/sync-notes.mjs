@@ -8,27 +8,67 @@ const repo = process.env.NOTES_GITHUB_REPO || "AJ1E/ObsdianNotes";
 const branch = process.env.NOTES_GITHUB_BRANCH || "main";
 const remoteUrl = `https://github.com/${repo}.git`;
 const repoUrl = `https://github.com/${repo}`;
+const archiveUrl = `https://codeload.github.com/${repo}/zip/refs/heads/${branch}`;
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const outputRoot = join(root, ".cache", "notes");
 const contentRoot = join(outputRoot, "content");
 const sourceRoot = join(tmpdir(), "aleksi-notes-sync");
+const archivePath = join(tmpdir(), "aleksi-notes-sync.zip");
 const cloneTimeoutMs = parsePositiveInt(process.env.NOTES_SYNC_TIMEOUT_MS, 30_000);
 const syncRequired = process.env.NOTES_SYNC_REQUIRED === "1";
+const preferredTransport = process.env.NOTES_SYNC_TRANSPORT === "archive" ? "archive" : "git";
 const skipDirs = new Set([".git", ".obsidian", ".trash", "templates", "template", "assets", "attachments"]);
 const themedFolders = new Set(["Computer", "Finance"]);
 
 function runGit(args) {
-  const result = spawnSync("git", args, {
+  return runCommand("git", args, { GIT_TERMINAL_PROMPT: "0", GIT_ASKPASS: "/bin/false" });
+}
+
+function runCommand(command, args, extraEnv = {}) {
+  const result = spawnSync(command, args, {
     encoding: "utf8",
     stdio: ["ignore", "pipe", "pipe"],
     timeout: cloneTimeoutMs,
-    env: { ...process.env, GIT_TERMINAL_PROMPT: "0", GIT_ASKPASS: "/bin/false" },
+    env: { ...process.env, ...extraEnv },
   });
   if (result.status !== 0) {
     const reason = result.error?.message || result.stderr || result.stdout || "git command failed";
     throw new Error(String(reason).trim());
   }
   return result.stdout;
+}
+
+function downloadArchive() {
+  ensureEmptyDir(sourceRoot);
+  rmSync(archivePath, { force: true });
+  try {
+    runCommand("curl", [
+      "--fail",
+      "--silent",
+      "--show-error",
+      "--location",
+      "--connect-timeout",
+      "10",
+      "--max-time",
+      String(Math.ceil(cloneTimeoutMs / 1000)),
+      "--output",
+      archivePath,
+      archiveUrl,
+    ]);
+    runCommand("unzip", ["-q", "-o", archivePath, "-d", sourceRoot]);
+    const [vault] = readdirSync(sourceRoot, { withFileTypes: true }).filter((entry) => entry.isDirectory());
+    if (!vault) throw new Error("GitHub archive did not contain a vault directory");
+    return join(sourceRoot, vault.name);
+  } finally {
+    rmSync(archivePath, { force: true });
+  }
+}
+
+function syncSource(transport) {
+  if (transport === "archive") return downloadArchive();
+  ensureEmptyDir(sourceRoot);
+  runGit(["clone", "--depth", "1", "--branch", branch, remoteUrl, sourceRoot]);
+  return sourceRoot;
 }
 
 function ensureEmptyDir(path) {
@@ -172,21 +212,27 @@ function replaceWikiLinks(body, lookup) {
 }
 
 function main() {
-  ensureEmptyDir(sourceRoot);
+  let vaultRoot;
 
   try {
-    runGit(["clone", "--depth", "1", "--branch", branch, remoteUrl, sourceRoot]);
-  } catch (error) {
-    console.warn(`[notes] sync skipped: ${error.message}`);
-    if (syncRequired) throw error;
-    mkdirSync(contentRoot, { recursive: true });
-    return;
+    vaultRoot = syncSource(preferredTransport);
+  } catch (primaryError) {
+    const fallbackTransport = preferredTransport === "archive" ? "git" : "archive";
+    try {
+      console.warn(`[notes] ${preferredTransport} sync failed, trying ${fallbackTransport}`);
+      vaultRoot = syncSource(fallbackTransport);
+    } catch (fallbackError) {
+      console.warn(`[notes] sync skipped: ${fallbackError.message}`);
+      if (syncRequired) throw fallbackError;
+      mkdirSync(contentRoot, { recursive: true });
+      return;
+    }
   }
 
   ensureEmptyDir(contentRoot);
-  const files = walkMarkdown(sourceRoot);
+  const files = walkMarkdown(vaultRoot);
   const notes = files.map((file) => {
-    const sourcePath = relative(sourceRoot, file).split(sep).join("/");
+    const sourcePath = relative(vaultRoot, file).split(sep).join("/");
     const raw = readFileSync(file, "utf8");
     const { data, body } = splitFrontmatter(raw);
     const fileTitle = basename(file, extname(file));
