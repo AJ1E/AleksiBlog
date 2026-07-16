@@ -1909,43 +1909,31 @@ function AIUsageWidget({
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         {tools.map((t) => {
-          const pct = sharePct(t.tok7d, total7d);
-          const status = !t.installed ? "未装" : t.status === "active" ? "运行中" : "待机";
           return (
             <div
               key={t.id}
               style={{
                 minWidth: 0,
-                minHeight: 68,
-                padding: "10px 12px",
+                minHeight: 76,
+                padding: "14px",
                 background: "var(--bg-2)",
                 borderRadius: 10,
                 border: "1px solid var(--border-light)",
                 display: "grid",
-                gridTemplateColumns: "minmax(0, 1fr) 76px 74px",
-                gap: 8,
+                gridTemplateColumns: "34px minmax(0, 1fr) auto",
+                gap: 10,
                 alignItems: "center",
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: 9, minWidth: 0 }}>
-                <div style={{ width: 30, height: 30, borderRadius: 8, background: tint(t.color, 18), display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  <AiToolIcon tool={t} size={17} />
-                </div>
-                <div style={{ minWidth: 0 }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, lineHeight: 1.25, overflow: "hidden", textOverflow: "ellipsis" }}>{t.name}</div>
-                  <div style={{ marginTop: 4 }}><Badge color={t.status === "active" ? "green" : "gray"} small>{status}</Badge></div>
-                </div>
+              <div style={{ width: 34, height: 34, borderRadius: 8, background: tint(t.color, 18), display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <AiToolIcon tool={t} size={18} />
               </div>
               <div style={{ minWidth: 0 }}>
-                <div style={{ fontSize: 17, fontWeight: 600, lineHeight: 1, fontFamily: "DM Serif Display", letterSpacing: "-0.01em", whiteSpace: "nowrap" }}>{t.tok7d > 0 ? fmt(t.tok7d) : "—"}</div>
-                <div style={{ fontSize: 9, color: "var(--text-muted)", marginTop: 5 }}>7d tokens</div>
+                <div style={{ fontSize: 12, fontWeight: 700, lineHeight: 1.3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{t.name}</div>
               </div>
-              <div style={{ minWidth: 0 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", gap: 4, marginBottom: 6, fontSize: 9 }}>
-                  <span style={{ color: "var(--text-muted)" }}>占比</span>
-                  <span style={{ color: hasData ? "var(--text)" : "var(--text-faint)", fontFamily: "JetBrains Mono", fontWeight: 600 }}>{hasData ? `${pct}%` : "—"}</span>
-                </div>
-                <Bar val={pct} color={t.color} h={4} />
+              <div style={{ textAlign: "right", minWidth: 0 }}>
+                <div style={{ fontSize: 19, fontWeight: 600, lineHeight: 1, fontFamily: "DM Serif Display", letterSpacing: "-0.01em", whiteSpace: "nowrap" }}>{t.tok7d > 0 ? fmt(t.tok7d) : "—"}</div>
+                <div style={{ fontSize: 9, color: "var(--text-muted)", marginTop: 6, whiteSpace: "nowrap" }}>7d tokens</div>
               </div>
             </div>
           );

@@ -22,7 +22,7 @@ The snapshot may contain totals, model names, token counts, estimated costs, and
 2. ECS uses a dedicated read-only GitHub Deploy Key for that repository only.
 3. `aleksiz-token-usage-sync.timer` fetches every six hours with a randomized delay.
 4. `aleksiz-token-usage-sync.service` rejects missing, oversized, malformed, or unexpected-tool snapshots and preserves the prior valid file.
-5. `aleksiz-ai-usage.service` runs in snapshot-only mode on `127.0.0.1:8787`; the browser sees data only through Astro's authenticated BFF.
+5. `aleksiz-ai-usage.service` runs in snapshot-only mode on `127.0.0.1:8787`; the browser sees data only through Astro's authenticated BFF. Every code release restarts this helper so it loads the scripts from the new `current` release.
 6. A signed-in user may manually refresh the snapshot from the dashboard. The Astro BFF accepts only same-origin `POST /api/usage/refresh`; Nginx rate-limits it, and the helper can start only the single read-only sync service through a narrowly scoped sudoers rule. The helper omits `NoNewPrivileges` solely because that option would also block this exact sudoers permission; all other service hardening remains active. The action has a one-minute helper cooldown.
 
 ## Local Export

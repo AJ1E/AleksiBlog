@@ -33,6 +33,15 @@ run_as_app() {
   su -s /bin/bash "$RUN_AS" -c "${command:1}"
 }
 
+restart_release_services() {
+  systemctl restart aleksiz-astro.service
+  for unit in aleksiz-ai-usage.service aleksiz-ip-risk.service; do
+    if systemctl is-enabled --quiet "$unit"; then
+      systemctl restart "$unit"
+    fi
+  done
+}
+
 if [[ ! -d "$REPO/.git" ]]; then
   echo "Missing deployment checkout: $REPO" >&2
   exit 1
@@ -68,10 +77,7 @@ fi
 run_as_app env HOME="$APP_ROOT" PATH=/usr/local/bin:/usr/bin:/bin NOTES_SYNC_REQUIRED="${NOTES_SYNC_REQUIRED:-0}" NOTES_SYNC_TRANSPORT="${NOTES_SYNC_TRANSPORT:-archive}" /bin/bash -c "cd '$RELEASE' && /usr/local/bin/pnpm install --frozen-lockfile && /usr/local/bin/pnpm build"
 
 ln -sfn "$RELEASE" "$CURRENT"
-systemctl restart aleksiz-astro.service
-if systemctl is-enabled --quiet aleksiz-ip-risk.service; then
-  systemctl restart aleksiz-ip-risk.service
-fi
+restart_release_services
 
 healthy=false
 for _ in {1..15}; do
@@ -86,10 +92,7 @@ if [[ "$healthy" != true ]]; then
   echo "New release health check failed; restoring the previous release." >&2
   if [[ -n "$PREVIOUS" && -d "$PREVIOUS" ]]; then
     ln -sfn "$PREVIOUS" "$CURRENT"
-    systemctl restart aleksiz-astro.service
-    if systemctl is-enabled --quiet aleksiz-ip-risk.service; then
-      systemctl restart aleksiz-ip-risk.service
-    fi
+    restart_release_services
   fi
   exit 1
 fi

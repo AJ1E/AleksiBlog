@@ -189,11 +189,15 @@ export async function fetchAiUsageOverview(): Promise<AiUsageOverview | null> {
 
 export async function refreshAiUsageOverview(): Promise<AiUsageOverview | null> {
   const controller = new AbortController();
-  const timeout = window.setTimeout(() => controller.abort(), 25_000);
+  // A private repository refresh can take longer than a normal API request.
+  // Keep the browser waiting long enough for the protected server-side sync
+  // to finish, without exposing the GitHub request to the client.
+  const timeout = window.setTimeout(() => controller.abort(), 60_000);
   try {
     const data = await fetchAiUsageJson<OverviewResponse>("/api/usage/refresh", {
       method: "POST",
       headers: { Accept: "application/json" },
+      cache: "no-store",
       signal: controller.signal,
     });
     return normalizeOverview(data);

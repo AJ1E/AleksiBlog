@@ -8,6 +8,8 @@ Type=oneshot
 User=aleksiz
 Group=aleksiz
 EnvironmentFile=/var/www/aleksiz/shared/.env
+Environment=HOME=/var/www/aleksiz/shared
+Environment=GIT_CONFIG_GLOBAL=/dev/null
 ExecStart=/usr/local/sbin/aleksiz-token-usage-sync
 UMask=0077
 NoNewPrivileges=true
