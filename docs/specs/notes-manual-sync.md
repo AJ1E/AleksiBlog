@@ -8,7 +8,7 @@
 
 1. 笔记仍在构建期由 `scripts/sync-notes.mjs` 从公开只读仓库生成到 `.cache/notes/`；根目录 Markdown 继续排除。
 2. 页面只在 Astro 已确认登录态时显示“同步笔记”按钮和最近同步时间。
-3. 点击按钮只会发送同源 `POST /api/notes/sync`。Astro BFF 再转发到仅监听 `127.0.0.1:8790` 的 notes helper。
+3. 点击按钮只会发送同源 `POST /api/notes/sync`。Astro BFF 再转发到仅监听 `127.0.0.1:8790` 的 notes helper；Astro 只信任 Nginx 为 `aleksiz.com` 与 `www.aleksiz.com` 写入的 HTTPS 转发头。
 4. helper 不接收任何浏览器参数；它只能通过精确 sudoers 规则启动 `aleksiz-notes-sync.service`。
 5. 同步服务读取当前 release 的提交哈希，并调用发布脚本以该固定提交重新构建。它会拉取最新笔记，但不会把 GitHub `main` 中尚未确认发布的博客代码带上线。
 6. Nginx 对该 POST 单独限流；helper 有五分钟冷却。失败仅向浏览器返回通用提示，详细错误留在服务器日志。

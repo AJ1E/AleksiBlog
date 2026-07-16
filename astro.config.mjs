@@ -19,9 +19,15 @@ export default defineConfig({
   },
   output: "server",
   adapter: node({ mode: "standalone" }),
-  // Keep Astro's SSR form-origin protection enabled. Auth JSON endpoints also
-  // validate Nginx's overwritten forwarding headers on loopback deployments.
-  security: { checkOrigin: true },
+  // Keep Astro's SSR form-origin protection enabled. These are the only
+  // forwarded hosts Nginx may establish for the public HTTPS deployment.
+  security: {
+    checkOrigin: true,
+    allowedDomains: [
+      { hostname: "aleksiz.com", protocol: "https" },
+      { hostname: "www.aleksiz.com", protocol: "https" },
+    ],
+  },
   server: {
     host: true,
     port: 4321
