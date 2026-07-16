@@ -3,7 +3,7 @@
 //   sqlite3 /opt/beszel/beszel_data/data.db "SELECT id,name,host FROM systems;"
 export const BESZEL_SERVER_CONFIG = {
   aoc1me18y6zc5ma: {
-    displayName: "Alibaba Cloud Blog",
+    displayName: "Alibaba Cloud",
     location: "Chengdu",
     region: "Southwest China",
     flag: "🇨🇳",
@@ -13,7 +13,7 @@ export const BESZEL_SERVER_CONFIG = {
     os: "Alibaba Cloud Linux 3",
   },
   "1r8ne4rjytgkc27": {
-    displayName: "Azure Hong Kong Node",
+    displayName: "Azure Hong Kong",
     location: "Hong Kong",
     region: "East Asia",
     flag: "🇭🇰",
