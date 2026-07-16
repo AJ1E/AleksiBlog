@@ -1,0 +1,96 @@
+---
+title: Aleksi's Blog 图片工作流：尺寸、命名与隐私检查
+subtitle: 把图片当作内容资产管理，让文章更稳定，也减少无意泄露信息的可能。
+excerpt: 统一图片目录、命名、压缩和替代文本；发布前检查 EXIF、截图与图片中是否含有不应公开的信息。
+publishedAt: 2026-07-16
+category: 内容管理
+tags:
+  - 图片管理
+  - MDX
+  - 可访问性
+  - 隐私
+  - 工作流
+readTime: 6 分钟
+featured: true
+author:
+  name: Aleksi
+  avatar: /uploads/aleksi-avatar.jpg
+  bio: 记录个人博客、工具折腾和知识管理实践。
+---
+
+图片会直接影响文章加载速度、阅读体验和隐私边界。对个人博客来说，一套简单但固定的图片规则，比每次临时寻找放置位置更可靠。
+
+## 图片放在哪里
+
+本站公开图片统一放在 `public/uploads/`。例如：
+
+<CodeBlock
+  lang="text"
+  title="图片路径约定"
+  code={`public/uploads/blog-architecture-cover.webp
+public/uploads/notes-sync-flow.png
+
+文章中引用：
+/uploads/blog-architecture-cover.webp`}
+/>
+
+不要把图片放在文章目录里，也不要在正文中引用电脑上的绝对路径。发布后的图片路径应当能在不同电脑和服务器上保持一致。
+
+## 命名与目录规则
+
+文件名使用英文小写、连字符和明确的主题词，例如 `token-usage-overview.webp`。同一篇文章有多张图时，可以用统一前缀：
+
+<Steps>
+  <li>`server-monitor-cover.webp`：文章封面。</li>
+  <li>`server-monitor-dashboard.png`：正文中的仪表盘截图。</li>
+  <li>`server-monitor-alert-flow.png`：正文中的流程示意。</li>
+</Steps>
+
+这样以后查找、替换和清理图片时，不需要依赖模糊的日期或随机文件名。
+
+## 封面图与正文图的职责
+
+封面图应当帮助读者快速理解文章主题，建议使用横向比例并留出适当裁切空间。正文图则优先服务说明：截图要看得清关键区域，流程图要可读，装饰性图片不要盖过文字本身。
+
+<Callout variant="info" title="不为了图片而加图片">
+如果一张图不能解释步骤、展示结果或改善阅读节奏，就不必强行加入。本站的视觉方向保持克制、干净，图片应服务于内容。
+</Callout>
+
+## 替代文本与说明
+
+每张传达信息的正文图片都要有准确的 `alt`。使用 `Figure` 时，同时补充简短说明：
+
+<CodeBlock
+  lang="mdx"
+  title="MDX 图片示例"
+  code={`<Figure
+  src="/uploads/server-monitor-dashboard.png"
+  alt="服务器监控页面中的 CPU、内存和磁盘趋势图"
+  caption="监控页面使用不同时间范围查看历史指标。"
+/>`}
+/>
+
+`alt` 不是文件名，也不需要把画面中的每一个像素都复述出来；它应该告诉无法看到图片的读者，这张图提供了什么信息。
+
+## 发布前的隐私检查
+
+截图和照片比普通文字更容易带出未注意到的信息。发布前至少检查：
+
+1. 地址栏、终端、控制台和图片角落是否包含账号、令牌、Cookie、邮箱或服务器信息。
+2. 照片是否带有 EXIF、GPS 或不希望公开的位置数据。
+3. 截图是否显示真实 IP、内网地址、设备名称、订单、个人聊天或访问记录。
+4. 图片尺寸是否远大于页面实际显示尺寸；必要时先压缩为 WebP、AVIF 或优化过的 PNG/JPEG。
+
+## 一套稳定的图片流程
+
+<Steps>
+  <li>先确定图片用途：封面、说明、步骤截图还是装饰。</li>
+  <li>裁切并压缩到合适尺寸，删除不必要的元数据。</li>
+  <li>以描述性文件名存入 `public/uploads/`。</li>
+  <li>在 MDX 中使用站点路径，并填写准确的替代文本。</li>
+  <li>本地预览文章，检查亮色、深色和移动端的可读性。</li>
+</Steps>
+
+## 参考阅读
+
+本文根据 Aleksi's Blog 的目录与隐私规则原创整理。图片管理思路参考 Jeremy Chen 的文章：[这套博客里的图片怎么管理：封面图、正文图与尺寸规范](https://blog.czhifang.com/blog/how-to-manage-blog-images/)。

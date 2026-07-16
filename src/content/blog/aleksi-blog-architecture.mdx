@@ -1,0 +1,93 @@
+---
+title: Aleksi's Blog 如何运行：内容、交互与私有数据的边界
+subtitle: 用 Astro、内容集合、React islands 和本机 helper 维持一个可长期维护的个人站点。
+excerpt: 从页面、内容、交互和运行时数据四层理解本站；重点是让公开内容易维护，让私有数据不直接暴露给浏览器。
+publishedAt: 2026-07-16
+category: 架构
+tags:
+  - Astro
+  - React
+  - MDX
+  - Node.js
+  - BFF
+  - Self-hosting
+readTime: 8 分钟
+featured: true
+author:
+  name: Aleksi
+  avatar: /uploads/aleksi-avatar.jpg
+  bio: 记录个人博客、工具折腾和知识管理实践。
+---
+
+这个站点不是一个需要后台数据库才能维护的传统博客，而是一个以文件为中心的个人工作台。文章、项目、订阅与页面配置都放在 Git 仓库中；只有会变化或需要保护的数据，才在运行时交给服务器处理。
+
+## 四层分工
+
+<StatGrid
+  items={[
+    { label: "页面", value: "Astro", note: "路由、SSR、布局与登录态" },
+    { label: "内容", value: "文件", note: "MDX、YAML 与内容集合" },
+    { label: "交互", value: "React", note: "搜索、筛选和数据面板" },
+    { label: "运行时", value: "Helpers", note: "用量、IP 与服务器状态" }
+  ]}
+/>
+
+### 页面层：Astro 负责入口
+
+`src/pages/` 里的文件定义站点路由。普通文章页读取内容集合后生成页面；需要登录判断或实时数据的页面，则由 Astro 服务端读取 cookie，并根据状态决定展示范围。
+
+这使公开页面仍然保持轻量，同时给个人面板保留必要的服务端能力。
+
+### 内容层：内容集合是站点底座
+
+可编辑内容主要放在 `src/content/`：
+
+<Steps>
+  <li>`src/content/blog/` 保存文章，每个 MDX 文件就是一篇独立文章。</li>
+  <li>`src/content/projects/` 保存项目展示内容。</li>
+  <li>`src/content/subscriptions/`、`apis/` 与 `servers/` 保存结构化面板数据。</li>
+  <li>`src/content.config.ts` 定义字段规则，在构建时检查缺失或格式错误。</li>
+</Steps>
+
+因此，新增一篇文章通常不需要改页面代码：写好 frontmatter、正文和标签，再运行构建检查即可。
+
+### 交互层：只在需要时使用 React
+
+首页的数据面板、文章筛选、笔记搜索和 Bucketlist 等区域使用 React islands。Astro 先输出基本 HTML，浏览器加载后才接管这些局部交互。
+
+这种方式避免把整站做成重量级单页应用，也让文章正文和静态页面保持稳定、易读。
+
+### 数据层：浏览器不直接接触 helper
+
+AI 用量、访问 IP 判断和服务器状态都有独立 Node helper。它们只监听服务器本机地址，浏览器访问的是本站的 `/api/*` 路径：
+
+<CodeBlock
+  lang="text"
+  title="运行时请求路径"
+  code={`Browser
+  -> Astro page / React island
+  -> Astro /api/* endpoint
+  -> 登录态与字段脱敏检查
+  -> 127.0.0.1 helper service`}
+/>
+
+这个边界很重要：helper 端口不应直接暴露公网，敏感字段也不应直接返回给未登录访问者。以后增加新面板时，应优先延续这条路径，而不是从浏览器直连本机服务或第三方密钥接口。
+
+## 本站的发布方式
+
+本站生产环境使用 Astro 的 Node server 输出，由 Nginx 提供 HTTPS 入口并反向代理到本机 Astro 服务。Nginx 是唯一面向公网的入口；Astro 和三个 helper 继续保留在 loopback 网络中。
+
+<Callout variant="info" title="日常修改的边界">
+文章、项目和配置内容可以先在本地修改并运行 `pnpm build`。涉及登录、API、Nginx、systemd 或 helper 的改动，应额外检查安全边界和回滚方式。
+</Callout>
+
+## 每次改动后的最小检查
+
+1. 确认改动只落在预期文件中。
+2. 运行 `pnpm build`，让 Astro 校验 MDX、日期和内容集合字段。
+3. 在本地检查首页、文章页、标签页和移动端布局。
+4. 发布前检查 diff，不把 `.env`、快照、日志、私钥或内部信息提交到仓库。
+
+## 参考阅读
+
+本文结合 Aleksi's Blog 当前的 Astro + Nginx 部署方式原创整理。架构思路参考 Jeremy Chen 的文章：[这个网站是如何运行的：从 Astro 页面到本地后端服务](https://blog.czhifang.com/blog/how-this-website-runs/)。

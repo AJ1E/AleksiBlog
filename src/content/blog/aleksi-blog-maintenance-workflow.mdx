@@ -1,0 +1,90 @@
+---
+title: Aleksi's Blog 维护流程：从写作到安全发布
+subtitle: 把一次小修改变成可检查、可回滚、可长期坚持的日常流程。
+excerpt: 用稳定 slug、清晰 frontmatter、本地构建和发布前 diff 审查管理文章与功能修改，避免把小改动变成线上事故。
+publishedAt: 2026-07-16
+category: 维护流程
+tags:
+  - 博客维护
+  - Git
+  - 发布流程
+  - Astro
+  - 安全
+  - 内容集合
+readTime: 7 分钟
+featured: true
+author:
+  name: Aleksi
+  avatar: /uploads/aleksi-avatar.jpg
+  bio: 记录个人博客、工具折腾和知识管理实践。
+---
+
+个人博客的维护不需要复杂的后台流程，但需要一套能重复执行的习惯。目标不是把每一次改动做得隆重，而是让文章、页面和线上版本始终可追踪、可验证。
+
+## 一篇文章从哪里开始
+
+文章文件位于 `src/content/blog/`，文件名决定 URL。例如：
+
+<CodeBlock
+  lang="text"
+  title="文件名与地址"
+  code={`src/content/blog/aleksi-blog-maintenance-workflow.mdx
+-> /blog/aleksi-blog-maintenance-workflow/`}
+/>
+
+因此应在第一次命名时使用稳定、清楚的 slug。修改标题不会改变地址；只有重命名文件才会改变 URL。已有链接被分享后，尽量不要随意改 slug。
+
+## Frontmatter 是文章的结构化说明
+
+每篇文章都需要标题、摘要、发布日期、分类、标签、阅读时长和作者。`featured: true` 会让文章出现在精选统计和对应标记中；内容有实质更新时，应补充 `updatedAt`。
+
+<Callout variant="info" title="分类与标签的分工">
+分类用于较大的内容方向，例如“架构”“内容管理”“维护流程”；标签用于更细的检索词，例如 Astro、图片管理、Git 或安全。一篇文章只保留一个清晰分类，标签不必堆得太多。
+</Callout>
+
+## 日常写作流程
+
+<Steps>
+  <li>先写标题、摘要、分类和标签，确认文章要解决的问题。</li>
+  <li>写正文和配图，图片遵循 `public/uploads/` 的统一规则。</li>
+  <li>本地运行 `pnpm build`，检查 MDX、frontmatter 和路由生成。</li>
+  <li>查看文章页、标签页和首页列表，确认标题、摘要与分类显示正确。</li>
+  <li>检查 Git diff，再决定是否和相关修改一起组成一个发布版本。</li>
+</Steps>
+
+## 小修改与上线节奏
+
+日常写一篇草稿、微调一段文案或修复一个局部样式，可以先在本地积累并验证，不必每次都立即上线。当内容形成一组完整主题、需要公开发布，或修复了访客可见的问题时，再进行一次清楚的发布。
+
+发布前应检查：
+
+1. `git status` 中没有意外文件。
+2. `git diff --check` 没有格式问题。
+3. 不包含 `.env`、Token、私钥、快照、日志、真实服务器信息或未脱敏截图。
+4. `pnpm build` 成功。
+5. 线上部署后确认首页、文章页、登录和必要的私有面板仍然可用。
+
+## 修改功能时的额外规则
+
+文章属于内容改动；登录、API、Nginx、systemd、GitHub 同步和 helper 服务属于运行时改动。后者在开始前应先明确影响文件、风险、验收标准和回滚方式，再进行小范围修改。
+
+<CodeBlock
+  lang="text"
+  title="推荐的变更顺序"
+  code={`理解现有实现
+-> 写清目标与影响范围
+-> 小步修改
+-> 构建与功能验证
+-> 审查 diff 与脱敏检查
+-> 提交、发布与线上复查`}
+/>
+
+## 发生问题时如何回退
+
+保持每次发布对应一个清晰的 Git 提交。出现问题时，先确认是内容错误、前端显示问题还是服务端运行问题；不要在生产环境中临时大范围重构。明确问题后，可以回退到上一个已验证版本，再在本地修复。
+
+这也是为什么“先构建、再审查 diff”不是形式步骤：它让错误更早发生在本地，而不是发生在访客打开页面的时候。
+
+## 参考阅读
+
+本文针对 Aleksi's Blog 的实际维护与部署流程原创整理。内容管理方法参考 Jeremy Chen 的文章：[这套博客现在怎么维护：新增文章、修改文章与发布流程](https://blog.czhifang.com/blog/how-to-manage-this-blog/)。
