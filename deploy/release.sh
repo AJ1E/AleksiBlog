@@ -42,9 +42,9 @@ if [[ -z "$COMMIT" ]]; then
   run_as_app git -C "$REPO" fetch --quiet origin "$BRANCH"
   COMMIT="$(run_as_app git -C "$REPO" rev-parse "origin/$BRANCH")"
 else
-  # Fetch the normal deployment branch first so the selected current release
-  # can be verified locally without accepting arbitrary browser input.
-  run_as_app git -C "$REPO" fetch --quiet origin "$BRANCH"
+  # A manual notes refresh rebuilds the already deployed revision. Do not
+  # fetch code here: the systemd unit intentionally cannot read deploy keys.
+  # The commit must already exist locally because it produced `current`.
   run_as_app git -C "$REPO" cat-file -e "$COMMIT^{commit}"
 fi
 SHORT_COMMIT="${COMMIT:0:12}"
