@@ -109,13 +109,14 @@ sudo install -m 644 /var/www/aleksiz/repo/deploy/systemd/aleksiz-astro.service /
 sudo install -m 644 /var/www/aleksiz/repo/deploy/systemd/aleksiz-ip-risk.service /etc/systemd/system/aleksiz-ip-risk.service
 sudo install -m 644 /var/www/aleksiz/repo/deploy/systemd/aleksiz-notes-sync-helper.service /etc/systemd/system/aleksiz-notes-sync-helper.service
 sudo install -m 644 /var/www/aleksiz/repo/deploy/systemd/aleksiz-notes-sync.service /etc/systemd/system/aleksiz-notes-sync.service
+sudo install -m 644 /var/www/aleksiz/repo/deploy/systemd/aleksiz-notes-sync.timer /etc/systemd/system/aleksiz-notes-sync.timer
 sudo install -m 644 /var/www/aleksiz/repo/deploy/nginx/aleksiz-proxy-headers.conf /etc/nginx/conf.d/aleksiz-proxy-headers.conf
 sudo install -m 755 /var/www/aleksiz/repo/deploy/release.sh /usr/local/sbin/aleksiz-release
 sudo install -m 755 /var/www/aleksiz/repo/deploy/notes-sync.sh /usr/local/sbin/aleksiz-notes-sync
 sudo install -m 440 /var/www/aleksiz/repo/deploy/sudoers/aleksiz-notes-sync /etc/sudoers.d/aleksiz-notes-sync
 sudo visudo -cf /etc/sudoers.d/aleksiz-notes-sync
 sudo systemctl daemon-reload
-sudo systemctl enable --now aleksiz-astro.service aleksiz-ip-risk.service aleksiz-notes-sync-helper.service
+sudo systemctl enable --now aleksiz-astro.service aleksiz-ip-risk.service aleksiz-notes-sync-helper.service aleksiz-notes-sync.timer
 sudo /usr/local/sbin/aleksiz-release
 ```
 
