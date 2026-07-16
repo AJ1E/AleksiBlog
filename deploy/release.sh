@@ -55,7 +55,9 @@ run_as_app git -C "$REPO" archive "$COMMIT" | tar -x -C "$RELEASE"
 printf '%s\n' "$COMMIT" > "$RELEASE/.release-commit"
 chown -R "$RUN_AS:$RUN_AS" "$RELEASE"
 
-run_as_app bash -lc "export PATH=/usr/local/bin:/usr/bin:/bin; cd '$RELEASE' && /usr/local/bin/pnpm install --frozen-lockfile && /usr/local/bin/pnpm build"
+# Do not use a login shell here: its profile can replace PATH and make pnpm
+# unable to find Node. Keep the build environment explicit and reproducible.
+run_as_app env HOME="$APP_ROOT" PATH=/usr/local/bin:/usr/bin:/bin /bin/bash -c "cd '$RELEASE' && /usr/local/bin/pnpm install --frozen-lockfile && /usr/local/bin/pnpm build"
 
 ln -sfn "$RELEASE" "$CURRENT"
 systemctl restart aleksiz-astro.service
