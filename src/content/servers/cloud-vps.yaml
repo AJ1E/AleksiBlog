@@ -1,8 +1,0 @@
-name: Cloud VPS
-location: Cloud Region
-region: Demo Region
-flag: "☁️"
-lat: 40.71
-lon: -74.01
-provider: Example Host
-beszelId: "demo-cloud-vps"

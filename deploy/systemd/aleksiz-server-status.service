@@ -1,0 +1,29 @@
+[Unit]
+Description=Aleksi Blog Beszel server-status helper
+After=network-online.target beszel-hub.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=aleksiz
+Group=aleksiz
+WorkingDirectory=/var/www/aleksiz/current
+EnvironmentFile=/var/www/aleksiz/shared/.env
+Environment=NODE_ENV=production
+Environment=SERVER_STATUS_HOST=127.0.0.1
+Environment=SERVER_STATUS_PORT=8789
+Environment=BESZEL_DB_PATH=/opt/beszel/beszel_data/data.db
+Environment=SERVER_STATUS_SNAPSHOT_FILE=/var/www/aleksiz/shared/server-status.json
+ExecStart=/usr/local/bin/node scripts/server-status-server.mjs
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=full
+ReadWritePaths=/var/www/aleksiz/shared /var/www/aleksiz/current
+
+[Install]
+WantedBy=multi-user.target

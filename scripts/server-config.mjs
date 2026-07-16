@@ -2,34 +2,24 @@
 // Find a system's ID:
 //   sqlite3 /opt/beszel/beszel_data/data.db "SELECT id,name,host FROM systems;"
 export const BESZEL_SERVER_CONFIG = {
-  "demo-home-lab": {
-    displayName: "Home Lab",
-    location: "Home",
-    region: "Private Network",
-    flag: "🏠",
-    lat: 37.77,
-    lon: -122.42,
-    provider: "Local machine",
-    os: "Linux",
+  aoc1me18y6zc5ma: {
+    displayName: "Alibaba Cloud Blog",
+    location: "Chengdu",
+    region: "Southwest China",
+    flag: "🇨🇳",
+    lat: 30.5728,
+    lon: 104.0668,
+    provider: "Alibaba Cloud",
+    os: "Alibaba Cloud Linux 3",
   },
-  "demo-cloud-vps": {
-    displayName: "Cloud VPS",
-    location: "Cloud Region",
-    region: "Demo Region",
-    flag: "☁️",
-    lat: 40.71,
-    lon: -74.01,
-    provider: "Example Host",
-    os: "Linux",
-  },
-  "demo-edge-node": {
-    displayName: "Edge Node",
-    location: "Edge Site",
-    region: "Demo Edge",
-    flag: "📍",
-    lat: 51.51,
-    lon: -0.13,
-    provider: "Example Edge",
-    os: "Linux",
+  "1r8ne4rjytgkc27": {
+    displayName: "Azure Hong Kong Node",
+    location: "Hong Kong",
+    region: "East Asia",
+    flag: "🇭🇰",
+    lat: 22.3193,
+    lon: 114.1694,
+    provider: "Microsoft Azure",
+    os: "Ubuntu 22.04",
   },
 };

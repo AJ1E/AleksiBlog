@@ -35,7 +35,7 @@ run_as_app() {
 
 restart_release_services() {
   systemctl restart aleksiz-astro.service
-  for unit in aleksiz-ai-usage.service aleksiz-ip-risk.service; do
+  for unit in aleksiz-ai-usage.service aleksiz-ip-risk.service aleksiz-server-status.service; do
     if systemctl is-active --quiet "$unit"; then
       systemctl restart "$unit"
     elif systemctl is-enabled --quiet "$unit"; then
