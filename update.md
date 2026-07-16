@@ -40,6 +40,7 @@ The blog build runs `scripts/sync-notes.mjs` and reads Markdown from `AJ1E/Obsdi
 - Do a separate review before pushing the notes repository. Do not publish credentials, personal records, private plans, raw screenshots, or private attachments.
 - A website release always refreshes notes during `pnpm build`.
 - After login, the notes page also provides “同步笔记”. It starts a rate-limited, server-side rebuild of the **current deployed commit** with the latest public notes. It does not deploy newer blog code from `main`; wait for the page reload before opening new notes.
+- If GitHub is briefly unreachable during an ordinary site release, the release retains the last verified notes snapshot. A manual notes sync is stricter: it reports failure and keeps the current release if it cannot fetch new notes.
 
 After deployment is stable, create a separate Codex task for a constrained note/token sync workflow. It should export only reviewed data, push only the two intended repositories, and report its diff without touching site code.
 

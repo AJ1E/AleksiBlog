@@ -18,4 +18,5 @@ COMMIT="$(tr -d '[:space:]' < "$COMMIT_FILE")"
   exit 1
 }
 
+export NOTES_SYNC_REQUIRED=1
 exec /usr/local/sbin/aleksiz-release --commit "$COMMIT"

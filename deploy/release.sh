@@ -55,9 +55,17 @@ run_as_app git -C "$REPO" archive "$COMMIT" | tar -x -C "$RELEASE"
 printf '%s\n' "$COMMIT" > "$RELEASE/.release-commit"
 chown -R "$RUN_AS:$RUN_AS" "$RELEASE"
 
+if [[ -d "$CURRENT/.cache/notes" ]]; then
+  # Keep the last verified notes snapshot available if GitHub is temporarily
+  # unreachable during an ordinary code release.
+  mkdir -p "$RELEASE/.cache"
+  cp -a "$CURRENT/.cache/notes" "$RELEASE/.cache/notes"
+  chown -R "$RUN_AS:$RUN_AS" "$RELEASE/.cache"
+fi
+
 # Do not use a login shell here: its profile can replace PATH and make pnpm
 # unable to find Node. Keep the build environment explicit and reproducible.
-run_as_app env HOME="$APP_ROOT" PATH=/usr/local/bin:/usr/bin:/bin /bin/bash -c "cd '$RELEASE' && /usr/local/bin/pnpm install --frozen-lockfile && /usr/local/bin/pnpm build"
+run_as_app env HOME="$APP_ROOT" PATH=/usr/local/bin:/usr/bin:/bin NOTES_SYNC_REQUIRED="${NOTES_SYNC_REQUIRED:-0}" /bin/bash -c "cd '$RELEASE' && /usr/local/bin/pnpm install --frozen-lockfile && /usr/local/bin/pnpm build"
 
 ln -sfn "$RELEASE" "$CURRENT"
 systemctl restart aleksiz-astro.service

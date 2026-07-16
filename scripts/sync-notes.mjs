@@ -12,13 +12,21 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const outputRoot = join(root, ".cache", "notes");
 const contentRoot = join(outputRoot, "content");
 const sourceRoot = join(tmpdir(), "aleksi-notes-sync");
+const cloneTimeoutMs = parsePositiveInt(process.env.NOTES_SYNC_TIMEOUT_MS, 30_000);
+const syncRequired = process.env.NOTES_SYNC_REQUIRED === "1";
 const skipDirs = new Set([".git", ".obsidian", ".trash", "templates", "template", "assets", "attachments"]);
 const themedFolders = new Set(["Computer", "Finance"]);
 
 function runGit(args) {
-  const result = spawnSync("git", args, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+  const result = spawnSync("git", args, {
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+    timeout: cloneTimeoutMs,
+    env: { ...process.env, GIT_TERMINAL_PROMPT: "0", GIT_ASKPASS: "/bin/false" },
+  });
   if (result.status !== 0) {
-    throw new Error(`${result.stderr || result.stdout || "git command failed"}`.trim());
+    const reason = result.error?.message || result.stderr || result.stdout || "git command failed";
+    throw new Error(String(reason).trim());
   }
   return result.stdout;
 }
@@ -170,6 +178,7 @@ function main() {
     runGit(["clone", "--depth", "1", "--branch", branch, remoteUrl, sourceRoot]);
   } catch (error) {
     console.warn(`[notes] sync skipped: ${error.message}`);
+    if (syncRequired) throw error;
     mkdirSync(contentRoot, { recursive: true });
     return;
   }
@@ -245,6 +254,11 @@ function main() {
 
   writeFileSync(join(outputRoot, "manifest.json"), JSON.stringify({ repo, branch, count: manifest.length, notes: manifest }, null, 2), "utf8");
   console.log(`[notes] synced ${manifest.length} notes from ${repo}@${branch}`);
+}
+
+function parsePositiveInt(value, fallback) {
+  const parsed = Number.parseInt(String(value ?? ""), 10);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
 }
 
 main();
