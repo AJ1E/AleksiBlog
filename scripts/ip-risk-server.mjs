@@ -13,6 +13,8 @@ const HOST = process.env.HOST || "127.0.0.1";
 // The helper stays behind Astro's same-origin BFF. Do not grant wildcard CORS.
 const CORS_ALLOW_ORIGIN = process.env.IP_RISK_CORS_ALLOW_ORIGIN?.trim() || "";
 const SNAPSHOT_REFRESH_INTERVAL_MS = 3 * 60_000;
+const VISITOR_CACHE_TTL_MS = 5 * 60_000;
+const VISITOR_CACHE_MAX_ENTRIES = 64;
 const SNAPSHOT_FILE =
   process.env.IP_RISK_SNAPSHOT_FILE ||
   path.join(os.homedir(), ".cache", "kai-space", "ip-risk-egress.json");
@@ -25,6 +27,8 @@ const TRACE_URLS = {
 let latestSnapshot = await readSnapshot();
 let refreshPromise = null;
 let ipCheckPromise = null;
+const visitorSnapshotCache = new Map();
+const visitorLookupPromises = new Map();
 
 const server = http.createServer(async (req, res) => {
   try {
@@ -111,10 +115,41 @@ async function getSnapshot() {
 }
 
 async function lookupSnapshotForIp(observedIp) {
-  const [geo, ipRisk] = await Promise.all([
+  const now = Date.now();
+  pruneVisitorSnapshotCache(now);
+
+  const cached = visitorSnapshotCache.get(observedIp);
+  if (cached && cached.expiresAt > now) return cached.snapshot;
+
+  const pending = visitorLookupPromises.get(observedIp);
+  if (pending) return pending;
+
+  const task = buildVisitorSnapshot(observedIp)
+    .then((snapshot) => {
+      visitorSnapshotCache.set(observedIp, {
+        snapshot,
+        expiresAt: Date.now() + VISITOR_CACHE_TTL_MS,
+      });
+      return snapshot;
+    })
+    .finally(() => {
+      visitorLookupPromises.delete(observedIp);
+    });
+
+  visitorLookupPromises.set(observedIp, task);
+  return task;
+}
+
+async function buildVisitorSnapshot(observedIp) {
+  const [geoResult, ipRiskResult] = await Promise.allSettled([
     fetchJson(`https://ip.net.coffee/api/geoip/${encodeURIComponent(observedIp)}`),
     fetchJson(`https://ip.net.coffee/api/iprisk/${encodeURIComponent(observedIp)}`),
   ]);
+
+  // A provider outage must not turn the visitor card into a 500 response.
+  // The requester's address is still valid, and available fields remain useful.
+  const geo = geoResult.status === "fulfilled" ? geoResult.value : {};
+  const ipRisk = ipRiskResult.status === "fulfilled" ? ipRiskResult.value : {};
 
   return buildSnapshot({
     observedIp,
@@ -124,6 +159,17 @@ async function lookupSnapshotForIp(observedIp) {
     ipRisk,
     observedVia: "visitor-request",
   });
+}
+
+function pruneVisitorSnapshotCache(now) {
+  for (const [ip, entry] of visitorSnapshotCache) {
+    if (entry.expiresAt <= now) visitorSnapshotCache.delete(ip);
+  }
+  while (visitorSnapshotCache.size >= VISITOR_CACHE_MAX_ENTRIES) {
+    const oldest = visitorSnapshotCache.keys().next().value;
+    if (!oldest) return;
+    visitorSnapshotCache.delete(oldest);
+  }
 }
 
 async function refreshIfIpChanged({ reason = "ip-check" } = {}) {

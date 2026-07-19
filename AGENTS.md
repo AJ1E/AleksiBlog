@@ -4,6 +4,8 @@ This project is a customized fork of Jeremy's Astro blog/dashboard. Future work 
 
 Before making substantial changes, read `docs/site-development-guide.md`. Treat that guide as the project's baseline for beginner-friendly customization, long-term maintenance, security, and future tooling decisions.
 
+When starting a new main Codex task, also read `docs/handover-main-codex.md`. External collaboration agents must instead read `docs/handover-external-agents.md` and must not edit guidance or deployment documents.
+
 ## Default Direction
 
 - Treat the site first as a personal Astro blog, then as a private dashboard.

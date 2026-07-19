@@ -30,7 +30,7 @@ const errorMessage =
         <div class="eyebrow">Sign in</div>
         <h1 class="login-title">欢迎回来</h1>
         <p class="login-desc">
-          未登录可浏览大多数页面。登录后将解锁完整 IP、订阅明细、服务器详情以及 AI 工具限额等敏感数据。
+          未登录可浏览大多数页面，也可查看当前访问 IP 的画像。登录后将解锁订阅明细、服务器详情以及 AI 工具限额等敏感数据。
         </p>
       </div>
 
@@ -211,6 +211,10 @@ const errorMessage =
     font-weight: 500;
     margin-bottom: 24px;
     animation: fadeIn 0.3s ease;
+  }
+
+  .login-error[hidden] {
+    display: none;
   }
 
   .login-error svg {

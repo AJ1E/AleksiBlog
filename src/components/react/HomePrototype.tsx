@@ -2603,7 +2603,7 @@ function PostCard({ post }: { post: Post }) {
   );
 }
 
-type AuthGateScope = "subscriptions" | "ai" | "server" | "ip" | null;
+type AuthGateScope = "subscriptions" | "ai" | "server" | null;
 
 export default function HomePrototype({ subscriptions, apis, servers, posts, isAuthed = false, renderedAt, heroPhase }: Props) {
   const [subOpen, setSubOpen] = useState(false);
@@ -2869,7 +2869,7 @@ export default function HomePrototype({ subscriptions, apis, servers, posts, isA
             snapshot={ipSnapshot}
             loading={ipLoading}
             backendError={ipBackendError}
-            onOpen={() => (isAuthed ? setIpOpen(true) : setAuthGateOpen("ip"))}
+            onOpen={() => setIpOpen(true)}
           />
         </section>
         <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 16 }}>
@@ -2952,13 +2952,11 @@ function AuthGateModal({ scope, onClose }: { scope: AuthGateScope; onClose: () =
     subscriptions: "订阅明细需要登录",
     ai: "AI 工具详细用量需要登录",
     server: "服务器详细信息需要登录",
-    ip: "完整 IP 信息需要登录",
   };
   const messages: Record<NonNullable<AuthGateScope>, string> = {
     subscriptions: "未登录视图只展示统计金额，不展示具体订阅条目。登录后即可查看每个服务的细节、备注与续费日期。",
     ai: "未登录视图只展示 7d / 30d 总用量。5 小时滚动窗口、7 天限额、模型分布等敏感字段需要登录后查看。",
     server: "未登录视图只展示服务器位置和在线状态。CPU、内存、磁盘、容器、服务、GPU 等指标需要登录后查看。",
-    ip: "未登录视图只展示掩码 IP 和地理风险评分。完整 IP、rDNS、CIDR 需要登录后查看。",
   };
   const next = typeof window !== "undefined" ? window.location.pathname : "/";
   return (
