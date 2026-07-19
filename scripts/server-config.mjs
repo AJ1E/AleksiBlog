@@ -22,4 +22,14 @@ export const BESZEL_SERVER_CONFIG = {
     provider: "Microsoft Azure",
     os: "Ubuntu 22.04",
   },
+  sl7nevxf8gjiu2: {
+    displayName: "Azure US West",
+    location: "US West",
+    region: "North America",
+    flag: "🇺🇸",
+    lat: 37.3382,
+    lon: -121.8863,
+    provider: "Microsoft Azure",
+    os: "Ubuntu 22.04",
+  },
 };
