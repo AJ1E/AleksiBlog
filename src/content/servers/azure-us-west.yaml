@@ -1,8 +1,8 @@
 name: Azure US West
-location: US West
+location: Washington
 region: North America
-flag: "🇺🇸"
-lat: 37.3382
-lon: -121.8863
+flag: US
+lat: 47.6062
+lon: -122.3321
 provider: Microsoft Azure
 beszelId: "sl7nevxf8gjiu2"

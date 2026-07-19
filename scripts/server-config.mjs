@@ -24,11 +24,13 @@ export const BESZEL_SERVER_CONFIG = {
   },
   sl7nevxf8gjiu2: {
     displayName: "Azure US West",
-    location: "US West",
+    location: "Washington",
     region: "North America",
-    flag: "🇺🇸",
-    lat: 37.3382,
-    lon: -121.8863,
+    // Use an explicit ISO country code so the UI never has to infer it from
+    // an emoji when coloring the world map.
+    flag: "US",
+    lat: 47.6062,
+    lon: -122.3321,
     provider: "Microsoft Azure",
     os: "Ubuntu 22.04",
   },

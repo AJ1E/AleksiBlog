@@ -1314,6 +1314,8 @@ const ISO2_TO_NUM: Record<string, number> = {
 const DOT_REGIONS = new Set(["HK", "MO", "SG"]);
 
 function flagToCode(flag: string): string {
+  const directCode = String(flag ?? "").trim().toUpperCase();
+  if (/^[A-Z]{2}$/.test(directCode)) return directCode;
   const pts = [...(flag ?? "")].map((c) => c.codePointAt(0) ?? 0);
   if (pts.length >= 2 && pts[0] >= 0x1f1e6 && pts[0] <= 0x1f1ff) {
     return String.fromCharCode(pts[0] - 0x1f1e6 + 65, pts[1] - 0x1f1e6 + 65);
