@@ -2306,7 +2306,7 @@ function IPWidget({
       <div style={{ padding: "13px 16px", borderBottom: "1px solid var(--border-light)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
           <div style={{ fontSize: 10, fontWeight: 700, color: "var(--text-faint)", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 1 }}>当前访问 IP</div>
-          <div style={{ fontSize: 11, color: "var(--text-muted)" }}>访客公网 · Net.Coffee</div>
+          <div style={{ fontSize: 11, color: "var(--text-muted)" }}>访客公网 · IPinfo + Proxycheck</div>
         </div>
         {snapshot && (
           <Badge color={trustBadgeColor(snapshot.risk.trustLevel)}>{formatTrustLabel(snapshot.risk.trustLevel)}</Badge>
@@ -2391,19 +2391,13 @@ function IPRiskDrawer({
   refreshing: boolean;
 }) {
   const location = snapshot ? formatIpLocation(snapshot) : "";
-  const countryLabel = snapshot
-    ? formatCountryLabel(snapshot.egress.country, snapshot.egress.countryCode)
-    : "";
-  const coloLabel = snapshot
-    ? [snapshot.egress.colo, countryLabel].filter(Boolean).join(" · ")
-    : "";
   const maskedIp = snapshot ? maskIpAddress(snapshot.egress.ip) : "";
   return (
     <Drawer
       open={open}
       onClose={onClose}
       title="当前访问 IP 画像"
-      subtitle="访客公网 · Net.Coffee"
+      subtitle="访客公网 · IPinfo + Proxycheck"
       icon="⌘"
       iconColor="var(--accent-teal)"
       width={560}
@@ -2496,9 +2490,9 @@ function IPRiskDrawer({
                 </div>
                 <div style={{ padding: "12px 14px", background: "var(--bg)", borderRadius: 10, border: "1px solid var(--border-light)" }}>
                   <StatCell
-                    label="Cloudflare 节点"
-                    value={snapshot.egress.colo || coloLabel || "未返回"}
-                    sub={snapshot.egress.loc ? `loc: ${snapshot.egress.loc}` : "trace"}
+                    label="数据服务"
+                    value="IPinfo + Proxycheck"
+                    sub="地区、ASN 与风险信号"
                     mono
                   />
                 </div>
@@ -2561,9 +2555,9 @@ function IPRiskDrawer({
             <SectionLabel>数据来源</SectionLabel>
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {[
-                { label: "Trace", value: snapshot.sources.trace },
-                { label: "GeoIP", value: snapshot.sources.geoip },
-                { label: "Risk", value: snapshot.sources.iprisk },
+                { label: "网络观测", value: snapshot.sources.trace },
+                { label: "地区与 ASN", value: snapshot.sources.geoip },
+                { label: "风险检测", value: snapshot.sources.iprisk },
               ].map((item) => (
                 <div key={item.label} style={{ padding: "12px 14px", background: "var(--bg)", borderRadius: 10, border: "1px solid var(--border-light)" }}>
                   <StatCell label={item.label} value={item.value} mono />

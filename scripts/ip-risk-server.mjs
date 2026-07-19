@@ -19,10 +19,8 @@ const SNAPSHOT_FILE =
   process.env.IP_RISK_SNAPSHOT_FILE ||
   path.join(os.homedir(), ".cache", "kai-space", "ip-risk-egress.json");
 
-const TRACE_URLS = {
-  claude: "https://claude.ai/cdn-cgi/trace",
-  cloudflare: "https://1.1.1.1/cdn-cgi/trace",
-};
+const IPINFO_BASE_URL = "https://ipinfo.io";
+const PROXYCHECK_BASE_URL = "https://proxycheck.io/v3";
 
 let latestSnapshot = await readSnapshot();
 let refreshPromise = null;
@@ -62,7 +60,7 @@ const server = http.createServer(async (req, res) => {
         stale: !latestSnapshot,
         generatedAt: latestSnapshot?.generatedAt || null,
         observedIp: latestSnapshot?.egress?.ip || null,
-        observedVia: latestSnapshot?.observedVia || TRACE_URLS.claude,
+        observedVia: latestSnapshot?.observedVia || IPINFO_BASE_URL,
       });
     }
 
@@ -141,15 +139,16 @@ async function lookupSnapshotForIp(observedIp) {
 }
 
 async function buildVisitorSnapshot(observedIp) {
-  const [geoResult, ipRiskResult] = await Promise.allSettled([
-    fetchJson(`https://ip.net.coffee/api/geoip/${encodeURIComponent(observedIp)}`),
-    fetchJson(`https://ip.net.coffee/api/iprisk/${encodeURIComponent(observedIp)}`),
+  const [ipInfoResult, proxyCheckResult] = await Promise.allSettled([
+    fetchIpInfo(observedIp),
+    fetchProxyCheck(observedIp),
   ]);
 
-  // A provider outage must not turn the visitor card into a 500 response.
-  // The requester's address is still valid, and available fields remain useful.
-  const geo = geoResult.status === "fulfilled" ? geoResult.value : {};
-  const ipRisk = ipRiskResult.status === "fulfilled" ? ipRiskResult.value : {};
+  // Either provider may be temporarily unavailable. Preserve every field that
+  // is available instead of converting a partial upstream outage into a 500.
+  const ipInfo = ipInfoResult.status === "fulfilled" ? ipInfoResult.value : {};
+  const proxyCheck = proxyCheckResult.status === "fulfilled" ? proxyCheckResult.value : {};
+  const { geo, ipRisk } = normalizeProviderData({ observedIp, ipInfo, proxyCheck });
 
   return buildSnapshot({
     observedIp,
@@ -158,6 +157,7 @@ async function buildVisitorSnapshot(observedIp) {
     geo,
     ipRisk,
     observedVia: "visitor-request",
+    sources: providerSources(),
   });
 }
 
@@ -177,13 +177,13 @@ async function refreshIfIpChanged({ reason = "ip-check" } = {}) {
   if (ipCheckPromise) return ipCheckPromise;
 
   ipCheckPromise = (async () => {
-    const traces = await fetchCurrentTraces();
-    const observedIp = getObservedIp(traces);
+    const ipInfo = await fetchIpInfo();
+    const observedIp = normalizeString(ipInfo?.ip);
     if (!observedIp) {
-      throw new Error("Could not detect egress IP from trace endpoints");
+      throw new Error("Could not detect egress IP from IPinfo");
     }
     if (!latestSnapshot || latestSnapshot.egress?.ip !== observedIp) {
-      return refreshSnapshot({ reason, traces });
+      return refreshSnapshot({ reason, ipInfo });
     }
     process.stdout.write(
       `[ip-risk-server] kept cached snapshot (${reason}); egress IP unchanged: ${observedIp}\n`,
@@ -204,28 +204,32 @@ async function refreshIfIpChanged({ reason = "ip-check" } = {}) {
   return ipCheckPromise;
 }
 
-async function refreshSnapshot({ reason = "manual", traces = null } = {}) {
+async function refreshSnapshot({ reason = "manual", ipInfo = null } = {}) {
   if (refreshPromise) return refreshPromise;
 
   refreshPromise = (async () => {
-    const currentTraces = traces || await fetchCurrentTraces();
-    const { claudeTrace, cloudflareTrace } = currentTraces;
-    const observedIp = getObservedIp(currentTraces);
+    const currentIpInfo = ipInfo || await fetchIpInfo();
+    const observedIp = normalizeString(currentIpInfo?.ip);
     if (!observedIp) {
-      throw new Error("Could not detect egress IP from claude.ai trace");
+      throw new Error("Could not detect egress IP from IPinfo");
     }
 
-    const [geo, ipRisk] = await Promise.all([
-      fetchJson(`https://ip.net.coffee/api/geoip/${encodeURIComponent(observedIp)}`),
-      fetchJson(`https://ip.net.coffee/api/iprisk/${encodeURIComponent(observedIp)}`),
-    ]);
+    const [proxyCheckResult] = await Promise.allSettled([fetchProxyCheck(observedIp)]);
+    const proxyCheck = proxyCheckResult.status === "fulfilled" ? proxyCheckResult.value : {};
+    const { geo, ipRisk } = normalizeProviderData({
+      observedIp,
+      ipInfo: currentIpInfo,
+      proxyCheck,
+    });
 
     const snapshot = buildSnapshot({
       observedIp,
-      claudeTrace,
-      cloudflareTrace,
+      claudeTrace: {},
+      cloudflareTrace: {},
       geo,
       ipRisk,
+      observedVia: IPINFO_BASE_URL,
+      sources: providerSources(),
     });
     latestSnapshot = snapshot;
     await writeSnapshot(snapshot);
@@ -248,19 +252,15 @@ async function refreshSnapshot({ reason = "manual", traces = null } = {}) {
   return refreshPromise;
 }
 
-async function fetchCurrentTraces() {
-  const [claudeTrace, cloudflareTrace] = await Promise.all([
-    fetchTrace(TRACE_URLS.claude),
-    fetchTrace(TRACE_URLS.cloudflare),
-  ]);
-  return { claudeTrace, cloudflareTrace };
-}
-
-function getObservedIp({ claudeTrace, cloudflareTrace }) {
-  return claudeTrace?.ip || cloudflareTrace?.ip || "";
-}
-
-function buildSnapshot({ observedIp, claudeTrace = {}, cloudflareTrace = {}, geo, ipRisk, observedVia = TRACE_URLS.claude }) {
+function buildSnapshot({
+  observedIp,
+  claudeTrace = {},
+  cloudflareTrace = {},
+  geo,
+  ipRisk,
+  observedVia = IPINFO_BASE_URL,
+  sources = providerSources(),
+}) {
   const trustScore = normalizeInteger(ipRisk?.trust_score);
   const riskScore = trustScore === null ? null : Math.max(0, 100 - trustScore);
   const attribute = classifyAttribute(ipRisk);
@@ -316,11 +316,72 @@ function buildSnapshot({ observedIp, claudeTrace = {}, cloudflareTrace = {}, geo
       cloudflare: simplifyTrace(cloudflareTrace),
     },
     sources: {
-      geoip: "https://ip.net.coffee/api/geoip/{ip}",
-      iprisk: "https://ip.net.coffee/api/iprisk/{ip}",
-      trace: TRACE_URLS.claude,
+      ...sources,
     },
   };
+}
+
+function providerSources() {
+  return {
+    geoip: "https://ipinfo.io/{ip}/json",
+    iprisk: "https://proxycheck.io/v3/{ip}",
+    trace: "IPinfo + Proxycheck",
+  };
+}
+
+async function fetchIpInfo(ip = "") {
+  const suffix = ip ? `/${encodeURIComponent(ip)}` : "";
+  return fetchJson(`${IPINFO_BASE_URL}${suffix}/json`);
+}
+
+async function fetchProxyCheck(ip) {
+  return fetchJson(`${PROXYCHECK_BASE_URL}/${encodeURIComponent(ip)}?asn=1&vpn=3&risk=1`);
+}
+
+function normalizeProviderData({ observedIp, ipInfo, proxyCheck }) {
+  const record = proxyCheck?.[observedIp] && typeof proxyCheck[observedIp] === "object"
+    ? proxyCheck[observedIp]
+    : {};
+  const network = record.network && typeof record.network === "object" ? record.network : {};
+  const location = record.location && typeof record.location === "object" ? record.location : {};
+  const detections = record.detections && typeof record.detections === "object" ? record.detections : {};
+  const risk = normalizeInteger(detections.risk);
+
+  return {
+    geo: {
+      country: normalizeString(location.country_name) || normalizeString(ipInfo.country),
+      country_code: normalizeString(location.country_code) || normalizeString(ipInfo.country),
+      region: normalizeString(location.region_name) || normalizeString(ipInfo.region),
+      city: normalizeString(location.city_name) || normalizeString(ipInfo.city),
+      isp: normalizeString(network.provider) || normalizeString(ipInfo.org),
+    },
+    ipRisk: {
+      country: normalizeString(location.country_name),
+      countryCode: normalizeString(location.country_code),
+      region: normalizeString(location.region_name),
+      city: normalizeString(location.city_name),
+      timezone: normalizeString(location.timezone) || normalizeString(ipInfo.timezone),
+      asn: parseAsn(network.asn),
+      asOrganization: normalizeString(network.provider) || normalizeString(ipInfo.org),
+      company_name: normalizeString(network.organisation),
+      company_type: normalizeString(network.type),
+      rdns: normalizeString(network.hostname) || normalizeString(ipInfo.hostname),
+      cidr: normalizeString(network.range),
+      trust_score: risk === null ? null : Math.max(0, 100 - risk),
+      rep_threat: risk,
+      is_datacenter: Boolean(detections.hosting),
+      is_vpn: Boolean(detections.vpn),
+      is_proxy: Boolean(detections.proxy),
+      is_tor: Boolean(detections.tor),
+      is_crawler: Boolean(detections.scraper),
+      is_abuser: Boolean(detections.compromised),
+    },
+  };
+}
+
+function parseAsn(value) {
+  const match = String(value || "").match(/\d+/);
+  return match ? Number(match[0]) : null;
 }
 
 function simplifyTrace(trace) {
@@ -370,11 +431,6 @@ function classifyRiskLevel(score) {
   return "low";
 }
 
-async function fetchTrace(url) {
-  const body = await fetchText(url);
-  return parseTrace(body);
-}
-
 async function fetchJson(url) {
   const body = await fetchText(url);
   try {
@@ -398,19 +454,6 @@ async function fetchText(url) {
   } catch (error) {
     throw new Error(`curl failed for ${url}: ${formatErrorMessage(error)}`);
   }
-}
-
-function parseTrace(body) {
-  const pairs = {};
-  for (const line of body.split("\n")) {
-    const idx = line.indexOf("=");
-    if (idx <= 0) continue;
-    const key = line.slice(0, idx).trim();
-    const value = line.slice(idx + 1).trim();
-    if (!key) continue;
-    pairs[key] = value;
-  }
-  return pairs;
 }
 
 async function readSnapshot() {
@@ -461,6 +504,7 @@ function normalizeString(value) {
 }
 
 function normalizeInteger(value) {
+  if (value === null || value === undefined || value === "") return null;
   const numeric = Number(value);
   if (!Number.isFinite(numeric)) return null;
   return Math.round(numeric);
