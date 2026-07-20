@@ -22,8 +22,6 @@ const SNAPSHOT_FILE =
 const IPINFO_BASE_URL = "https://ipinfo.io";
 const PROXYCHECK_BASE_URL = "https://proxycheck.io/v3";
 const NET_COFFEE_BASE_URL = "https://ip.net.coffee/api";
-const AMAP_IP_BASE_URL = "https://restapi.amap.com/v3/ip";
-const AMAP_WEB_SERVICE_KEY = process.env.AMAP_WEB_SERVICE_KEY?.trim() || "";
 const FALLBACK_PROVIDER_TIMEOUT_MS = 2_500;
 
 let latestSnapshot = await readSnapshot();
@@ -324,10 +322,6 @@ async function collectProviderData(observedIp, knownIpInfo = null) {
   const proxyCheck = fulfilledValue(proxyCheckResult);
   const netCoffeeGeo = fulfilledValue(netCoffeeGeoResult);
   const netCoffeeRisk = fulfilledValue(netCoffeeRiskResult);
-  const countryCode = preferredCountryCode({ observedIp, ipInfo, netCoffeeGeo, proxyCheck });
-  const amap = countryCode === "CN" && AMAP_WEB_SERVICE_KEY
-    ? await fetchAmapGeo(observedIp)
-    : {};
 
   const { geo, ipRisk } = normalizeProviderData({
     observedIp,
@@ -335,13 +329,12 @@ async function collectProviderData(observedIp, knownIpInfo = null) {
     proxyCheck,
     netCoffeeGeo,
     netCoffeeRisk,
-    amap,
   });
 
   return {
     geo,
     ipRisk,
-    sources: providerSources({ countryCode, usingAmap: Boolean(amap.city || amap.region) }),
+    sources: providerSources(),
   };
 }
 
@@ -351,14 +344,9 @@ function fulfilledValue(result) {
     : {};
 }
 
-function providerSources({ countryCode = "", usingAmap = false } = {}) {
-  const chinaLocation = countryCode === "CN";
+function providerSources() {
   return {
-    geoip: chinaLocation
-      ? usingAmap
-        ? "高德 IP 定位（中国 IPv4）"
-        : "Net.Coffee / IPinfo（高德未配置或不可用）"
-      : "Net.Coffee / IPinfo",
+    geoip: "Net.Coffee / IPinfo",
     iprisk: "Proxycheck（Net.Coffee 风险回退）",
     trace: "IPinfo（国家、ASN 与运营商）",
   };
@@ -385,43 +373,7 @@ async function fetchNetCoffeeRisk(ip) {
   });
 }
 
-async function fetchAmapGeo(ip) {
-  const params = new URLSearchParams({
-    key: AMAP_WEB_SERVICE_KEY,
-    ip,
-    output: "JSON",
-  });
-
-  try {
-    const result = await fetchJson(`${AMAP_IP_BASE_URL}?${params}`, {
-      timeoutMs: FALLBACK_PROVIDER_TIMEOUT_MS,
-    });
-    if (String(result.status) !== "1") return {};
-    return {
-      country: "China",
-      country_code: "CN",
-      region: normalizeString(result.province),
-      city: normalizeString(result.city),
-    };
-  } catch {
-    // Never log the AMap request URL because it contains the server-only key.
-    return {};
-  }
-}
-
-function preferredCountryCode({ observedIp, ipInfo, netCoffeeGeo, proxyCheck }) {
-  const record = proxyCheck?.[observedIp] && typeof proxyCheck[observedIp] === "object"
-    ? proxyCheck[observedIp]
-    : {};
-  const location = record?.location && typeof record.location === "object" ? record.location : {};
-  return (
-    normalizeCountryCode(ipInfo.country) ||
-    normalizeCountryCode(netCoffeeGeo.country_code) ||
-    normalizeCountryCode(location.country_code)
-  );
-}
-
-function normalizeProviderData({ observedIp, ipInfo, proxyCheck, netCoffeeGeo, netCoffeeRisk, amap }) {
+function normalizeProviderData({ observedIp, ipInfo, proxyCheck, netCoffeeGeo, netCoffeeRisk }) {
   const record = proxyCheck?.[observedIp] && typeof proxyCheck[observedIp] === "object"
     ? proxyCheck[observedIp]
     : {};
@@ -432,23 +384,22 @@ function normalizeProviderData({ observedIp, ipInfo, proxyCheck, netCoffeeGeo, n
   const risk = normalizeInteger(detections.risk) ??
     netCoffeeRiskScore ??
     (netCoffeeTrustScore === null ? null : Math.max(0, 100 - netCoffeeTrustScore));
-  const countryCode = normalizeCountryCode(amap.country_code) ||
-    normalizeCountryCode(ipInfo.country) ||
-    normalizeCountryCode(netCoffeeGeo.country_code);
+  const countryCode = normalizeCountryCode(netCoffeeGeo.country_code) ||
+    normalizeCountryCode(ipInfo.country);
 
   return {
     geo: {
-      country: normalizeString(amap.country) || normalizeString(ipInfo.country) || normalizeString(netCoffeeGeo.country),
+      country: normalizeString(netCoffeeGeo.country) || normalizeString(ipInfo.country),
       country_code: countryCode,
-      region: normalizeString(amap.region) || normalizeString(netCoffeeGeo.region) || normalizeString(ipInfo.region),
-      city: normalizeString(amap.city) || normalizeString(netCoffeeGeo.city) || normalizeString(ipInfo.city),
+      region: normalizeString(netCoffeeGeo.region) || normalizeString(ipInfo.region),
+      city: normalizeString(netCoffeeGeo.city) || normalizeString(ipInfo.city),
       isp: normalizeString(ipInfo.org) || normalizeString(netCoffeeGeo.isp) || normalizeString(network.provider),
     },
     ipRisk: {
-      country: normalizeString(amap.country) || normalizeString(ipInfo.country) || normalizeString(netCoffeeGeo.country),
+      country: normalizeString(netCoffeeGeo.country) || normalizeString(ipInfo.country),
       countryCode,
-      region: normalizeString(amap.region) || normalizeString(netCoffeeGeo.region) || normalizeString(ipInfo.region),
-      city: normalizeString(amap.city) || normalizeString(netCoffeeGeo.city) || normalizeString(ipInfo.city),
+      region: normalizeString(netCoffeeGeo.region) || normalizeString(ipInfo.region),
+      city: normalizeString(netCoffeeGeo.city) || normalizeString(ipInfo.city),
       timezone: normalizeString(ipInfo.timezone) || normalizeString(netCoffeeRisk.timezone),
       asn: parseAsn(network.asn) ?? parseAsn(ipInfo.asn) ?? parseAsn(netCoffeeRisk.asn),
       asOrganization: normalizeString(ipInfo.org) || normalizeString(network.provider) || normalizeString(netCoffeeRisk.asOrganization),
