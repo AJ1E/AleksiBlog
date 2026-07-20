@@ -21,6 +21,10 @@ const SNAPSHOT_FILE =
 
 const IPINFO_BASE_URL = "https://ipinfo.io";
 const PROXYCHECK_BASE_URL = "https://proxycheck.io/v3";
+const NET_COFFEE_BASE_URL = "https://ip.net.coffee/api";
+const AMAP_IP_BASE_URL = "https://restapi.amap.com/v3/ip";
+const AMAP_WEB_SERVICE_KEY = process.env.AMAP_WEB_SERVICE_KEY?.trim() || "";
+const FALLBACK_PROVIDER_TIMEOUT_MS = 2_500;
 
 let latestSnapshot = await readSnapshot();
 let refreshPromise = null;
@@ -139,16 +143,7 @@ async function lookupSnapshotForIp(observedIp) {
 }
 
 async function buildVisitorSnapshot(observedIp) {
-  const [ipInfoResult, proxyCheckResult] = await Promise.allSettled([
-    fetchIpInfo(observedIp),
-    fetchProxyCheck(observedIp),
-  ]);
-
-  // Either provider may be temporarily unavailable. Preserve every field that
-  // is available instead of converting a partial upstream outage into a 500.
-  const ipInfo = ipInfoResult.status === "fulfilled" ? ipInfoResult.value : {};
-  const proxyCheck = proxyCheckResult.status === "fulfilled" ? proxyCheckResult.value : {};
-  const { geo, ipRisk } = normalizeProviderData({ observedIp, ipInfo, proxyCheck });
+  const { geo, ipRisk, sources } = await collectProviderData(observedIp);
 
   return buildSnapshot({
     observedIp,
@@ -157,7 +152,7 @@ async function buildVisitorSnapshot(observedIp) {
     geo,
     ipRisk,
     observedVia: "visitor-request",
-    sources: providerSources(),
+    sources,
   });
 }
 
@@ -214,13 +209,7 @@ async function refreshSnapshot({ reason = "manual", ipInfo = null } = {}) {
       throw new Error("Could not detect egress IP from IPinfo");
     }
 
-    const [proxyCheckResult] = await Promise.allSettled([fetchProxyCheck(observedIp)]);
-    const proxyCheck = proxyCheckResult.status === "fulfilled" ? proxyCheckResult.value : {};
-    const { geo, ipRisk } = normalizeProviderData({
-      observedIp,
-      ipInfo: currentIpInfo,
-      proxyCheck,
-    });
+    const { geo, ipRisk, sources } = await collectProviderData(observedIp, currentIpInfo);
 
     const snapshot = buildSnapshot({
       observedIp,
@@ -229,7 +218,7 @@ async function refreshSnapshot({ reason = "manual", ipInfo = null } = {}) {
       geo,
       ipRisk,
       observedVia: IPINFO_BASE_URL,
-      sources: providerSources(),
+      sources,
     });
     latestSnapshot = snapshot;
     await writeSnapshot(snapshot);
@@ -321,11 +310,57 @@ function buildSnapshot({
   };
 }
 
-function providerSources() {
+async function collectProviderData(observedIp, knownIpInfo = null) {
+  const [ipInfoResult, proxyCheckResult, netCoffeeGeoResult, netCoffeeRiskResult] = await Promise.allSettled([
+    knownIpInfo ? Promise.resolve(knownIpInfo) : fetchIpInfo(observedIp),
+    fetchProxyCheck(observedIp),
+    fetchNetCoffeeGeo(observedIp),
+    fetchNetCoffeeRisk(observedIp),
+  ]);
+
+  // Every provider is optional. A transient upstream failure must not make
+  // the visitor card fail, and Proxycheck must never define the city result.
+  const ipInfo = fulfilledValue(ipInfoResult);
+  const proxyCheck = fulfilledValue(proxyCheckResult);
+  const netCoffeeGeo = fulfilledValue(netCoffeeGeoResult);
+  const netCoffeeRisk = fulfilledValue(netCoffeeRiskResult);
+  const countryCode = preferredCountryCode({ observedIp, ipInfo, netCoffeeGeo, proxyCheck });
+  const amap = countryCode === "CN" && AMAP_WEB_SERVICE_KEY
+    ? await fetchAmapGeo(observedIp)
+    : {};
+
+  const { geo, ipRisk } = normalizeProviderData({
+    observedIp,
+    ipInfo,
+    proxyCheck,
+    netCoffeeGeo,
+    netCoffeeRisk,
+    amap,
+  });
+
   return {
-    geoip: "https://ipinfo.io/{ip}/json",
-    iprisk: "https://proxycheck.io/v3/{ip}",
-    trace: "IPinfo + Proxycheck",
+    geo,
+    ipRisk,
+    sources: providerSources({ countryCode, usingAmap: Boolean(amap.city || amap.region) }),
+  };
+}
+
+function fulfilledValue(result) {
+  return result.status === "fulfilled" && result.value && typeof result.value === "object"
+    ? result.value
+    : {};
+}
+
+function providerSources({ countryCode = "", usingAmap = false } = {}) {
+  const chinaLocation = countryCode === "CN";
+  return {
+    geoip: chinaLocation
+      ? usingAmap
+        ? "高德 IP 定位（中国 IPv4）"
+        : "Net.Coffee / IPinfo（高德未配置或不可用）"
+      : "Net.Coffee / IPinfo",
+    iprisk: "Proxycheck（Net.Coffee 风险回退）",
+    trace: "IPinfo（国家、ASN 与运营商）",
   };
 }
 
@@ -338,45 +373,104 @@ async function fetchProxyCheck(ip) {
   return fetchJson(`${PROXYCHECK_BASE_URL}/${encodeURIComponent(ip)}?asn=1&vpn=3&risk=1`);
 }
 
-function normalizeProviderData({ observedIp, ipInfo, proxyCheck }) {
+async function fetchNetCoffeeGeo(ip) {
+  return fetchJson(`${NET_COFFEE_BASE_URL}/geoip/${encodeURIComponent(ip)}`, {
+    timeoutMs: FALLBACK_PROVIDER_TIMEOUT_MS,
+  });
+}
+
+async function fetchNetCoffeeRisk(ip) {
+  return fetchJson(`${NET_COFFEE_BASE_URL}/iprisk/${encodeURIComponent(ip)}`, {
+    timeoutMs: FALLBACK_PROVIDER_TIMEOUT_MS,
+  });
+}
+
+async function fetchAmapGeo(ip) {
+  const params = new URLSearchParams({
+    key: AMAP_WEB_SERVICE_KEY,
+    ip,
+    output: "JSON",
+  });
+
+  try {
+    const result = await fetchJson(`${AMAP_IP_BASE_URL}?${params}`, {
+      timeoutMs: FALLBACK_PROVIDER_TIMEOUT_MS,
+    });
+    if (String(result.status) !== "1") return {};
+    return {
+      country: "China",
+      country_code: "CN",
+      region: normalizeString(result.province),
+      city: normalizeString(result.city),
+    };
+  } catch {
+    // Never log the AMap request URL because it contains the server-only key.
+    return {};
+  }
+}
+
+function preferredCountryCode({ observedIp, ipInfo, netCoffeeGeo, proxyCheck }) {
+  const record = proxyCheck?.[observedIp] && typeof proxyCheck[observedIp] === "object"
+    ? proxyCheck[observedIp]
+    : {};
+  const location = record?.location && typeof record.location === "object" ? record.location : {};
+  return (
+    normalizeCountryCode(ipInfo.country) ||
+    normalizeCountryCode(netCoffeeGeo.country_code) ||
+    normalizeCountryCode(location.country_code)
+  );
+}
+
+function normalizeProviderData({ observedIp, ipInfo, proxyCheck, netCoffeeGeo, netCoffeeRisk, amap }) {
   const record = proxyCheck?.[observedIp] && typeof proxyCheck[observedIp] === "object"
     ? proxyCheck[observedIp]
     : {};
   const network = record.network && typeof record.network === "object" ? record.network : {};
-  const location = record.location && typeof record.location === "object" ? record.location : {};
   const detections = record.detections && typeof record.detections === "object" ? record.detections : {};
-  const risk = normalizeInteger(detections.risk);
+  const netCoffeeRiskScore = normalizeInteger(netCoffeeRisk.risk_score ?? netCoffeeRisk.risk);
+  const netCoffeeTrustScore = normalizeInteger(netCoffeeRisk.trust_score);
+  const risk = normalizeInteger(detections.risk) ??
+    netCoffeeRiskScore ??
+    (netCoffeeTrustScore === null ? null : Math.max(0, 100 - netCoffeeTrustScore));
+  const countryCode = normalizeCountryCode(amap.country_code) ||
+    normalizeCountryCode(ipInfo.country) ||
+    normalizeCountryCode(netCoffeeGeo.country_code);
 
   return {
     geo: {
-      country: normalizeString(location.country_name) || normalizeString(ipInfo.country),
-      country_code: normalizeString(location.country_code) || normalizeString(ipInfo.country),
-      region: normalizeString(location.region_name) || normalizeString(ipInfo.region),
-      city: normalizeString(location.city_name) || normalizeString(ipInfo.city),
-      isp: normalizeString(network.provider) || normalizeString(ipInfo.org),
+      country: normalizeString(amap.country) || normalizeString(ipInfo.country) || normalizeString(netCoffeeGeo.country),
+      country_code: countryCode,
+      region: normalizeString(amap.region) || normalizeString(netCoffeeGeo.region) || normalizeString(ipInfo.region),
+      city: normalizeString(amap.city) || normalizeString(netCoffeeGeo.city) || normalizeString(ipInfo.city),
+      isp: normalizeString(ipInfo.org) || normalizeString(netCoffeeGeo.isp) || normalizeString(network.provider),
     },
     ipRisk: {
-      country: normalizeString(location.country_name),
-      countryCode: normalizeString(location.country_code),
-      region: normalizeString(location.region_name),
-      city: normalizeString(location.city_name),
-      timezone: normalizeString(location.timezone) || normalizeString(ipInfo.timezone),
-      asn: parseAsn(network.asn),
-      asOrganization: normalizeString(network.provider) || normalizeString(ipInfo.org),
-      company_name: normalizeString(network.organisation),
-      company_type: normalizeString(network.type),
-      rdns: normalizeString(network.hostname) || normalizeString(ipInfo.hostname),
-      cidr: normalizeString(network.range),
+      country: normalizeString(amap.country) || normalizeString(ipInfo.country) || normalizeString(netCoffeeGeo.country),
+      countryCode,
+      region: normalizeString(amap.region) || normalizeString(netCoffeeGeo.region) || normalizeString(ipInfo.region),
+      city: normalizeString(amap.city) || normalizeString(netCoffeeGeo.city) || normalizeString(ipInfo.city),
+      timezone: normalizeString(ipInfo.timezone) || normalizeString(netCoffeeRisk.timezone),
+      asn: parseAsn(network.asn) ?? parseAsn(ipInfo.asn) ?? parseAsn(netCoffeeRisk.asn),
+      asOrganization: normalizeString(ipInfo.org) || normalizeString(network.provider) || normalizeString(netCoffeeRisk.asOrganization),
+      company_name: normalizeString(network.organisation) || normalizeString(netCoffeeRisk.company_name),
+      company_type: normalizeString(network.type) || normalizeString(netCoffeeRisk.company_type) || normalizeString(netCoffeeRisk.asn_kind),
+      rdns: normalizeString(network.hostname) || normalizeString(ipInfo.hostname) || normalizeString(netCoffeeRisk.rdns),
+      cidr: normalizeString(network.range) || normalizeString(netCoffeeRisk.cidr),
       trust_score: risk === null ? null : Math.max(0, 100 - risk),
       rep_threat: risk,
-      is_datacenter: Boolean(detections.hosting),
-      is_vpn: Boolean(detections.vpn),
-      is_proxy: Boolean(detections.proxy),
-      is_tor: Boolean(detections.tor),
-      is_crawler: Boolean(detections.scraper),
-      is_abuser: Boolean(detections.compromised),
+      is_datacenter: Boolean(detections.hosting || netCoffeeRisk.is_datacenter),
+      is_vpn: Boolean(detections.vpn || netCoffeeRisk.is_vpn),
+      is_proxy: Boolean(detections.proxy || netCoffeeRisk.is_proxy),
+      is_tor: Boolean(detections.tor || netCoffeeRisk.is_tor),
+      is_crawler: Boolean(detections.scraper || netCoffeeRisk.is_crawler),
+      is_abuser: Boolean(detections.compromised || netCoffeeRisk.is_abuser),
     },
   };
+}
+
+function normalizeCountryCode(value) {
+  const code = normalizeString(value).toUpperCase();
+  return /^[A-Z]{2}$/.test(code) ? code : "";
 }
 
 function parseAsn(value) {
@@ -431,8 +525,8 @@ function classifyRiskLevel(score) {
   return "low";
 }
 
-async function fetchJson(url) {
-  const body = await fetchText(url);
+async function fetchJson(url, options = {}) {
+  const body = await fetchText(url, options);
   try {
     return JSON.parse(body);
   } catch (error) {
@@ -440,11 +534,12 @@ async function fetchJson(url) {
   }
 }
 
-async function fetchText(url) {
+async function fetchText(url, { timeoutMs = 12_000 } = {}) {
   try {
+    const timeoutSeconds = Math.max(1, timeoutMs / 1000).toFixed(1);
     const { stdout } = await execFileAsync(
       "curl",
-      ["-L", "-sS", "--connect-timeout", "5", "--max-time", "12", url],
+      ["-L", "-sS", "--connect-timeout", timeoutSeconds, "--max-time", timeoutSeconds, url],
       {
         env: process.env,
         maxBuffer: 1024 * 1024,

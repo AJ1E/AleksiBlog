@@ -2308,7 +2308,7 @@ function IPWidget({
       <div style={{ padding: "13px 16px", borderBottom: "1px solid var(--border-light)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
           <div style={{ fontSize: 10, fontWeight: 700, color: "var(--text-faint)", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 1 }}>当前访问 IP</div>
-          <div style={{ fontSize: 11, color: "var(--text-muted)" }}>访客公网 · IPinfo + Proxycheck</div>
+          <div style={{ fontSize: 11, color: "var(--text-muted)" }}>访客公网 · 分层 IP 画像</div>
         </div>
         {snapshot && (
           <Badge color={trustBadgeColor(snapshot.risk.trustLevel)}>{formatTrustLabel(snapshot.risk.trustLevel)}</Badge>
@@ -2399,7 +2399,7 @@ function IPRiskDrawer({
       open={open}
       onClose={onClose}
       title="当前访问 IP 画像"
-      subtitle="访客公网 · IPinfo + Proxycheck"
+      subtitle="访客公网 · 分层 IP 画像"
       icon="⌘"
       iconColor="var(--accent-teal)"
       width={560}
@@ -2493,8 +2493,8 @@ function IPRiskDrawer({
                 <div style={{ padding: "12px 14px", background: "var(--bg)", borderRadius: 10, border: "1px solid var(--border-light)" }}>
                   <StatCell
                     label="数据服务"
-                    value="IPinfo + Proxycheck"
-                    sub="地区、ASN 与风险信号"
+                    value={snapshot.sources.geoip}
+                    sub="IP 出口地区，仅供参考"
                     mono
                   />
                 </div>
@@ -2557,8 +2557,8 @@ function IPRiskDrawer({
             <SectionLabel>数据来源</SectionLabel>
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {[
-                { label: "网络观测", value: snapshot.sources.trace },
-                { label: "地区与 ASN", value: snapshot.sources.geoip },
+                { label: "网络归属", value: snapshot.sources.trace },
+                { label: "地区定位", value: snapshot.sources.geoip },
                 { label: "风险检测", value: snapshot.sources.iprisk },
               ].map((item) => (
                 <div key={item.label} style={{ padding: "12px 14px", background: "var(--bg)", borderRadius: 10, border: "1px solid var(--border-light)" }}>
