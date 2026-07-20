@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { getBackendBase } from "../../../lib/bff";
+import { getBackendBase, maskIp } from "../../../lib/bff";
 
 export const prerender = false;
 
@@ -33,14 +33,8 @@ export const GET: APIRoute = async ({ request }) => {
         200,
       );
     }
-    const body = await response.text();
-    return new Response(body, {
-      status: response.status,
-      headers: {
-        "content-type": response.headers.get("content-type") || "application/json; charset=utf-8",
-        "cache-control": "no-store",
-      },
-    });
+    const body = await response.json();
+    return json(stripVisitorIpRisk(body), response.status);
   } catch {
     return json(
       {
@@ -52,6 +46,32 @@ export const GET: APIRoute = async ({ request }) => {
     );
   }
 };
+
+function stripVisitorIpRisk(body: unknown): unknown {
+  if (!body || typeof body !== "object") return body;
+  const snapshot = body as Record<string, any>;
+
+  return {
+    ...snapshot,
+    egress: snapshot.egress
+      ? { ...snapshot.egress, ip: maskIp(snapshot.egress.ip) }
+      : snapshot.egress,
+    network: snapshot.network
+      ? { ...snapshot.network, rdns: null, cidr: null }
+      : snapshot.network,
+    traces: snapshot.traces
+      ? {
+          claude: snapshot.traces.claude
+            ? { ...snapshot.traces.claude, ip: maskIp(snapshot.traces.claude.ip) }
+            : snapshot.traces.claude,
+          cloudflare: snapshot.traces.cloudflare
+            ? { ...snapshot.traces.cloudflare, ip: maskIp(snapshot.traces.cloudflare.ip) }
+            : snapshot.traces.cloudflare,
+        }
+      : snapshot.traces,
+    locked: { fullIp: true, rdns: true, cidr: true },
+  };
+}
 
 function getVisitorIp(headers: Headers): string {
   // Nginx overwrites X-Real-IP with the TCP peer address. Never trust a
