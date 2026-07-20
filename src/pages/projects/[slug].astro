@@ -25,6 +25,31 @@ const { Content } = await render(project);
 const d = project.data;
 const initial = d.initial ?? d.name.slice(0, 2);
 
+const coverMeaningById: Record<string, { abbreviation: string; fullName: string; meaning: string }> = {
+  "personal-dashboard": {
+    abbreviation: "DASH",
+    fullName: "Dashboard",
+    meaning: "个人工作台"
+  },
+  "content-system": {
+    abbreviation: "CMS",
+    fullName: "Content Management System",
+    meaning: "内容管理系统"
+  },
+  "self-hosting-lab": {
+    abbreviation: "OPS",
+    fullName: "Operations",
+    meaning: "本地服务与监控"
+  },
+  "personal-blog-workspace": {
+    abbreviation: "BLOG",
+    fullName: "Blog & Workspace",
+    meaning: "个人博客与工作台"
+  }
+};
+
+const coverMeaning = coverMeaningById[project.id];
+
 const statusLabel: Record<string, string> = {
   ongoing: "进行中",
   experimental: "实验",
@@ -50,6 +75,13 @@ const linkTypeLabel: Record<string, string> = {
         <ProjectVisual id={project.id} label={initial} title={d.title ?? d.name} pattern={d.pattern} />
       </div>
       <div class="project-detail__heading">
+        {coverMeaning && (
+          <p class="project-detail__cover-key" aria-label={`${coverMeaning.abbreviation}: ${coverMeaning.fullName}, ${coverMeaning.meaning}`}>
+            <strong>{coverMeaning.abbreviation}</strong>
+            <span>{coverMeaning.fullName}</span>
+            <span>{coverMeaning.meaning}</span>
+          </p>
+        )}
         <div class="article-archive-header__eyebrow">
           <span class="article-archive-header__line"></span>
           {d.category} · {d.year}

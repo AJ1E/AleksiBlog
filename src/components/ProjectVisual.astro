@@ -1,5 +1,5 @@
 ---
-type VisualKind = "molecules" | "tooling" | "reaction" | "porous" | "lattice" | "network" | "coding" | "default";
+type VisualKind = "dashboard" | "content" | "lab" | "blog" | "molecules" | "tooling" | "reaction" | "porous" | "lattice" | "network" | "coding" | "default";
 
 interface Props {
   id: string;
@@ -11,6 +11,10 @@ interface Props {
 const { id, label, title, pattern = "grid" } = Astro.props;
 const safeId = id.replace(/[^a-zA-Z0-9_-]/g, "-");
 const visualById: Record<string, VisualKind> = {
+  "personal-dashboard": "dashboard",
+  "content-system": "content",
+  "self-hosting-lab": "lab",
+  "personal-blog-workspace": "blog",
   "co2-eor-md": "molecules",
   "ai-tools-log": "tooling",
   "lammps-reactor": "reaction",
@@ -19,9 +23,28 @@ const visualById: Record<string, VisualKind> = {
   "network-tuning": "network",
   "vibe-coding": "coding"
 };
+const coverCopyById: Record<string, { label: string; mark: string }> = {
+  "personal-dashboard": {
+    label: "DASH",
+    mark: "PRIVATE OPERATIONS PANEL"
+  },
+  "content-system": {
+    label: "CMS",
+    mark: "STRUCTURED CONTENT FLOW"
+  },
+  "self-hosting-lab": {
+    label: "OPS",
+    mark: "LOCAL SERVICES · MONITORING"
+  },
+  "personal-blog-workspace": {
+    label: "BLOG",
+    mark: "PERSONAL KNOWLEDGE SPACE"
+  }
+};
 const visual = visualById[id] ?? "default";
-const shortLabel = label.length > 4 ? label.slice(0, 4) : label;
-const mark = title ?? label;
+const coverCopy = coverCopyById[id];
+const shortLabel = coverCopy?.label ?? (label.length > 4 ? label.slice(0, 4) : label);
+const mark = coverCopy?.mark ?? title ?? label;
 ---
 
 <svg
@@ -94,6 +117,55 @@ const mark = title ?? label;
         <circle class="project-visual__product project-visual__product-a" cx="510" cy="162" r="34" />
         <circle class="project-visual__product project-visual__product-b" cx="518" cy="266" r="42" />
         <path class="project-visual__reaction-bonds" d="M166 178 L232 252 M510 162 L518 266" />
+      </g>
+    )}
+
+    {visual === "dashboard" && (
+      <g class="project-visual__motif project-visual__motif-dashboard">
+        <rect class="project-visual__dashboard-frame" x="116" y="92" width="408" height="250" rx="34" />
+        <rect class="project-visual__dashboard-stat project-visual__dashboard-stat-a" x="158" y="132" width="76" height="62" rx="14" />
+        <rect class="project-visual__dashboard-stat project-visual__dashboard-stat-b" x="260" y="132" width="76" height="62" rx="14" />
+        <rect class="project-visual__dashboard-stat project-visual__dashboard-stat-c" x="362" y="132" width="76" height="62" rx="14" />
+        <path class="project-visual__dashboard-chart" d="M160 286 C212 252 244 302 294 240 S382 290 470 218" />
+        <circle class="project-visual__dashboard-dot project-visual__dashboard-dot-a" cx="160" cy="286" r="11" />
+        <circle class="project-visual__dashboard-dot project-visual__dashboard-dot-b" cx="294" cy="240" r="11" />
+        <circle class="project-visual__dashboard-dot project-visual__dashboard-dot-c" cx="470" cy="218" r="11" />
+      </g>
+    )}
+
+    {visual === "content" && (
+      <g class="project-visual__motif project-visual__motif-content">
+        <path class="project-visual__content-folder" d="M128 152 H286 L316 184 V306 H128 Z" />
+        <path class="project-visual__content-tab" d="M128 152 H208 L232 184 H128 Z" />
+        <rect class="project-visual__content-file project-visual__content-file-a" x="346" y="122" width="136" height="82" rx="14" />
+        <rect class="project-visual__content-file project-visual__content-file-b" x="346" y="224" width="136" height="82" rx="14" />
+        <path class="project-visual__content-flow" d="M196 230 H314 C334 230 334 164 346 164 M314 230 C334 230 334 264 346 264" />
+        <path class="project-visual__content-lines" d="M170 218 H264 M170 250 H246 M370 152 H446 M370 254 H446 M370 280 H426" />
+      </g>
+    )}
+
+    {visual === "lab" && (
+      <g class="project-visual__motif project-visual__motif-lab">
+        <rect class="project-visual__lab-rack project-visual__lab-rack-a" x="154" y="116" width="120" height="192" rx="24" />
+        <rect class="project-visual__lab-rack project-visual__lab-rack-b" x="366" y="116" width="120" height="192" rx="24" />
+        <path class="project-visual__lab-heartbeat" d="M294 224 H326 L344 178 L366 270 L388 224 H510" />
+        <circle class="project-visual__lab-light project-visual__lab-light-a" cx="186" cy="158" r="9" />
+        <circle class="project-visual__lab-light project-visual__lab-light-b" cx="186" cy="208" r="9" />
+        <circle class="project-visual__lab-light project-visual__lab-light-c" cx="186" cy="258" r="9" />
+        <circle class="project-visual__lab-light project-visual__lab-light-d" cx="398" cy="158" r="9" />
+        <circle class="project-visual__lab-light project-visual__lab-light-e" cx="398" cy="208" r="9" />
+        <circle class="project-visual__lab-light project-visual__lab-light-f" cx="398" cy="258" r="9" />
+      </g>
+    )}
+
+    {visual === "blog" && (
+      <g class="project-visual__motif project-visual__motif-blog">
+        <rect class="project-visual__blog-window" x="112" y="104" width="416" height="224" rx="34" />
+        <circle class="project-visual__blog-chip project-visual__blog-chip-a" cx="156" cy="142" r="9" />
+        <circle class="project-visual__blog-chip project-visual__blog-chip-b" cx="184" cy="142" r="9" />
+        <circle class="project-visual__blog-chip project-visual__blog-chip-c" cx="212" cy="142" r="9" />
+        <path class="project-visual__blog-heading" d="M158 194 H406 M158 230 H354 M158 266 H446" />
+        <path class="project-visual__blog-bookmark" d="M460 176 V254 L430 232 L400 254 V176 Z" />
       </g>
     )}
 

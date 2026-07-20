@@ -1,23 +1,24 @@
 ---
-name: Content System
-title: File-driven Content
-summary: Structured MDX and YAML collections for posts, projects, subscriptions, APIs, and servers.
-category: Content
+name: 内容管理系统
+title: 文章、笔记与项目的内容组织
+summary: 通过结构化 Markdown 与数据文件管理文章、笔记、项目、订阅和服务器信息。
+category: 内容系统
 status: ongoing
 year: "2026"
 tags:
-  - MDX
-  - YAML
+  - 文章管理
+  - 笔记同步
+  - 内容集合
 accent: teal
 pattern: dots
-initial: CS
+initial: 内容
 featured: false
 order: 20
 links:
   - type: doc
-    href: /blog/welcome-to-kai-space/
-    label: Starter post
+    href: /blog/
+    label: 查看文章
 draft: false
 ---
 
-Astro validates each collection through `src/content.config.ts`.
+内容集合会在构建时校验字段，让文章和项目资料保持清晰、可维护。

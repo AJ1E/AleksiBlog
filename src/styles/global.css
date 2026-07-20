@@ -4766,6 +4766,103 @@ html[data-theme="dark"] .project-visual {
   animation: pvProductPulse 1.4s ease-in-out infinite;
 }
 
+/* Personal dashboard: statistics pulse while a line chart updates. */
+.project-card:is(:hover, :focus-visible, :active) .project-visual__motif-dashboard .project-visual__dashboard-frame,
+.project-detail__cover:is(:hover, :active) .project-visual__motif-dashboard .project-visual__dashboard-frame {
+  animation: pvPanelLift 1.7s ease-in-out infinite;
+}
+
+.project-card:is(:hover, :focus-visible, :active) .project-visual__motif-dashboard .project-visual__dashboard-stat,
+.project-detail__cover:is(:hover, :active) .project-visual__motif-dashboard .project-visual__dashboard-stat {
+  animation: pvMetricRise 1.7s ease-in-out infinite;
+}
+
+.project-visual__motif-dashboard .project-visual__dashboard-stat-b { animation-delay: 0.16s; }
+.project-visual__motif-dashboard .project-visual__dashboard-stat-c { animation-delay: 0.32s; }
+
+.project-card:is(:hover, :focus-visible, :active) .project-visual__motif-dashboard .project-visual__dashboard-chart,
+.project-detail__cover:is(:hover, :active) .project-visual__motif-dashboard .project-visual__dashboard-chart {
+  stroke-dasharray: 38 16;
+  animation: pvDashFlow 1.1s linear infinite;
+}
+
+.project-card:is(:hover, :focus-visible, :active) .project-visual__motif-dashboard .project-visual__dashboard-dot,
+.project-detail__cover:is(:hover, :active) .project-visual__motif-dashboard .project-visual__dashboard-dot {
+  animation: pvNodePulse 1.25s ease-in-out infinite;
+}
+
+.project-visual__motif-dashboard .project-visual__dashboard-dot-b { animation-delay: 0.18s; }
+.project-visual__motif-dashboard .project-visual__dashboard-dot-c { animation-delay: 0.36s; }
+
+/* Content system: files drift in while the collection path carries data. */
+.project-card:is(:hover, :focus-visible, :active) .project-visual__motif-content .project-visual__content-folder,
+.project-detail__cover:is(:hover, :active) .project-visual__motif-content .project-visual__content-folder {
+  animation: pvFolderFloat 1.8s ease-in-out infinite;
+}
+
+.project-card:is(:hover, :focus-visible, :active) .project-visual__motif-content .project-visual__content-file,
+.project-detail__cover:is(:hover, :active) .project-visual__motif-content .project-visual__content-file {
+  animation: pvFileSlide 1.6s ease-in-out infinite;
+}
+
+.project-visual__motif-content .project-visual__content-file-b { animation-delay: 0.18s; }
+
+.project-card:is(:hover, :focus-visible, :active) .project-visual__motif-content .project-visual__content-flow,
+.project-detail__cover:is(:hover, :active) .project-visual__motif-content .project-visual__content-flow {
+  stroke-dasharray: 24 16;
+  animation: pvDashFlow 0.9s linear infinite;
+}
+
+/* Self-hosting: status lights sequence and a heartbeat moves across the racks. */
+.project-card:is(:hover, :focus-visible, :active) .project-visual__motif-lab .project-visual__lab-rack,
+.project-detail__cover:is(:hover, :active) .project-visual__motif-lab .project-visual__lab-rack {
+  animation: pvRackBreath 1.8s ease-in-out infinite;
+}
+
+.project-visual__motif-lab .project-visual__lab-rack-b { animation-delay: 0.2s; }
+
+.project-card:is(:hover, :focus-visible, :active) .project-visual__motif-lab .project-visual__lab-heartbeat,
+.project-detail__cover:is(:hover, :active) .project-visual__motif-lab .project-visual__lab-heartbeat {
+  stroke-dasharray: 34 16;
+  animation: pvDashFlow 0.8s linear infinite;
+}
+
+.project-card:is(:hover, :focus-visible, :active) .project-visual__motif-lab .project-visual__lab-light,
+.project-detail__cover:is(:hover, :active) .project-visual__motif-lab .project-visual__lab-light {
+  animation: pvStatusBlink 1.45s ease-in-out infinite;
+}
+
+.project-visual__motif-lab .project-visual__lab-light-b { animation-delay: 0.12s; }
+.project-visual__motif-lab .project-visual__lab-light-c { animation-delay: 0.24s; }
+.project-visual__motif-lab .project-visual__lab-light-d { animation-delay: 0.36s; }
+.project-visual__motif-lab .project-visual__lab-light-e { animation-delay: 0.48s; }
+.project-visual__motif-lab .project-visual__lab-light-f { animation-delay: 0.6s; }
+
+/* Personal blog: article lines scan while the bookmark marks a saved page. */
+.project-card:is(:hover, :focus-visible, :active) .project-visual__motif-blog .project-visual__blog-window,
+.project-detail__cover:is(:hover, :active) .project-visual__motif-blog .project-visual__blog-window {
+  animation: pvPanelLift 1.8s ease-in-out infinite;
+}
+
+.project-card:is(:hover, :focus-visible, :active) .project-visual__motif-blog .project-visual__blog-heading,
+.project-detail__cover:is(:hover, :active) .project-visual__motif-blog .project-visual__blog-heading {
+  stroke-dasharray: 82 20;
+  animation: pvDashFlow 1.25s linear infinite;
+}
+
+.project-card:is(:hover, :focus-visible, :active) .project-visual__motif-blog .project-visual__blog-bookmark,
+.project-detail__cover:is(:hover, :active) .project-visual__motif-blog .project-visual__blog-bookmark {
+  animation: pvBookmarkSway 1.5s ease-in-out infinite;
+}
+
+.project-card:is(:hover, :focus-visible, :active) .project-visual__motif-blog .project-visual__blog-chip,
+.project-detail__cover:is(:hover, :active) .project-visual__motif-blog .project-visual__blog-chip {
+  animation: pvChipBlink 1.5s ease-in-out infinite;
+}
+
+.project-visual__motif-blog .project-visual__blog-chip-b { animation-delay: 0.16s; }
+.project-visual__motif-blog .project-visual__blog-chip-c { animation-delay: 0.32s; }
+
 /* PoreMS: porous body breathes while channel flow moves through it. */
 .project-card:is(:hover, :focus-visible, :active) .project-visual__motif-porous .project-visual__pore-shell,
 .project-detail__cover:is(:hover, :active) .project-visual__motif-porous .project-visual__pore-shell {
@@ -4951,6 +5048,36 @@ html[data-theme="dark"] .project-visual {
 @keyframes pvSlashCut {
   0%, 100% { transform: rotate(0deg) scaleY(1); }
   50% { transform: rotate(4deg) scaleY(1.08); }
+}
+
+@keyframes pvMetricRise {
+  0%, 100% { transform: translateY(0) scaleY(1); }
+  50% { transform: translateY(-5px) scaleY(1.08); }
+}
+
+@keyframes pvFolderFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-6px) rotate(-1.2deg); }
+}
+
+@keyframes pvFileSlide {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(9px); }
+}
+
+@keyframes pvRackBreath {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-4px) scale(1.02); }
+}
+
+@keyframes pvStatusBlink {
+  0%, 100% { opacity: 0.48; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.25); }
+}
+
+@keyframes pvBookmarkSway {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  50% { transform: rotate(4deg) translateY(-5px); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -5360,6 +5487,30 @@ html[data-theme="dark"] .project-visual {
   flex-direction: column;
   justify-content: center;
   gap: 18px;
+}
+
+.project-detail__cover-key {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.45rem;
+  margin: 0;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  line-height: 1.4;
+  letter-spacing: 0.04em;
+}
+
+.project-detail__cover-key strong {
+  color: var(--p-accent);
+  font-size: 0.88rem;
+}
+
+.project-detail__cover-key span:last-child {
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  letter-spacing: 0;
 }
 
 .project-detail__title {

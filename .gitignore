@@ -19,6 +19,7 @@ dist/
 *.jsonl
 snapshots/
 local/
+--json
 
 .DS_Store
 *.log

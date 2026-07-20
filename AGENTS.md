@@ -24,6 +24,7 @@ When starting a new main Codex task, also read `docs/handover-main-codex.md`. Ex
 - Blog posts in `src/content/blog/`.
 - Public notes synced from `AJ1E/ObsdianNotes` into `.cache/notes/content/` by `scripts/sync-notes.mjs`.
 - Projects in `src/content/projects/`.
+- For new or revised projects, follow `docs/writing-projects.md`: use a unique English-only SVG cover with lightweight hover/focus motion, and explain the cover abbreviation in the first line of the project detail page.
 - About page content.
 - Demo YAML data under `src/content/subscriptions/`, `src/content/apis/`, and `src/content/servers/`.
 
